@@ -4,7 +4,7 @@
 	"repositories": [
         	{
             	"type": "vcs",
-            	"url": "https://github.com/feedaty/Magento2.git"
+            	"url": "https://github.com/feedaty/Feedaty_Badge-Magento2.git"
        	 	}
     	],
 	"authors": [
