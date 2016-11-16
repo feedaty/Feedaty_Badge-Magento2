@@ -4,7 +4,7 @@
 	"repositories": [
         	{
             	"type": "vcs",
-            	"url": "http://vps90149.vps.ovh.ca:8081/swertyumn/Feedaty.git"
+            	"url": "https://github.com/feedaty/Magento2.git"
        	 	}
     	],
 	"authors": [
