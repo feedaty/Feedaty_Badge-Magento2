@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+	<widget id="badge_product_reviews" class="Feedaty\Badge\Block\Product">
+		    <label>Feedaty Widget Product</label>
+        	<description>Adds the Feedaty Widget for Products</description>
+	</widget>
+</widgets>
