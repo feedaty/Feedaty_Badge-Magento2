@@ -55,17 +55,26 @@ We suggest to set all Magento default module enabled
 
 Login with Magento 2 filesystem owner before enter below commands:
 
-1. Add https://packagist.org in your project repositories
+1. type 
+```bash
+ # cd /var/www/path/to/your/magento-root-dir
+```
+2. now type
+```bash
+ # composer require feedaty/module-badge2
+```
+<b>In case of issues you can also add packagist to your project repositories:<b>
+
+1. Add https://packagist.org to your project repositories in composer.json
 
 2. type 
 ```bash
  # cd /var/www/path/to/your/magento-root-dir
 ```
-
 3. now type
 ```bash
  # composer require feedaty/module-badge2
-```
+
 
 <h3>DOWNLOAD AND INSTALL FROM MAGENTO MARKETPLACE</h3>	
 
