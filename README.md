@@ -1,4 +1,4 @@
-<h1 style="color:red">### FEEDATY BADGE</h1>
+<h1 style="color:red">FEEDATY BADGE</h1>
 ---------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------
 Feedaty ti consente la gestione professionale
@@ -6,7 +6,7 @@ di feedback e opinioni certificate dei tuoi clienti,
 migliorando il tuo posizionamento,
 la tua reputazione e le tue vendite online.
 
-<h3>### REQUIRED MAGENTO MODULES</h3>
+<h3>REQUIRED MAGENTO MODULES</h3>
 
 magento/framework: 					100.0.* .
 
@@ -42,16 +42,16 @@ magento/module-translation			100.0.* .
 
 magento/module-widget				100.0.* .
 
-<h3>### REQUIRED SERVER CONFIGURATIONS</h3>
+<h3>REQUIRED SERVER CONFIGURATIONS</h3>
 
 - php >=5.5.38 | ~php 5.6.* | php ~7.0.0
 - php-curl 
 
 ---------------------------------------------------------------------------------------------------------------------
-<h2>### INSTALL FEEDATY MODULE</h2>
+<h2>INSTALL FEEDATY MODULE</h2>
 ---------------------------------------------------------------------------------------------------------------------
 
-<h3>## Download and Install with Composer</h3>
+<h3>Download and Install with Composer</h3>
 
 1) Insert https://packagist.org in your project repositories
 
@@ -69,10 +69,10 @@ magento/module-widget				100.0.* .
 
 
 ---------------------------------------------------------------------------------------------------------------------
-<h2>### ENABLE FEEDATY MODULE</h2>
+<h2>ENABLE FEEDATY MODULE</h2>
 ---------------------------------------------------------------------------------------------------------------------
 
-<h3>## Enable Feedaty module from backend</h3>
+<h3>Enable Feedaty module from backend</h3>
 
 1st) Move Feedaty directory in path/to/your/magento-root-dir/app/code/
 
@@ -106,7 +106,7 @@ or if your server run on Debian/Ubuntu:
 
  to let apache get the permission to write cache.
 
-<h3>## Enable Feedaty module from Magento consolle</h3>
+<h3>Enable Feedaty module from Magento consolle</h3>
 
 1st) Move Feedaty directory in path/to/your/magento-root-dir/app/code/
 
@@ -125,7 +125,7 @@ or if your server run on Debian/Ubuntu:
  because magento can't write cache in var directory.
 
 ----------------------------------------------------------------------------------------------------------------------
-<h2>### SETUP/CONFIG FEEDATY WIDGETS</h2>
+<h2>SETUP/CONFIG FEEDATY WIDGETS</h2>
 ----------------------------------------------------------------------------------------------------------------------
 
 To setup Feedaty Widgets follow these steps;
@@ -141,14 +141,14 @@ To setup Feedaty Widgets follow these steps;
 5th) check in other scopes, the configurations must works on the store scope.
 
 -----------------------------------------------------------------------------------------------------------------------
-<h2>### DISABLE FEEDATY MODULE</h2>
+<h2>DISABLE FEEDATY MODULE</h2>
 -----------------------------------------------------------------------------------------------------------------------
 
-<h3>## Disable feedaty module from backend</h3>
+<h3>Disable feedaty module from backend</h3>
 
 same procedure like enabling, when you arrive in "component manager", select "Disable" and save your configuration.
 
-<h3>## Disable feedaty module from Magento Consolle.</h3>
+<h3>Disable feedaty module from Magento Consolle.</h3>
 
 1st) login with the own of the magento installation, after you must enter below commands:
 ```bash
@@ -165,7 +165,7 @@ If you append "--clear-static-contents" don't forget to run
  # bin/magento setup:static-content:deploy
 
 ------------------------------------------------------------------------------------------------------------------------
-<h2>### INFOS AND CONTACTS </h2>
+<h2>INFOS AND CONTACTS </h2>
 ------------------------------------------------------------------------------------------------------------------------
 
 Websites:
@@ -176,7 +176,7 @@ E-Mail:
 info@feedaty.com
 
 ------------------------------------------------------------------------------------------------------------------------
-<h2>### LICENSE</h2>
+<h2>LICENSE</h2>
 ------------------------------------------------------------------------------------------------------------------------
 
 
