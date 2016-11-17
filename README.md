@@ -51,7 +51,7 @@ We suggest to set all Magento default module enabled
 
 <h3>DOWNLOAD AND INSTALL WITH COMPOSER</h3>
 
-Login with the owner of the magento installation, after you must enter below commands:
+Login with Magento 2 filesystem owner before enter below commands:
 
 1. Add https://packagist.org in your project repositories
 
@@ -106,7 +106,7 @@ For Debian/Ubuntu users.
 <h3>ENABLE MODULE FROM MAGENTO CONSOLLE</h3>
 
 
-Login with the owner of the magento installation, after you must enter below commands:
+Login with Magento 2 filesystem owner before enter below commands:
 
 ```bash
  # cd /var/www/path/to/your/magento-root-dir
@@ -141,11 +141,11 @@ To setup Feedaty Widgets follow these steps;
 
 <h3>Disable feedaty module from backend</h3>
 
-same procedure like enabling, when you arrive in "component manager", select "Disable" and save your configuration.
+Go to "component manager" in the web setup wizard, select "Disable" on your moudule and save your configuration.
 
 <h3>Disable feedaty module from Magento Consolle.</h3>
 
-Login with the owner of the magento installation, after you must enter below commands:
+Login with Magento 2 filesystem owner before enter below commands:
 
 ```bash
  # cd /var/www/path/to/your/magento-root-dir
