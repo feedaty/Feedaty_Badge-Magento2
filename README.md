@@ -61,7 +61,7 @@ Login with Magento 2 filesystem owner before enter below commands:
 ```
 
 3. now type
- ```bash
+```bash
  # composer require feedaty/module-badge2
 ```
 
@@ -155,8 +155,10 @@ Login with Magento 2 filesystem owner before enter below commands:
 to clear static contents you can append "--clear-static-contents" in module:disable command
 If you append "--clear-static-contents" don't forget to run
 
+```bash
  # bin/magento setup:di:compile
  # bin/magento setup:static-content:deploy
+```
 
 ------------------------------------------------------------------------------------------------------------------------
 <h2>INFOS AND CONTACTS </h2>
