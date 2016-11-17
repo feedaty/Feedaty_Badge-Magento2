@@ -10,8 +10,6 @@ The service is provided through a platform Saas (Software as a Service) and may 
 
 <h3>REQUIRED MAGENTO MODULES</h3>
 
-- magento/framework: 					100.0.* 
-
 - magento/module-store: 				100.0.* 
 
 - magento/module-catalog: 				100.0.* 
