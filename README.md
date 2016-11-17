@@ -1,4 +1,4 @@
-### FEEDATY BADGE
+<h1 style="color:red">### FEEDATY BADGE</h1>
 ---------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------
 Feedaty ti consente la gestione professionale
@@ -62,7 +62,7 @@ magento/module-widget				100.0.* .
 
 3) now type
  ```bash
-	# composer require feedaty/module-badge2
+ # composer require feedaty/module-badge2
 ```
 ##Dowload and Install from Mageconnect
 
@@ -163,10 +163,12 @@ To setup Feedaty Widgets follow these steps;
 
 ### INFOS AND CONTACTS
 
+Websites:
 www.zoorate.com
 www.feedaty.com
 
-MAIL : info@feedaty.com
+E-Mail:
+info@feedaty.com
 
 ### LICENSE
 
