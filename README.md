@@ -50,21 +50,21 @@ We suggest to set all Magento default module enabled
 <h3>DOWNLOAD AND INSTALL WITH COMPOSER</h3>
 
 Login with the owner of the magento installation, after you must enter below commands:
-<ol>
-<li> Add https://packagist.org in your project repositories</li>
 
-<li> type </li>
+1. Add https://packagist.org in your project repositories
+
+2. type 
 ```bash
  # cd /var/www/path/to/your/magento-root-dir
 ```
 
-<li> now type</li>
+3. now type
  ```bash
  # composer require feedaty/module-badge2
 ```
 
 <h3>DOWNLOAD AND INSTALL FROM MAGENTO MARKETPLACE</h3>	
-</ol>
+
 we'll provide as soon as possible
 
 
@@ -74,15 +74,14 @@ we'll provide as soon as possible
 
 <h3>ENABLE FEEDATY MODULE FROM COMPONENT MANAGER</h3>
 
-<ol>
-<li> Clink on "System Config" in the left sidebar menu.</li>
 
-<li> Click on "Web Setup Config".</li>
+1. Clink on "System Config" in the left sidebar menu.
 
-<li> Click on "Component Manager".</li>
+2. Click on "Web Setup Config".
 
-<li> Enable "feedaty/module-badge".</li>
-</ol>
+3. Click on "Component Manager".
+
+4. Enable "feedaty/module-badge".
 
 If a blank page returned, maybe you haven't a right configuration in your
 Magento installation.
@@ -124,17 +123,15 @@ Login with the owner of the magento installation, after you must enter below com
 
 To setup Feedaty Widgets follow these steps;
 
-<ol>
-<li> Click on "Stores" in the left-side bar menu. </li>
+1. Click on "Stores" in the left-side bar menu.
 
-<li> Click on "Configurations". </li>
+2. Click on "Configurations".
 
-<li> Select the default scope, and insert Feedaty Merchant Code provided. </li>
+3. Select the default scope, and insert Feedaty Merchant Code provided.
 
-<li> Select preferences aboute module design, and set on enable widgets and/or product reviews. </li>
+4. Select preferences aboute module design, and set on enable widgets and/or product reviews.
 
-<li> check in other scopes, the configurations must works on the store scope. </li>
-</ol>
+5. check in other scopes, the configurations must works on the store scope.
 
 -----------------------------------------------------------------------------------------------------------------------
 <h2>DISABLE FEEDATY MODULE</h2>
