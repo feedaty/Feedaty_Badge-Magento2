@@ -1,4 +1,4 @@
-<h1>```diff-FEEDATY BADGE```</h1>
+<h1 stylesheet="color:red">FEEDATY BADGE</h1>
 ---------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------
 Feedaty is a social commerce site dedicated to online stores for the professional management of customer feedback. 
