@@ -8,27 +8,27 @@ la tua reputazione e le tue vendite online.
 
 ### REQUIRED MAGENTO MODULES
 
-magento/framework: 					100.0.*
-magento/module-store: 				100.0.*
-magento/module-catalog: 			100.0.*
-magento/module-customer: 			100.0.*
-magento/module-eav: 				100.0.*
-magento/module-theme: 				100.0.*
-magento/module-backend: 			100.0.*
-magento/module-ui: 					100.0.*
-magento/module-rewrite: 			100.0.*
-magento/module-bundle				100.0.*
-magento/module-cache-invalidate		100.0.*
-magento/module-catalog-url-rewrite	100.0.*
-magento/module-url-rewrite 			100.0.*
-magento/module-cron					100.0.*
-magento/module-sales				100.0.*
-magento/module-translation			100.0.*
+magento/framework: 					100.0.* \n
+magento/module-store: 				100.0.* \n
+magento/module-catalog: 			100.0.* \n
+magento/module-customer: 			100.0.* \n
+magento/module-eav: 				100.0.* \n
+magento/module-theme: 				100.0.* \n
+magento/module-backend: 			100.0.* \n
+magento/module-ui: 					100.0.* \n
+magento/module-rewrite: 			100.0.* \n
+magento/module-bundle				100.0.* \n
+magento/module-cache-invalidate		100.0.* \n
+magento/module-catalog-url-rewrite	100.0.* \n
+magento/module-url-rewrite 			100.0.* \n
+magento/module-cron					100.0.* \n
+magento/module-sales				100.0.* \n
+magento/module-translation			100.0.* \n
 magento/module-widget				100.0.*
 
 ### REQUIRED SERVER CONFIGURATIONS
 
-- php >=5.5.27 | php 5.6.* | php 7.0.0
+- php >=5.5.38 | ~php 5.6.* | php ~7.0.0
 - php-curl 
 
 
