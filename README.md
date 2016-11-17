@@ -3,6 +3,8 @@
 ---------------------------------------------------------------------------------------------------------------------
 Feedaty is a social commerce site dedicated to online stores for the professional management of customer feedback. 
 The service is provided through a platform Saas (Software as a Service) and may be activated quickly and easily through a short integration process.
+---------------------------------------------------------------------------------------------------------------------
+
 
 <h3>REQUIRED MAGENTO MODULES</h3>
 
