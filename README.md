@@ -6,7 +6,7 @@ di feedback e opinioni certificate dei tuoi clienti,
 migliorando il tuo posizionamento,
 la tua reputazione e le tue vendite online.
 
-### REQUIRED MAGENTO MODULES
+<h3>### REQUIRED MAGENTO MODULES</h3>
 
 magento/framework: 					100.0.* .
 
@@ -42,16 +42,16 @@ magento/module-translation			100.0.* .
 
 magento/module-widget				100.0.* .
 
-### REQUIRED SERVER CONFIGURATIONS
+<h3>### REQUIRED SERVER CONFIGURATIONS</h3>
 
 - php >=5.5.38 | ~php 5.6.* | php ~7.0.0
 - php-curl 
 
 ---------------------------------------------------------------------------------------------------------------------
-### INSTALL FEEDATY MODULE
+<h2>### INSTALL FEEDATY MODULE</h2>
 ---------------------------------------------------------------------------------------------------------------------
 
-## Download and Install with Composer
+<h3>## Download and Install with Composer</h3>
 
 1) Insert https://packagist.org in your project repositories
 
@@ -64,15 +64,15 @@ magento/module-widget				100.0.* .
  ```bash
  # composer require feedaty/module-badge2
 ```
-##Dowload and Install from Mageconnect
+<h3>##Dowload and Install from Mageconnect</h3>
 
 
 
 ---------------------------------------------------------------------------------------------------------------------
-### ENABLE FEEDATY MODULE
+<h2>### ENABLE FEEDATY MODULE</h2>
 ---------------------------------------------------------------------------------------------------------------------
 
-## Enable Feedaty module from backend
+<h3>## Enable Feedaty module from backend</h3>
 
 1st) Move Feedaty directory in path/to/your/magento-root-dir/app/code/
 
@@ -106,7 +106,7 @@ or if your server run on Debian/Ubuntu:
 
  to let apache get the permission to write cache.
 
-## Enable Feedaty module from Magento consolle
+<h3>## Enable Feedaty module from Magento consolle</h3>
 
 1st) Move Feedaty directory in path/to/your/magento-root-dir/app/code/
 
@@ -124,14 +124,31 @@ or if your server run on Debian/Ubuntu:
  "path/to/your/magento-root-dir/var" directory, otherwise a zend exeption rise
  because magento can't write cache in var directory.
 
+----------------------------------------------------------------------------------------------------------------------
+<h2>### SETUP/CONFIG FEEDATY WIDGETS</h2>
+----------------------------------------------------------------------------------------------------------------------
+
+To setup Feedaty Widgets follow these steps;
+
+1st) Click on "Stores" in the left-side bar menu.
+
+2nd) Click on "Configurations".
+
+3rd) Select the default scope, and insert Feedaty Merchant Code provided.
+
+4th) Select preferences aboute module design, and set on enable widgets and/or product reviews.
+
+5th) check in other scopes, the configurations must works on the store scope.
+
 -----------------------------------------------------------------------------------------------------------------------
-### DISABLE FEEDATY MODULE
+<h2>### DISABLE FEEDATY MODULE</h2>
 -----------------------------------------------------------------------------------------------------------------------
-## Disable feedaty module from backend
+
+<h3>## Disable feedaty module from backend</h3>
 
 same procedure like enabling, when you arrive in "component manager", select "Disable" and save your configuration.
 
-## Disable feedaty module from Magento Consolle.
+<h3>## Disable feedaty module from Magento Consolle.</h3>
 
 1st) login with the own of the magento installation, after you must enter below commands:
 ```bash
@@ -147,21 +164,9 @@ If you append "--clear-static-contents" don't forget to run
  # bin/magento setup:di:compile
  # bin/magento setup:static-content:deploy
 
-### SETUP/CONFIG FEEDATY WIDGETS
-
-To setup Feedaty Widgets follow these steps;
-
-1st) Click on "Stores" in the left-side bar menu.
-
-2nd) Click on "Configurations".
-
-3rd) Select the default scope, and insert Feedaty Merchant Code provided.
-
-4th) Select preferences aboute module design, and set on enable widgets and/or product reviews.
-
-5th) check in other scopes, the configurations must works on the store scope.
-
-### INFOS AND CONTACTS
+------------------------------------------------------------------------------------------------------------------------
+<h2>### INFOS AND CONTACTS </h2>
+------------------------------------------------------------------------------------------------------------------------
 
 Websites:
 www.zoorate.com
@@ -170,6 +175,8 @@ www.feedaty.com
 E-Mail:
 info@feedaty.com
 
-### LICENSE
+------------------------------------------------------------------------------------------------------------------------
+<h2>### LICENSE</h2>
+------------------------------------------------------------------------------------------------------------------------
 
 
