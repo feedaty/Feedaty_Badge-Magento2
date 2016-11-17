@@ -64,7 +64,7 @@ Login with the owner of the magento installation, after you must enter below com
 ```
 
 <h3>DOWNLOAD AND INSTALL FROM MAGENTO MARKETPLACE</h3>	
-
+</ol>
 we'll provide as soon as possible
 
 
@@ -74,14 +74,15 @@ we'll provide as soon as possible
 
 <h3>ENABLE FEEDATY MODULE FROM COMPONENT MANAGER</h3>
 
+<ol>
+<li> Clink on "System Config" in the left sidebar menu.</li>
 
-1st) Clink on "System Config" in the left sidebar menu.
+<li> Click on "Web Setup Config".</li>
 
-2nd) Click on "Web Setup Config".
+<li> Click on "Component Manager".</li>
 
-3rd) Click on "Component Manager".
-
-4th) Enable "feedaty/module-badge".
+<li> Enable "feedaty/module-badge".</li>
+</ol>
 
 If a blank page returned, maybe you haven't a right configuration in your
 Magento installation.
@@ -123,15 +124,17 @@ Login with the owner of the magento installation, after you must enter below com
 
 To setup Feedaty Widgets follow these steps;
 
-1st) Click on "Stores" in the left-side bar menu.
+<ol>
+<li> Click on "Stores" in the left-side bar menu. </li>
 
-2nd) Click on "Configurations".
+<li> Click on "Configurations". </li>
 
-3rd) Select the default scope, and insert Feedaty Merchant Code provided.
+<li> Select the default scope, and insert Feedaty Merchant Code provided. </li>
 
-4th) Select preferences aboute module design, and set on enable widgets and/or product reviews.
+<li> Select preferences aboute module design, and set on enable widgets and/or product reviews. </li>
 
-5th) check in other scopes, the configurations must works on the store scope.
+<li> check in other scopes, the configurations must works on the store scope. </li>
+</ol>
 
 -----------------------------------------------------------------------------------------------------------------------
 <h2>DISABLE FEEDATY MODULE</h2>
@@ -145,7 +148,6 @@ same procedure like enabling, when you arrive in "component manager", select "Di
 
 Login with the owner of the magento installation, after you must enter below commands:
 
-1st) login with the own of the magento installation, after you must enter below commands:
 ```bash
  # cd /var/www/path/to/your/magento-root-dir
 
