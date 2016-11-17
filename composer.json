@@ -1,5 +1,5 @@
 {
-	"name": "feedaty/module-badge",
+	"name": "feedaty/module-badge2",
 	"description": "Feedaty Badge for magento 2",
 	"repositories": [
         	{
@@ -35,7 +35,7 @@
         "magento/module-cookie": "100.0.*"
     },
 
-    "version": "2.0.1",
+    "version": "2.0.0",
 	"type": "magento2-module",
 
 	"autoload": {
