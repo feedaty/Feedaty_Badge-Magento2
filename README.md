@@ -63,7 +63,7 @@ Login with Magento 2 filesystem owner before enter below commands:
 ```bash
  # composer require feedaty/module-badge2
 ```
-<b>In case of issues you can also add packagist to your project repositories:<b>
+<b>In case of issues you can also add packagist to your project repositories:</b>
 
 1. Add https://packagist.org to your project repositories in composer.json
 
