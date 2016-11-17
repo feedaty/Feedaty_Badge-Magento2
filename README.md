@@ -74,7 +74,7 @@ Login with Magento 2 filesystem owner before enter below commands:
 3. now type
 ```bash
  # composer require feedaty/module-badge2
-
+```
 
 <h3>DOWNLOAD AND INSTALL FROM MAGENTO MARKETPLACE</h3>	
 
