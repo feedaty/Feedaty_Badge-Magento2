@@ -58,7 +58,7 @@ magento/module-cache-invalidate		100.0.* | <br/>
  
 <h3> Install Feedaty module manually in app/code </h3>
 
-1st) Move Feedaty_Badge-2.1.0 directory in path/to/your/magento-root-dir/app/code/ and rename it Feedaty
+1st) Move Feedaty_Badge-2.0.1 directory in path/to/your/magento-root-dir/app/code/ and rename it Feedaty
 
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ magento/module-cache-invalidate		100.0.* | <br/>
 
 4th) Click on "Component Manager".
 
-5th) Enable "feedaty/module-badge-standard".
+5th) Enable "feedaty/module-badge2".
 
 If a blank page returned, maybe you haven't a right configuration in your
 Magento installation.
