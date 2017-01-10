@@ -7,6 +7,7 @@ use \Magento\Framework\UrlInterface;
 use \Magento\Catalog\Helper\Image;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Feedaty\Badge\Helper\Data as DataHelp;
 
 class InterceptOrder implements ObserverInterface
 {
@@ -33,11 +34,13 @@ class InterceptOrder implements ObserverInterface
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
-        Image $imageHelper
+        Image $imageHelper,
+        DataHelp $dataHelpler
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->imageHelper = $imageHelper;
+        $this->_dataHelpler = $dataHelpler;
     }
 
 
@@ -54,6 +57,8 @@ class InterceptOrder implements ObserverInterface
             $order = $observer->getEvent()->getOrder();
 
             $order_id = $order->getIncrementId();
+
+            $billingAddress = $order->getBillingAddress()->getCountryId();
 
             $verify = 0;
 
@@ -85,17 +90,17 @@ class InterceptOrder implements ObserverInterface
                             foreach($selectionCollection as $option) {
                                 $bundleproduct = $objectManager->get('Magento\Catalog\Model\Product')->load($option->product_id);
 
-                                $tmp['Id'] = $bundleproduct->getProductId();
+                                $tmp['SKU'] = $bundleproduct->getProductId();
 
                                 //get the product url
-                                $tmp['Url'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
+                                $tmp['URL'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
 
                                 if ($fd_oProduct->getImage() != "no_selection"){
                                     $store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
-                                    $tmp['ImageUrl'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
+                                    $tmp['ThumbnailURL'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
                                 }
                                 else
-                                    $tmp['ImageUrl'] = "";
+                                    $tmp['ThumbnailURL'] = "";
                                 //$tmp['sku'] = $item->getSku();
                                 $tmp['Name'] = $bundleproduct->getName();
                                 $tmp['Brand'] = $bundleproduct->getBrand();
@@ -103,16 +108,16 @@ class InterceptOrder implements ObserverInterface
                                 $fd_products[] = $tmp;
                             }
                         } else {
-                            $tmp['Id'] = $item->getProductId();
-                            $tmp['Url'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
+                            $tmp['SKU'] = $item->getProductId();
+                            $tmp['URL'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
 
                             //get the image url
                             if ($fd_oProduct->getImage() != "no_selection") {
                                 $store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
-                                $tmp['ImageUrl'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
+                                $tmp['ThumbnailURL'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
                             }
                             else
-                                $tmp['ImageUrl'] = "";
+                                $tmp['ThumbnailURL'] = "";
 
                             $tmp['Name'] = $item->getName();
                             $tmp['Brand'] = $item->getBrand();
@@ -127,19 +132,26 @@ class InterceptOrder implements ObserverInterface
                 $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
 
                 // Formatting the array to be sent
-                $tmp_order['OrderId'] = $order->getId();
-                $tmp_order['OrderDate'] = date("Y-m-d H:i:s");
+                $tmp_order['ID'] = $order->getId();
+                $tmp_order['Date'] = date("Y-m-d H:i:s");
                 $tmp_order['CustomerEmail'] = $order->getCustomerEmail();
-                $tmp_order['CustomerId'] = $order->getCustomerEmail();
+                $tmp_order['CustomerID'] = $order->getCustomerEmail();
                 $tmp_order['Platform'] = "Magento ".$productMetadata->getVersion();
+
+                if ( $billingAddress == 'IT' || $billingAddress == 'EN' ||  $billingAddress == 'ES' ||  $billingAddress == 'DE' || $billingAddress == 'FR' )
+                {
+                    $tmp_order['Culture'] = strtolower($billingAddress);
+                }
+                else $tmp_order['Culture'] = 'en';
+
                 $tmp_order['Products'] = $fd_products;
 
-                $fd_data['merchantCode'] = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
-                $fd_data['orders'][] = $tmp_order;
+                $fd_data[] = $tmp_order;
 
-                // Sending request to feedaty server
-                WebService::send_order($fd_data);
+                // send to feedaty
+                $webService = new WebService( $this->scopeConfig, $this->storeManager, $this->_dataHelpler );
+                $webService->send_order($fd_data);
 
                 //TODOcustom : provare i prodotti bundle
                 

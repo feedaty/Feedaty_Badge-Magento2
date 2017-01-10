@@ -64,7 +64,7 @@ class StoreBadge implements ObserverInterface
 		$block = $observer->getBlock();
 		
 		if ($observer->getElementName()==$this->scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) {
-            WebService::send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
+            $webservice->send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
             
 			$plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 			if($plugin_enabled!=0){
@@ -72,7 +72,8 @@ class StoreBadge implements ObserverInterface
                 $data = $webservice->_get_FeedatyData();
                 $ver = json_decode(json_encode($this->_dataHelper->getExtensionVersion()),true);
 
-                $html = '<!-- PlSMa '.$ver[0].' -->'.$data[$this->scopeConfig->getValue('feedaty_badge_options/widget_store/badge_style', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)]['html_embed'].$observer->getTransport()->getOutput();
+                $html = $webservice->getMerchantRichSnippet();
+                $html .= '<!-- PlSMa '.$ver[0].' -->'.$data[$this->scopeConfig->getValue('feedaty_badge_options/widget_store/badge_style', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)]['html_embed'].$observer->getTransport()->getOutput();
 
                 $observer->getTransport()->setOutput($html);
 

@@ -5,7 +5,7 @@ use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Magento\Store\Model\StoreManagerInterface;
 use Feedaty\Badge\Helper\Data as DataHelp;
 
-class  WebService {
+class WebService {
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -36,6 +36,97 @@ class  WebService {
         $this->_dataHelper = $dataHelper;
     }
 
+
+    /**
+    * Function getReqToken - get the request token
+    *  
+    * @return $response
+    *
+    */
+    private function getReqToken(){
+        
+        $header = array( 'Content-Type: application/x-www-form-urlencoded');
+        $url = "http://api.feedaty.com/OAuth/RequestToken";
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
+
+        $response = json_decode(curl_exec($ch));
+
+        curl_close($ch);
+
+        return $response;
+    }
+
+
+    /**
+    * Function serializeData - serialize data to send 
+    * 
+    * @param $fields
+    *
+    * @return $dati
+    */
+    private function serializeData($fields){
+        $data = '';
+        foreach($fields as $k => $v){
+            $data .= $k . '=' . urlencode($v) . '&';
+        }
+        rtrim($data, '&');
+        return $data;
+    }
+
+
+    /**
+    * Function getAccessToken - get the access token
+    *
+    * @param $token
+    *
+    * @return $response - the access token
+    */
+    private function getAccessToken($token,$merchant,$secret){
+
+        $encripted_code = $this->encryptToken($token,$merchant,$secret);
+
+        $fields = array( 'oauth_token' => $token->RequestToken,'grant_type'=>'authorization' );
+        $header = array( 'Content-Type: application/x-www-form-urlencoded','Authorization: Basic '.$encripted_code,'User-Agent: Fiddler' );
+        $dati = $this->serializeData($fields);
+        $url = "http://api.feedaty.com/OAuth/AccessToken";
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $dati);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
+
+        $response = json_decode(curl_exec($ch));
+
+        curl_close($ch);
+
+        return $response;
+    }
+
+
+    /**
+    * Function encryptToken
+    *
+    * @param $token
+    * @param $merchant
+    * @param $secret
+    *
+    * @return $base64_sha_token - the encrypted token
+    */
+    private function encryptToken($token,$merchant,$secret){
+
+        $sha_token = sha1($token->RequestToken.$secret);
+        $base64_sha_token = base64_encode($merchant.":".$sha_token);
+        return $base64_sha_token;   
+    }
 
     /**
     * Function retrive_informations_product
@@ -112,22 +203,90 @@ class  WebService {
     * @param object $data
     * 
     */
-	public static function send_order($data) {
-		$ch = curl_init();
-        $url = 'http://www.zoorate.com/ws/feedatyapi.svc/SubmitOrders';
+	public function send_order($data) {
 
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, '60');
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
-		curl_setopt($ch, CURLOPT_HTTPHEADER,array('Content-Type: application/json'));
-		curl_setopt($ch, CURLOPT_HEADER, 1);
-		curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-		$content = trim(curl_exec($ch));
+        $ch = curl_init();
+        $url = 'http://api.feedaty.com/Orders/Insert';
 
-		curl_close($ch);
+        $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $secret = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_secret', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+
+        $token = $this->getReqToken();
+        
+        $accessToken = $this->getAccessToken($token, $merchant, $secret);
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, '60');
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER,array('Content-Type: application/json', 'Authorization: Oauth '.$accessToken->AccessToken));
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+        $content = trim(curl_exec($ch));
+
+        curl_close($ch);
 	}
+
+
+ /**
+    * Function getProductRichSnippet 
+    *
+    * @param $product_id
+    *
+    * @return $response - the html product's rich snippet
+    *
+    */
+    public function getProductRichSnippet($product_id){
+
+        $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $path = 'http://white.zoorate.com/gen';
+        $dati = array( 'w' => 'wp','MerchantCode' => $merchant,'t' => 'microdata', 'version' => 2, 'sku' => $product_id );
+        $header = array( 'Content-Type: text/html','User-Agent: Fiddler' );
+        $dati = $this->serializeData($dati);
+        $path.='?'.$dati;
+        $ch = curl_init($path);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
+    }
+    
+
+    /**
+    * Function getMerchantRichSnippet
+    *
+    * @return $response - the html merchant's rich snippet
+    *
+    */
+    public function getMerchantRichSnippet(){
+
+        $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $path = 'http://white.zoorate.com/gen';
+        $dati = array(
+                'w' => 'wp',
+                'MerchantCode' => $merchant,
+                't' => 'microdata',
+                'version' => 2,
+        );
+        $header = array('Content-Type: text/html',
+                'User-Agent: Fiddler'
+        );
+        $dati = $this->serializeData($dati);
+        $path.='?'.$dati;
+        $path = str_replace("=2&", "=2", $path);
+        $ch = curl_init($path);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
+    }
+
+
 
 
     /**
@@ -142,8 +301,7 @@ class  WebService {
 
         $content = $cache->load("feedaty_store");
 
-        //i think this may cause a loop somewhere
-        WebService::send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
+        $this->send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
 
         $feedaty_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
@@ -176,7 +334,7 @@ class  WebService {
     * @param object $_storeManager
     * @param object $_dataHelper
     */
-    public static function send_notification($_scopeConfig,$_storeManager,$_dataHelper) {
+    public function send_notification($_scopeConfig,$_storeManager,$_dataHelper) {
 
 
         $om = \Magento\Framework\App\ObjectManager::getInstance();

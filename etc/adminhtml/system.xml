@@ -18,7 +18,12 @@
                 <field id="feedaty_code" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                     <!-- add a new field with id feedaty_code -->
                     <label>Feedaty Code</label>
-                    <validate>validate-number</validate>
+                    <validate>validate-alphanum</validate>
+                </field>
+                <field id="feedaty_secret" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <!-- add a new field with id feedaty_code -->
+                    <label>Feedaty Secret</label>
+                    <validate>validate-alphanum</validate>
                 </field>
             </group>
 

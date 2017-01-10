@@ -67,7 +67,8 @@ class ProductBadge implements ObserverInterface
                     $data = $webservice->_get_FeedatyData();
                     $ver = json_decode(json_encode($this->_dataHelper->getExtensionVersion()),true);
 
-                    $html = '<!-- PlPMa '.$ver[0].' -->'.str_replace("__insert_ID__","$product",$data[$this->_scopeConfig->getValue('feedaty_badge_options/widget_products/badge_style', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)]['html_embed']).$observer->getTransport()->getOutput();
+                    $html = $webservice->getProductRichSnippet($product);
+                    $html .= '<!-- PlPMa '.$ver[0].' -->'.str_replace("__insert_ID__","$product",$data[$this->_scopeConfig->getValue('feedaty_badge_options/widget_products/badge_style', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)]['html_embed']).$observer->getTransport()->getOutput();
 
                      $observer->getTransport()->setOutput($html);
                 }

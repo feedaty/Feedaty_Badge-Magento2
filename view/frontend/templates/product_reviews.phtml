@@ -3,9 +3,13 @@
 	<h2><?php echo __('Customer Reviews') ?></h2>
 	<dl>
 
-<?php $view = $this->getView(); ?>
-		<?php foreach ($view['data_review']['Feedbacks'] as $k=>$r) { ?>
-		<!-- start here -->
+        <?php   
+            $view = $this->getView(); 
+            $reviews = $view['data_review']['Feedbacks'];
+        ?>
+
+        <?php if(!is_null($reviews)) foreach ($reviews as $k=>$r) { ?>
+        <!-- start here -->
 
 		
 		<div>
