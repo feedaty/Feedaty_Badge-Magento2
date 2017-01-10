@@ -94,7 +94,7 @@ class ProductReviews implements ObserverInterface
 				$toview['link'] = '<a href="'.$toview['data_review']['Product']['Url'].'">'.__('Read all reviews').'</a>';
 		
 
-				if (count($toview['data_review']['Feedbacks']) >= 0) {
+				if (count($toview['data_review']['Feedbacks']) > 0) {
 
 					$html = $observer->getTransport()->getOutput();
 
