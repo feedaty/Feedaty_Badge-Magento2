@@ -6,6 +6,12 @@
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 ### RELASE NOTES
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
+### V2.0.2
+
+## Fixed issues
+
+- Fix cache merchant's and product's rich snippets to minimize the site loading
+
 ### V2.0.1
 
 ## Fixed issues
@@ -28,9 +34,19 @@
 
 - Feedaty plugin is not caching merchant's and product's rich snippets ( we'll add this function in next relase )
 
+
+
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 ### TECHNICAL DETAILS
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
+### V2.0.2
+
+## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class
+
+- UPDATED METHOD getProductRichSnippet()
+- UPDATED METHOD getMerchantRichSnippet()
+
 
 ### V2.0.1
 
