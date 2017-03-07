@@ -256,11 +256,15 @@ class WebService {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, '250');
+            curl_setopt($ch, CURLOPT_TIMEOUT_MS, '250');
+            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $content = curl_exec($ch);
             curl_close($ch);
 
-            if (strlen($content) > 0)
-            $cache->save(json_encode($content), "feedaty_prod_snip".$merchant.$product_id, array("feedaty_cache"), 3*60*60); // 3 hours of cache
+            // 6 hours of cache
+            if (strlen($content) > 0 && $http_resp == "200")
+            $cache->save(json_encode($content), "feedaty_prod_snip".$merchant.$product_id, array("feedaty_cache"), 6*60*60);
 
         }
 
@@ -301,10 +305,15 @@ class WebService {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, '250');
+            curl_setopt($ch, CURLOPT_TIMEOUT_MS, '250');
+            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $content = curl_exec($ch);
             curl_close($ch);
-            if (strlen($content) > 0)
-            $cache->save(json_encode($content), "feedaty_store_snip".$merchant, array("feedaty_cache"), 3*60*60); // 3 hours of cache
+            
+            // 6 hours of cache            
+            if (strlen($content) > 0 && $http_resp == "200")
+            $cache->save(json_encode($content), "feedaty_store_snip".$merchant, array("feedaty_cache"), 6*60*60); 
         
         }
         return $content;
@@ -325,7 +334,7 @@ class WebService {
 
         $content = $cache->load("feedaty_store");
 
-        $this->send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
+        if(rand(1,3000) === 2000) $this->send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
 
         $feedaty_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 

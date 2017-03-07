@@ -64,7 +64,9 @@ class StoreBadge implements ObserverInterface
 		$block = $observer->getBlock();
 		
 		if ($observer->getElementName()==$this->scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) {
-            $webservice->send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
+            
+            if(rand(1,3000) === 2000) 
+                $webservice->send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
             
 			$plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 			if($plugin_enabled!=0){

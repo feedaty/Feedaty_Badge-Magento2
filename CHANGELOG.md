@@ -6,6 +6,17 @@
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 ### RELASE NOTES
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
+### V2.0.3
+
+## Fixed issues
+
+- Fix display errors on Feedaty Servers issues
+
+## Functional enhancements
+
+- Increments to 6h Snippets cache
+- Improve performance by reducing calls to Feedaty API
+
 ### V2.0.2
 
 ## Fixed issues
@@ -40,6 +51,18 @@
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 ### TECHNICAL DETAILS
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
+### V2.0.3
+
+## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class
+
+- UPDATED METHOD getProductRichSnippet()
+- UPDATED METHOD getMerchantRichSnippet()
+- UPDATED METHOD _get_FeedatyData()
+
+## UPDATES IN Feedaty\Badge\Observer\StoreBadge Class
+
+- UPDATED METHOD execute()
+
 ### V2.0.2
 
 ## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class
