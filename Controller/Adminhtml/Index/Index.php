@@ -55,6 +55,8 @@ class Index extends \Magento\Backend\App\Action
 
         $csv = '"Order ID","UserID","E-mail","Date","Product ID","Extra","Product Url","Product Image","Platform"'."\n";
         
+        //$fromDate = date("Y-m-d H:i:s", strtotime("-3 months"));
+
         $orders = $objectManager->create('\Magento\Sales\Model\Order')->getCollection()
         ->addFieldToFilter('status', $this->scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
 
@@ -69,40 +71,6 @@ class Index extends \Magento\Backend\App\Action
                 if (!$item->getParentItem()) {
                     $fd_oProduct = $objectManager->create('\Magento\Catalog\Model\Product')->load((int) $item->getProductId());
 
-                    if ($fd_oProduct->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE) {
-                        $selectionCollection = $fd_oProduct->getTypeInstance(true)->getSelectionsCollection(
-                            $fd_oProduct->getTypeInstance(true)->getOptionsIds($fd_oProduct), $fd_oProduct
-                        );
-                        foreach($selectionCollection as $option) {
-                            $bundleproduct = $objectManager->create('\Magento\Catalog\Model\Product')->load($option->product_id);
-
-                            $tmp['Id'] = $bundleproduct->getProductId();
-
-                            $tmp['Url'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
-
-                            //sistemare le immagini
-                            if ($fd_oProduct->getImage() != "no_selection") {
-                                $store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
-                                $tmp['ImageUrl'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
-                            }
-                            else
-                                $tmp['ImageUrl'] = "";
-                            //$tmp['sku'] = $item->getSku();
-
-                            $tmp['Name'] = $bundleproduct->getName();
-                            $tmp['Brand'] = $bundleproduct->getBrand();
-                            if (is_null($tmp['Brand'])) $bundleproduct['Brand']  = "";
-                            $fd_products[] = $tmp;
-
-                            
-
-                            $csv .= '"'.$order->getId().'","'.$order->getBillingAddress()->getEmail().'","'.$order->getBillingAddress()->getEmail().'",'
-                                .'"'.$order->getCreatedAt().'","'.$item->getProductId().'","'.str_replace('"','""',$tmp['Name']).'","'.$tmp['Url'].'","'.$tmp['ImageUrl'].'","Magento '.$productMetadata->getVersion().' CSV"'
-                                ."\n";
-
-
-                        }
-                    } else {
                         $tmp['Id'] = $item->getProductId();
 
                         $tmp['Url'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
@@ -123,7 +91,6 @@ class Index extends \Magento\Backend\App\Action
                         $csv .= '"'.$order->getId().'","'.$order->getBillingAddress()->getEmail().'","'.$order->getBillingAddress()->getEmail().'",'
                             .'"'.$order->getCreatedAt().'","'.$item->getProductId().'","'.str_replace('"','""',$tmp['Name']).'","'.$tmp['Url'].'","'.$tmp['ImageUrl'].'","Magento '.$productMetadata->getVersion().' CSV"'
                             ."\n";
-                    }
                 }
             }
 

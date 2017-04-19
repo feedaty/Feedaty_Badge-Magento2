@@ -4,5 +4,7 @@
         <observer name="product_badge" instance="Feedaty\Badge\Observer\ProductBadge"/>
         <observer name="product_reviews" instance="Feedaty\Badge\Observer\ProductReviews"/>
         <observer name="store_badge" instance="Feedaty\Badge\Observer\StoreBadge"/>
+        <observer name="store_snippet" instance="Feedaty\Badge\Observer\StoreSnippet"/>
+        <observer name="product_snippet" instance="Feedaty\Badge\Observer\ProductSnippet"/>
     </event>
 </config>

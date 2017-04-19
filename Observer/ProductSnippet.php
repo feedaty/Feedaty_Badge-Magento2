@@ -9,7 +9,7 @@ use \Magento\Framework\Registry;
 use Feedaty\Badge\Helper\Data as DataHelp;
 
 
-class ProductBadge implements ObserverInterface
+class ProductSnippet implements ObserverInterface
 {
 
     /**
@@ -52,12 +52,13 @@ class ProductBadge implements ObserverInterface
         $webservice = new WebService($this->_scopeConfig, $this->storeManager, $this->_dataHelper);
 
         $block = $observer->getBlock();
-        $fdWidgetPos = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/product_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        
         $fdSnipPos = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/product_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $fdWidgetPos = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/product_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
-        if ($observer->getElementName()== $fdWidgetPos) {
+        if ($observer->getElementName()== $fdSnipPos && $fdSnipPos != $fdWidgetPos  ) {
 
-            $plugin_enabled = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/product_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+            $plugin_enabled = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/snippet_prod_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
             if($plugin_enabled!=0) {
 
@@ -66,16 +67,9 @@ class ProductBadge implements ObserverInterface
                 if (!is_null($product)) {
 
                     $product = $product->getId();
-                    $data = $webservice->_get_FeedatyData();
-                    $ver = json_decode(json_encode($this->_dataHelper->getExtensionVersion()),true);
+                    $html = $webservice->getProductRichSnippet($product);
 
-                    $html = '<!-- PlPMa '.$ver[0].' -->'.str_replace("__insert_ID__","$product",$data[$this->_scopeConfig->getValue('feedaty_badge_options/widget_products/badge_style', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)]['html_embed']).$observer->getTransport()->getOutput();
-
-                    if($fdWidgetPos == $fdSnipPos){
-                        $html.= $webservice->getProductRichSnippet($product);
-                    } 
-
-                     $observer->getTransport()->setOutput($html);
+                    $observer->getTransport()->setOutput($html);
                 }
             }
         }

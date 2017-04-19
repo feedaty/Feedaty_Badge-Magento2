@@ -9,8 +9,7 @@ use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Framework\Event\Observer;
 use Feedaty\Badge\Helper\Data as DataHelp;
 
-
-class StoreBadge implements ObserverInterface
+class StoreSnippet implements ObserverInterface
 {
 
     /**
@@ -61,28 +60,16 @@ class StoreBadge implements ObserverInterface
 
         $webservice = new WebService($this->scopeConfig, $this->storeManager,$this->_dataHelper);
 		$block = $observer->getBlock();
-		
-        $fdWidStorePos = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+
+		$fdWidStorePos = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         $fdSnipStorPos = $this->scopeConfig->getValue('feedaty_microdata_options/snippet_store/store_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
-		if ($observer->getElementName() == $fdWidStorePos) {
+		if ($observer->getElementName()== $fdSnipStorPos && $fdSnipStorPos != $fdWidStorePos) {
             
-            if(rand(1,3000) === 2000) 
-                $webservice->send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
-            
-			$plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+			$plugin_enabled = $this->scopeConfig->getValue('feedaty_microdata_options/snippet_store/snippet_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 			if($plugin_enabled!=0){
 
-                $data = $webservice->_get_FeedatyData();
-                $ver = json_decode(json_encode($this->_dataHelper->getExtensionVersion()),true);
-
-                $html = '<!-- PlSMa '.$ver[0].' -->'.$data[$this->scopeConfig->getValue('feedaty_badge_options/widget_store/badge_style', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)]['html_embed'].$observer->getTransport()->getOutput();
-
-                if($fdWidStorePos == $fdSnipStorPos) {
-                    $html.= $webservice->getMerchantRichSnippet();
-                }
-
-
+                $html = $webservice->getMerchantRichSnippet();
                 $observer->getTransport()->setOutput($html);
 
 			}

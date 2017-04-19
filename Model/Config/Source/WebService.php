@@ -50,7 +50,7 @@ class WebService {
 
         $ch = curl_init($url);
 
-        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPGET, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
@@ -92,7 +92,7 @@ class WebService {
         $encripted_code = $this->encryptToken($token,$merchant,$secret);
 
         $fields = array( 'oauth_token' => $token->RequestToken,'grant_type'=>'authorization' );
-        $header = array( 'Content-Type: application/x-www-form-urlencoded','Authorization: Basic '.$encripted_code,'User-Agent: Fiddler' );
+        $header = array( 'Content-Type: application/x-www-form-urlencoded','Authorization: Basic '.$encripted_code,'User-Agent: Mage2' );
         $dati = $this->serializeData($fields);
         $url = "http://api.feedaty.com/OAuth/AccessToken";
 
@@ -212,9 +212,8 @@ class WebService {
         $secret = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_secret', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
         $token = $this->getReqToken();
-        
         $accessToken = $this->getAccessToken($token, $merchant, $secret);
-
+        
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, '60');
@@ -226,6 +225,13 @@ class WebService {
         $content = trim(curl_exec($ch));
 
         curl_close($ch);
+
+        $fdDebugEnabled = $this->scopeConfig->getValue('feedaty_global/debug/debug_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        if($fdDebugEnabled != 0) {
+            $message = json_encode($content);
+            $this->feedatyDebug($message, "ORDER RESPONSE INFO");
+        }
+
 	}
 
 
@@ -249,7 +255,7 @@ class WebService {
 
             $path = 'http://white.zoorate.com/gen';
             $dati = array( 'w' => 'wp','MerchantCode' => $merchant,'t' => 'microdata', 'version' => 2, 'sku' => $product_id );
-            $header = array( 'Content-Type: text/html','User-Agent: Fiddler' );
+            $header = array( 'Content-Type: text/html','User-Agent: Mage2' );
             $dati = $this->serializeData($dati);
             $path.='?'.$dati;
             $ch = curl_init($path);
@@ -258,14 +264,20 @@ class WebService {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, '250');
             curl_setopt($ch, CURLOPT_TIMEOUT_MS, '250');
-            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $content = curl_exec($ch);
+            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
             // 6 hours of cache
             if (strlen($content) > 0 && $http_resp == "200")
             $cache->save(json_encode($content), "feedaty_prod_snip".$merchant.$product_id, array("feedaty_cache"), 6*60*60);
 
+            //debug call
+            $fdDebugEnabled = $this->scopeConfig->getValue('feedaty_global/debug/debug_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+            if($fdDebugEnabled != 0) {
+                $message = "Product microdata response with ".$http_resp." http code";
+                $this->feedatyDebug($message, "MICRODATA RESPONSE INFO");
+            }
         }
 
         return $content;
@@ -296,7 +308,7 @@ class WebService {
                 'version' => 2,
             );
             $header = array('Content-Type: text/html',
-                'User-Agent: Fiddler'
+                'User-Agent: Mage2'
             );
             $dati = $this->serializeData($dati);
             $path.='?'.$dati;
@@ -307,14 +319,20 @@ class WebService {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, '250');
             curl_setopt($ch, CURLOPT_TIMEOUT_MS, '250');
-            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $content = curl_exec($ch);
+            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             
             // 6 hours of cache            
             if (strlen($content) > 0 && $http_resp == "200")
             $cache->save(json_encode($content), "feedaty_store_snip".$merchant, array("feedaty_cache"), 6*60*60); 
-        
+            
+            //debug call
+            $fdDebugEnabled = $this->scopeConfig->getValue('feedaty_global/debug/debug_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+            if($fdDebugEnabled != 0) {
+                $message = "Merchant microdata response with ".$http_resp." http code";
+                $this->feedatyDebug($message, "MICRODATA RESPONSE INFO");
+            }
         }
         return $content;
     }
@@ -414,5 +432,16 @@ class WebService {
             
             $cache->save($cnt, "feedaty_notification", array("feedaty_cache"), 10*24*60*60);
         }
+    }
+
+    /**
+    * Function feedatyDebug() - Save debug infoes in BP/var/log/feedaty.log
+    *
+    */
+    private function feedatyDebug($message, $severity) {
+        $fdwriter = new \Zend\Log\Writer\Stream(BP . '/var/log/feedaty.log');
+        $fdlogger = new \Zend\Log\Logger();
+        $fdlogger->addWriter($fdwriter);
+        $fdlogger->info("\n".$severity."\n".$message."\n");
     }
 }	

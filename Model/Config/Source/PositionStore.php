@@ -18,7 +18,6 @@ class PositionStore implements ArrayInterface
     		array("value"=>"wishlist_sidebar","label"=>__("Position Wishlist sidebar")),
     		array("value"=>"right.reports.product.viewed","label"=>__("Position Right product viewed")),
     		array("value"=>"right.reports.product.compared","label"=>__("Position Right product compared")),
-    		/*array("value"=>"right.permanent.callout","label"=>Mage::helper('core')->__("Position Right permanent callout")),*/
     		array("value"=>"right.poll","label"=>__("Position Right poll")),
     		array("value"=>"right","label"=>__("Position Right")),
 			array("value"=>"left","label"=>__("Position Left")),

@@ -82,32 +82,6 @@ class InterceptOrder implements ObserverInterface
                     if (!$item->getParentItem()) {
                         $fd_oProduct = $objectManager->get('Magento\Catalog\Model\Product')->load((int) $item->getProductId());
 
-                        if ($fd_oProduct->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE) {
-
-                            $selectionCollection = $fd_oProduct->getTypeInstance(true)->getSelectionsCollection(
-                                $fd_oProduct->getTypeInstance(true)->getOptionsIds($fd_oProduct), $fd_oProduct
-                            );
-                            foreach($selectionCollection as $option) {
-                                $bundleproduct = $objectManager->get('Magento\Catalog\Model\Product')->load($option->product_id);
-
-                                $tmp['SKU'] = $bundleproduct->getProductId();
-
-                                //get the product url
-                                $tmp['URL'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
-
-                                if ($fd_oProduct->getImage() != "no_selection"){
-                                    $store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
-                                    $tmp['ThumbnailURL'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
-                                }
-                                else
-                                    $tmp['ThumbnailURL'] = "";
-                                //$tmp['sku'] = $item->getSku();
-                                $tmp['Name'] = $bundleproduct->getName();
-                                $tmp['Brand'] = $bundleproduct->getBrand();
-                                if (is_null($tmp['Brand'])) $bundleproduct['Brand']  = "";
-                                $fd_products[] = $tmp;
-                            }
-                        } else {
                             $tmp['SKU'] = $item->getProductId();
                             $tmp['URL'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
 
@@ -125,7 +99,6 @@ class InterceptOrder implements ObserverInterface
 
                             //$tmp['Price'] = $item->getPrice();
                             $fd_products[] = $tmp;
-                        }
                     }
                 }
 
@@ -152,8 +125,6 @@ class InterceptOrder implements ObserverInterface
                 // send to feedaty
                 $webService = new WebService( $this->scopeConfig, $this->storeManager, $this->_dataHelpler );
                 $webService->send_order($fd_data);
-
-                //TODOcustom : provare i prodotti bundle
                 
             }
         }
