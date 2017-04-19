@@ -64,6 +64,33 @@
 ----------------------------------------------------------------------------------------------------------------------------
 ### METHOD/CLASS CHANGES
 ----------------------------------------------------------------------------------------------------------------------------
+### V2.0.4
+
+## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class
+- UPDATED METHOD getProductRichSnippet()
+- UPDATED METHOD getMerchantRichSnippet()
+- UPDATED METHOD getReqToken()
+- UPDATED METHOD send_order()
+
+## UPDATES IN Feedaty\Badge\Observer\StoreBadge Class
+- UPDATED METHOD execute()
+
+## UPDATES IN Feedaty\Badge\Observer\ProductBadge Class
+- UPDATED METHOD execute()
+
+## UPDATED OBSERVERS
+- ADDED Feedaty\Badge\Observer\ProductSnippet Class
+- ADDED Feedaty\Badge\Observer\StoreSnippet Class
+- UPDATED Feedaty\Badge\Observer\ProductBadge Class
+- UPDATED Feedaty\Badge\Observer\StoreBadge Class
+
+## UPDATES IN Feedaty\Badge\Controller\Adminhtml\Index\Index
+- UPDATED METHOD execute()
+
+## UPDATED Feedaty\Badge\etc\
+- UPDATED adminhtml\system.xml
+- UPDATED events.xml
+
 ### V2.0.3
 
 ## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class
