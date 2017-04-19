@@ -13,13 +13,11 @@
 - Avoid errors checking http response code from microdata server
 - Feedaty now handle bundle and configurable products as one product
 - Change to "Mage2" cURL req User-Agent 
-- Fix check on http status code for microdata
 
 ## Functional enhancements
 
 - Microdata configuration in Feedaty menu on backend
 - Add debug function for orders and microdata response
-- Initial orders export in csv format now take only last 3 months
 
 ### V2.0.3
 
