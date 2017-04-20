@@ -13,6 +13,7 @@
 - Avoid errors checking http response code from microdata server
 - Feedaty now handle bundle and configurable products as one product
 - Change to "Mage2" cURL req User-Agent 
+- Removed discouraged echo construct from csv export 
 
 ## Functional enhancements
 
@@ -86,6 +87,7 @@
 
 ## UPDATES IN Feedaty\Badge\Controller\Adminhtml\Index\Index
 - UPDATED METHOD execute()
+- ADDED METHOD downloadCsv()
 
 ## UPDATED Feedaty\Badge\etc\
 - UPDATED adminhtml\system.xml
