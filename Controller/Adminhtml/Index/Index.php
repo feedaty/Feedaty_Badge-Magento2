@@ -47,13 +47,6 @@ class Index extends \Magento\Backend\App\Action
     public function execute() {
         
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        header("Cache-Control: public");
-        header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=feedatyexport.csv");
-        header("Content-Transfer-Encoding: binary");
-
-        $csv = '"Order ID","UserID","E-mail","Date","Product ID","Extra","Product Url","Product Image","Platform"'."\n";
         
         //$fromDate = date("Y-m-d H:i:s", strtotime("-3 months"));
 
@@ -61,6 +54,23 @@ class Index extends \Magento\Backend\App\Action
         ->addFieldToFilter('status', $this->scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
 
         $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
+
+
+        $heading = [
+            __('Order ID'),
+            __('UserID'),
+            __('E-mail'),
+            __('Date'),
+            __('Product ID'),
+            __('Extra'),
+            __('Product Url'),
+            __('Product Image'),
+            __('Platform'),           
+        ];
+
+        $outputFile = "FeedatyExport". date('Ymd_His').".csv";
+        $handle = fopen($outputFile, 'w');
+        fputcsv($handle, $heading);
 
         foreach ($orders as $order) {
 
@@ -81,21 +91,43 @@ class Index extends \Magento\Backend\App\Action
                         }
                         else
                             $tmp['ImageUrl'] = "";
-                        //$tmp['sku'] = $item->getSku();
 
                         $tmp['Name'] = $item->getName();
                         $tmp['Brand'] = $item->getBrand();
                         if (is_null($tmp['Brand'])) $tmp['Brand']  = "";
 
-
-                        $csv .= '"'.$order->getId().'","'.$order->getBillingAddress()->getEmail().'","'.$order->getBillingAddress()->getEmail().'",'
-                            .'"'.$order->getCreatedAt().'","'.$item->getProductId().'","'.str_replace('"','""',$tmp['Name']).'","'.$tmp['Url'].'","'.$tmp['ImageUrl'].'","Magento '.$productMetadata->getVersion().' CSV"'
-                            ."\n";
+                        $row = [
+                                $order->getId(),
+                                $order->getBillingAddress()->getEmail(),
+                                $order->getBillingAddress()->getEmail(),
+                                $order->getCreatedAt(),
+                                $item->getProductId(),
+                                str_replace('"','""',$tmp['Name']),
+                                $tmp['Url'],
+                                $tmp['ImageUrl'],
+                                "Magento".$productMetadata->getVersion()."CSV"
+                        ];
+                        fputcsv($handle, $row);
                 }
             }
 
         }
         
-        echo $csv;
+        $this->downloadCsv($outputFile);
+    }
+
+    public function downloadCsv($file) {
+        if (file_exists($file)) {
+            //set headers
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/csv');
+            header('Content-Disposition: attachment; filename='.basename($file));
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($file));
+            ob_clean();flush();
+            readfile($file);
+        }
     }
 }
