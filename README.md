@@ -120,9 +120,10 @@ now enter below commands:
  "path/to/your/magento-root-dir/var" directory, otherwise a zend exeption rise
  because magento can't write cache in var directory.
 
------------------------------------------------------------------------------------------------------------------------
+
 <h2> DISABLE FEEDATY MODULE </h2>
------------------------------------------------------------------------------------------------------------------------
+
+
 <h3> Disable feedaty module from backend</h3>
 
 same procedure like enabling, when you arrive in "component manager", select "Disable" and save your configuration.
@@ -143,9 +144,11 @@ If you append "--clear-static-contents" don't forget to run
 
  # bin/magento setup:di:compile
  # bin/magento setup:static-content:deploy
------------------------------------------------------------------------------------------------------------------------
+
+
 <h2> SETUP/CONFIG FEEDATY WIDGETS </h2>
------------------------------------------------------------------------------------------------------------------------
+
+
 To setup Feedaty Widgets follow these steps;
 
 1st) Click on "Stores" in the left-side bar menu.
@@ -156,9 +159,9 @@ To setup Feedaty Widgets follow these steps;
 
 4th) Select preferences aboute module design, and set on enable widgets and/or product reviews.
 
------------------------------------------------------------------------------------------------------------------------
+
 <h2> INFOS AND CONTACTS </h2>
------------------------------------------------------------------------------------------------------------------------
+
 www.zoorate.com
 www.feedaty.com
 
