@@ -55,7 +55,7 @@ class ProductBadge implements ObserverInterface
         $fdWidgetPos = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/product_position', $store_scope);
         $fdSnipPos = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/product_position', $store_scope);
         $merchant = $this->_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
-        $badge_Style = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/badge_style', $store_scope);
+        $badge_style = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/badge_style', $store_scope);
         $plugin_enabled = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/product_enabled', $store_scope);
 
         if ($observer->getElementName() == $fdWidgetPos) 
@@ -67,7 +67,7 @@ class ProductBadge implements ObserverInterface
                 if ($product !== null) 
                 {
                     $product = $product->getId();
-                    $data = $this->_fdservice->_get_FeedatyData();
+                    $data = $this->_fdservice->_get_FeedatyData($merchant);
                     $ver = json_decode(json_encode($this->_dataHelper->getExtensionVersion()), true);
 
                     $html = '<!-- PlPMa '.$ver[0].' -->'.str_replace("__insert_ID__", "$product",$data[$badge_style]['html_embed']).$observer->getTransport()->getOutput();

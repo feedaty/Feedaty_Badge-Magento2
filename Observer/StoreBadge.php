@@ -83,7 +83,7 @@ class StoreBadge implements ObserverInterface
 
                 if ($fdWidStorePos == $fdSnipStorPos) 
                 {
-                    $html.= $this->_fdservice->getMerchantRichSnippet();
+                    $html.= $this->_fdservice->getMerchantRichSnippet($merchant);
                 }
 
                 $observer->getTransport()->setOutput($html);

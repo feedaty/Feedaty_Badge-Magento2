@@ -35,8 +35,8 @@ class Index extends \Magento\Backend\App\Action
         PageFactory $resultPageFactory
     ) {
         parent::__construct($context);
-        $this->scopeConfig = $scopeConfig;
-        $this->storeManager = $storeManager;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_storeManager = $storeManager;
         $this->resultPageFactory = $resultPageFactory;
     }
 
@@ -48,11 +48,15 @@ class Index extends \Magento\Backend\App\Action
         
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $store_id = (int) $this->_request->getParam('store', 0);
+        if ($store_id === 0) 
+        {
+            $store_id = $this->_storeManager->getStore()->getId();
+        }
         $scope_store = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         //$fromDate = date("Y-m-d H:i:s", strtotime("-3 months"));
 
         $orders = $objectManager->create('\Magento\Sales\Model\Order')->getCollection()
-            ->addFieldToFilter('status', $this->scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', $scope_store))
+            ->addFieldToFilter('status', $this->_scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', $scope_store))
             ->addFieldToFilter('store_id', $store_id);
 
         $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');

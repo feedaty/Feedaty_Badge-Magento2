@@ -249,13 +249,13 @@ class WebService
     *
     */
     public function getProductRichSnippet($merchant,$product_id) {
-
+        
+        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         $cache = $om->get('Magento\Framework\App\CacheInterface');
         $content = json_decode($cache->load("feedaty_prod_snip".$merchant.$product_id));
         $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
-        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-
+        
         if (!$content || strlen($content) < 5 || $content === "null") 
         {
             $path = 'http://white.zoorate.com/gen';
