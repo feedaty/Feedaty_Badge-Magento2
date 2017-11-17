@@ -1,6 +1,6 @@
 <h1> FEEDATY BADGE 2</h1>
----------------------------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------------------------
+
+
 Feedaty is a social commerce site dedicated to online stores for the professional management of customer feedback. 
 The service is provided through a platform Saas (Software as a Service) and may be activated quickly and easily through a short integration process.
 
@@ -99,7 +99,7 @@ or if your server run on Debian/Ubuntu:
 
  to let apache get the permission to write cache.
 
-<h3> enable module from Magento consolle </h3>
+<h3> enable module from Magento console </h3>
 1st) login with the own of the magento installation for example:
 
 ```bash
@@ -115,7 +115,7 @@ now enter below commands:
  # bin/magento module:enable Feedaty_Badge
 
 ```
- consolle ask to run setup:di:compile command, some times you can avoid enter this command
+ console ask to run setup:di:compile command, some times you can avoid enter this command
  if you enter "setup:di:compile" command, don't forget to check permissions to 
  "path/to/your/magento-root-dir/var" directory, otherwise a zend exeption rise
  because magento can't write cache in var directory.
@@ -127,7 +127,7 @@ now enter below commands:
 
 same procedure like enabling, when you arrive in "component manager", select "Disable" and save your configuration.
 
-<h3> Disable feedaty module from Magento Consolle. </h3>
+<h3> Disable feedaty module from Magento Console. </h3>
 
 1st) login with the own of the magento installation, after you must enter below commands:
 ```bash
