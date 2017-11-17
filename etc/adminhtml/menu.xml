@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+	   <add id="Feedaty_Badge::feedatycodes" title="Feedaty" module="Feedaty_Badge" sortOrder="51" resource="Feedaty_Badge::feedatycodes"/>
+
+	   <add id="Feedaty_Badge::feedaty_preferences" title="Feedaty Preferences" module="Feedaty_Badge" sortOrder="20" parent="Feedaty_Badge::feedatycodes" action="adminhtml/system_config/edit/section/feedaty_preferences" resource="Feedaty_Badge::feedaty_preferences"/>
+
+	   <add id="Feedaty_Badge::widget_preferences" title="Widget Preferences" module="Feedaty_Badge" sortOrder="30" parent="Feedaty_Badge::feedatycodes" action="adminhtml/system_config/edit/section/feedaty_badge_options" resource="Feedaty_Badge::widget_preferences"/>
+
+	   <add id="Feedaty_Badge::microdata_options" title="Microdata Preferences" module="Feedaty_Badge" sortOrder="40" parent="Feedaty_Badge::feedatycodes" action="adminhtml/system_config/edit/section/feedaty_microdata_options" resource="Feedaty_Badge::microdata_preferences"/>
+
+    </menu>
+</config>

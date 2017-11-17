@@ -1,4 +1,3 @@
-
 #### CHANGELOG FEEDATY FOR MAGENTO 2
 
 
@@ -6,7 +5,19 @@
 -----------------------------------------------------------------------------------------------------------------------
 ### RELASE NOTES
 -----------------------------------------------------------------------------------------------------------------------
-### V2.0.4
+### V2.2.0 - Cosimo
+
+## Fixed issues
+- Fix Feedaty installation errors for Magento 2.2
+- Works for multishop
+- Code Convenction enchancements
+
+## Functional enchancements
+- Added Feedaty admin menu
+- Multisite supported  
+- Feedaty customers's credentials can be mapped in a special section
+
+### V2.0.4 - Cosimo
 
 ## Fixed issues
 
@@ -15,43 +26,43 @@
 - Change to "Mage2" cURL req User-Agent 
 - Removed discouraged echo construct from csv export 
 
-## Functional enhancements
+## Functional enchancements
 
 - Microdata configuration in Feedaty menu on backend
 - Add debug function for orders and microdata response
 
-### V2.0.3
+### V2.0.3 - Cosimo
 
 ## Fixed issues
 
 - Fix display errors on Feedaty Servers issues
 
-## Functional enhancements
+## Functional enchancements
 
 - Increments to 6h Snippets cache
 - Improve performance by reducing calls to Feedaty API
 
-### V2.0.2
+### V2.0.2 - Cosimo
 
 ## Fixed issues
 
 - Fix cache merchant's and product's rich snippets to minimize the site loading
 
-### V2.0.1
+### V2.0.1 - Cosimo
 
 ## Fixed issues
 
 - Bug in product reviews tab ( a bug in product reviews tab was able to display the tab if reviews are equals to 0 and some times display wrong reviews).
 
 
-## Functional enhancements
+## Functional enchancements
 
 - New Feedaty API with OAuth authentication for sending Orders
 - New google rich snippets
 - Survey email is sent in Customer language
 
 
-## Security enhancements
+## Security enchancements
 
 - Updated validation in Feedaty code and Feedaty secret
 
@@ -65,7 +76,7 @@
 ----------------------------------------------------------------------------------------------------------------------------
 ### METHOD/CLASS CHANGES
 ----------------------------------------------------------------------------------------------------------------------------
-### V2.0.4
+### V2.0.4 - Cosimo
 
 ## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class
 - UPDATED METHOD getProductRichSnippet()
@@ -93,7 +104,7 @@
 - UPDATED adminhtml\system.xml
 - UPDATED events.xml
 
-### V2.0.3
+### V2.0.3 - Cosimo
 
 ## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class
 
@@ -105,7 +116,7 @@
 
 - UPDATED METHOD execute()
 
-### V2.0.2
+### V2.0.2 - Cosimo
 
 ## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class
 
@@ -113,7 +124,7 @@
 - UPDATED METHOD getMerchantRichSnippet()
 
 
-### V2.0.1
+### V2.0.1 - Cosimo
 
 ## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class
 

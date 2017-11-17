@@ -5,6 +5,7 @@
             
             <label>Feedaty</label>
         </tab>
+
         <section id="feedaty_global" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
             <!-- add a new section with id feedaty_global and for tab feedaty -->
             <class>separator-top</class>
@@ -15,12 +16,12 @@
             <!-- group with id feedaty_preferences in section feedaty_global-->
             <group id="feedaty_preferences" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Feedaty</label>
-                <field id="feedaty_code" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="feedaty_code" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <!-- add a new field with id feedaty_code -->
                     <label>Feedaty Code</label>
                     <validate>validate-alphanum</validate>
                 </field>
-                <field id="feedaty_secret" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="feedaty_secret" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
                     <!-- add a new field with id feedaty_code -->
                     <label>Feedaty Secret</label>
                     <validate>validate-alphanum</validate>
@@ -37,14 +38,16 @@
             </group>
 
             <!-- group with id export in feedaty_global section -->
-            <group id="export" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0" translate="label source_model">
+            <group id="export" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" translate="label source_model">
                 <label>Initial orders export</label>
-                <field id="exportbutton" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="exportbutton" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Export to csv</label>
                     <frontend_model>Feedaty\Badge\Block\LinkCsv</frontend_model>
                 </field>
             </group>
-            <group id="debug" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0" translate="label source_model">
+
+            <!-- group with id export in feedaty_global section -->
+            <group id="debug" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" translate="label source_model">
                 <label>Feedaty debug</label>
                 <field id="debug_enabled" translate="label" type="select" sortOrder="3" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enabled</label>

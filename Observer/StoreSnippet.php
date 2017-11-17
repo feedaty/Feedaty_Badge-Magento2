@@ -13,25 +13,24 @@ class StoreSnippet implements ObserverInterface
 {
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
+    * @var \Magento\Framework\App\Config\ScopeConfigInterface
+    */
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Framework\Registry
-     */
+    * @var \Magento\Framework\Registry
+    */
     protected $registry;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
+    * @var \Magento\Store\Model\StoreManagerInterface
+    */
     protected $storeManager;
 
     /**
-     * @var Feedaty\Badge\Helper\Data
-     */
-    protected $_dataHelper;
-
+    * @var Feedaty\Badge\Helper\Data
+    */
+    protected $dataHelper;
 
     /*
     *
@@ -42,37 +41,38 @@ class StoreSnippet implements ObserverInterface
         ScopeConfigInterface $scopeConfig,
         Registry $registry,
         StoreManagerInterface $storeManager,
-        DataHelp $dataHelper
-    ) {
+        DataHelp $dataHelper,
+        WebService $fdservice
+        ) 
+    {
         $this->scopeConfig = $scopeConfig;
         $this->registry = $registry;
         $this->storeManager = $storeManager;
         $this->_dataHelper = $dataHelper;
+        $this->_fdservice = $fdservice;
     }
-
 
     /**
     *
     * Execute
     * @param $observer
     */
-	public function execute(Observer $observer) {
+    public function execute(Observer $observer) {
 
-        $webservice = new WebService($this->scopeConfig, $this->storeManager,$this->_dataHelper);
-		$block = $observer->getBlock();
+        $block = $observer->getBlock();
+        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        $fdWidStorePos = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', $store_scope);
+        $fdSnipStorPos = $this->scopeConfig->getValue('feedaty_microdata_options/snippet_store/store_position', $store_scope);
+        $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
+        $plugin_enabled = $this->scopeConfig->getValue('feedaty_microdata_options/snippet_store/snippet_enabled', $store_scope);
 
-		$fdWidStorePos = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $fdSnipStorPos = $this->scopeConfig->getValue('feedaty_microdata_options/snippet_store/store_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-
-		if ($observer->getElementName()== $fdSnipStorPos && $fdSnipStorPos != $fdWidStorePos) {
-            
-			$plugin_enabled = $this->scopeConfig->getValue('feedaty_microdata_options/snippet_store/snippet_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-			if($plugin_enabled!=0){
-
-                $html = $webservice->getMerchantRichSnippet();
+        if ($observer->getElementName()== $fdSnipStorPos && $fdSnipStorPos != $fdWidStorePos) 
+        {
+            if ($plugin_enabled != 0)
+            {
+                $html = $this->_fdservice->getMerchantRichSnippet($merchant);
                 $observer->getTransport()->setOutput($html);
-
-			}
-		}
-	}
+            }
+        }
+    }
 }

@@ -28,7 +28,7 @@ magento/module-cache-invalidate		100.0.* | <br/>
 
 <h3> REQUIRED SERVER CONFIGURATIONS </h3>
 
-- php >=5.5.27 | php 5.6.* | php 7.0.0
+- php >=5.5.27 | php 5.6.* | php ~ 7.0.0
 - php-curl 
 
 

@@ -13,13 +13,13 @@ class InterceptOrder implements ObserverInterface
 {
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
+    * @var \Magento\Framework\App\Config\ScopeConfigInterface
+    */
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
+    * @var \Magento\Store\Model\StoreManagerInterface
+    */
     protected $storeManager;
 
     /**
@@ -29,20 +29,22 @@ class InterceptOrder implements ObserverInterface
 
     /**
     * Constructor
-    * 
+    *
     */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         Image $imageHelper,
-        DataHelp $dataHelpler
-    ) {
+        DataHelp $dataHelpler,
+        WebService $fdservice
+        ) 
+    {
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->imageHelper = $imageHelper;
         $this->_dataHelpler = $dataHelpler;
+        $this->_fdservice = $fdservice;
     }
-
 
     /**
     * Function execute
@@ -51,81 +53,84 @@ class InterceptOrder implements ObserverInterface
     */
     public function execute(\Magento\Framework\Event\Observer $observer){
 
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        $order = $observer->getEvent()->getOrder();
+        $order_id = $order->getIncrementId();
+        $billingAddress = $order->getBillingAddress()->getCountryId();
+        $verify = 0;
 
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
+        $secret = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_secret', $store_scope);
+        $orderopt = $this->scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', $store_scope);
 
-            $order = $observer->getEvent()->getOrder();
-
-            $order_id = $order->getIncrementId();
-
-            $billingAddress = $order->getBillingAddress()->getCountryId();
-
-            $verify = 0;
-
-            $orderopt = $this->scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-
-            foreach (($order->getAllStatusHistory()) as $orderComment) {
-                if($orderComment->getStatus() === $orderopt) $verify++;
-            }
-
-           if ($order->getStatus() == $orderopt && $verify <= 1) {
-
-                $baseurl_store = $this->storeManager->getStore($order->getStore_id())->getBaseUrl(UrlInterface::URL_TYPE_LINK);
-
-                $objproducts = $order->getAllItems();
-
-                unset($fd_products);
-                
-                foreach ($objproducts as $itemId => $item) {
-                    unset($tmp);
-
-                    if (!$item->getParentItem()) {
-                        $fd_oProduct = $objectManager->get('Magento\Catalog\Model\Product')->load((int) $item->getProductId());
-
-                            $tmp['SKU'] = $item->getProductId();
-                            $tmp['URL'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
-
-                            //get the image url
-                            if ($fd_oProduct->getImage() != "no_selection") {
-                                $store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
-                                $tmp['ThumbnailURL'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
-                            }
-                            else
-                                $tmp['ThumbnailURL'] = "";
-
-                            $tmp['Name'] = $item->getName();
-                            $tmp['Brand'] = $item->getBrand();
-                            if (is_null($tmp['Brand'])) $tmp['Brand']  = "";
-
-                            //$tmp['Price'] = $item->getPrice();
-                            $fd_products[] = $tmp;
-                    }
-                }
-
-                $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
-
-                // Formatting the array to be sent
-                $tmp_order['ID'] = $order->getId();
-                $tmp_order['Date'] = date("Y-m-d H:i:s");
-                $tmp_order['CustomerEmail'] = $order->getCustomerEmail();
-                $tmp_order['CustomerID'] = $order->getCustomerEmail();
-                $tmp_order['Platform'] = "Magento ".$productMetadata->getVersion();
-
-                if ( $billingAddress == 'IT' || $billingAddress == 'EN' ||  $billingAddress == 'ES' ||  $billingAddress == 'DE' || $billingAddress == 'FR' )
-                {
-                    $tmp_order['Culture'] = strtolower($billingAddress);
-                }
-                else $tmp_order['Culture'] = 'en';
-
-                $tmp_order['Products'] = $fd_products;
-
-
-                $fd_data[] = $tmp_order;
-
-                // send to feedaty
-                $webService = new WebService( $this->scopeConfig, $this->storeManager, $this->_dataHelpler );
-                $webService->send_order($fd_data);
-                
-            }
+        foreach (($order->getAllStatusHistory()) as $orderComment) 
+        {
+            if ($orderComment->getStatus() === $orderopt) $verify++;
         }
+
+        if ($order->getStatus() == $orderopt && $verify <= 1) 
+        {
+
+            $baseurl_store = $this->storeManager->getStore($order->getStore_id())->getBaseUrl(UrlInterface::URL_TYPE_LINK);
+
+            $objproducts = $order->getAllItems();
+
+            unset($fd_products);
+
+            foreach ($objproducts as $itemId => $item) 
+            {
+                unset($tmp);
+
+                if (!$item->getParentItem()) 
+                {
+                    $fd_oProduct = $objectManager->get('Magento\Catalog\Model\Product')->load((int) $item->getProductId());
+
+                    $tmp['SKU'] = $item->getProductId();
+                    $tmp['URL'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
+
+                        //get the image url
+                    if ($fd_oProduct->getImage() != "no_selection") 
+                    {
+                        $store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
+                        $tmp['ThumbnailURL'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
+                    }
+                    else 
+                    {
+                        $tmp['ThumbnailURL'] = "";
+                    }
+
+                    $tmp['Name'] = $item->getName();
+                    $tmp['Brand'] = $item->getBrand();
+                    if ($tmp['Brand'] === null) $tmp['Brand']  = "";
+
+                    //$tmp['Price'] = $item->getPrice();
+                    $fd_products[] = $tmp;
+                }
+            }
+
+            $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
+
+            // Formatting the array to be sent
+            $tmp_order['ID'] = $order->getId();
+            $tmp_order['Date'] = date("Y-m-d H:i:s");
+            $tmp_order['CustomerEmail'] = $order->getCustomerEmail();
+            $tmp_order['CustomerID'] = $order->getCustomerEmail();
+            $tmp_order['Platform'] = "Magento ".$productMetadata->getVersion();
+
+            if ($billingAddress == 'IT' || $billingAddress == 'EN' || $billingAddress == 'ES' || $billingAddress == 'DE' || $billingAddress == 'FR') 
+            {
+                $tmp_order['Culture'] = strtolower($billingAddress);
+            }
+            else $tmp_order['Culture'] = 'en';
+
+            $tmp_order['Products'] = $fd_products;
+            $fd_data[] = $tmp_order;
+
+            // send to feedaty
+
+            $this->_fdservice->send_order($merchant,$secret,$fd_data);
+
+        }
+    }
 }
