@@ -32,9 +32,9 @@ magento/module-cache-invalidate		100.0.* | <br/>
 - php-curl 
 
 
----------------------------------------------------------------------------------------------------------------------
 <h2> INSTALL FEEDATY MODULE </h2>
----------------------------------------------------------------------------------------------------------------------
+
+
 <h3> Install from composer </h3>
 
 1st) move to your magento root directory
@@ -61,9 +61,9 @@ magento/module-cache-invalidate		100.0.* | <br/>
 1st) Move Feedaty_Badge-2.0.1 directory in path/to/your/magento-root-dir/app/code/ and rename it Feedaty
 
 
----------------------------------------------------------------------------------------------------------------------
 <h2> ENABLE FEEDATY MODULE </h2>
----------------------------------------------------------------------------------------------------------------------
+
+
 <h3> Enable Feedaty module from backend </h3>
 
 1st) Move Feedaty directory in path/to/your/magento-root-dir/app/code/
