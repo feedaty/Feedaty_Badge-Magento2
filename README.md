@@ -141,10 +141,12 @@ same procedure like enabling, when you arrive in "component manager", select "Di
 
 to clear static contents you can append "--clear-static-contents" in module:disable command
 If you append "--clear-static-contents" don't forget to run
+```bash
 
  # bin/magento setup:di:compile
  # bin/magento setup:static-content:deploy
 
+```
 
 <h2> SETUP/CONFIG FEEDATY WIDGETS </h2>
 
