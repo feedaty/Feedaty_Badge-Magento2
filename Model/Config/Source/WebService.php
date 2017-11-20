@@ -1,26 +1,28 @@
 <?php
 namespace Feedaty\Badge\Model\Config\Source;
 
+use \Magento\Framework\HTTP\Client\Curl;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Magento\Store\Model\StoreManagerInterface;
 use Feedaty\Badge\Helper\Data as DataHelp;
 
-class WebService {
+class WebService 
+{
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
+    * @var \Magento\Framework\App\Config\ScopeConfigInterface
+    */
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
+    * @var \Magento\Store\Model\StoreManagerInterface
+    */
     protected $storeManager;
 
     /**
-     * @var Feedaty\Badge\Helper\Data
-     */
-    protected $_dataHelper;
+    * @var Feedaty\Badge\Helper\Data
+    */
+    protected $dataHelper;
 
     /*
     * Constructor
@@ -30,12 +32,12 @@ class WebService {
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         DataHelp $dataHelper
-    ) {
-        $this->scopeConfig = $scopeConfig;
-        $this->storeManager = $storeManager;
+        ) 
+    {
+        $this->_scopeConfig = $scopeConfig;
+        $this->_storeManager = $storeManager;
         $this->_dataHelper = $dataHelper;
     }
-
 
     /**
     * Function getReqToken - get the request token
@@ -45,7 +47,9 @@ class WebService {
     */
     private function getReqToken(){
         
-        $header = array( 'Content-Type: application/x-www-form-urlencoded');
+        $header = [
+            'Content-Type: application/x-www-form-urlencoded'
+        ];
         $url = "http://api.feedaty.com/OAuth/RequestToken";
 
         $ch = curl_init($url);
@@ -61,7 +65,6 @@ class WebService {
 
         return $response;
     }
-
 
     /**
     * Function serializeData - serialize data to send 
@@ -79,7 +82,6 @@ class WebService {
         return $data;
     }
 
-
     /**
     * Function getAccessToken - get the access token
     *
@@ -87,12 +89,19 @@ class WebService {
     *
     * @return $response - the access token
     */
-    private function getAccessToken($token,$merchant,$secret){
+    private function getAccessToken($token,$merchant,$secret) {
 
         $encripted_code = $this->encryptToken($token,$merchant,$secret);
 
-        $fields = array( 'oauth_token' => $token->RequestToken,'grant_type'=>'authorization' );
-        $header = array( 'Content-Type: application/x-www-form-urlencoded','Authorization: Basic '.$encripted_code,'User-Agent: Mage2' );
+        $fields = [
+            'oauth_token' => $token->RequestToken,
+            'grant_type'=>'authorization'
+        ];
+        $header = [
+            'Content-Type: application/x-www-form-urlencoded',
+            'Authorization: Basic '.$encripted_code,
+            'User-Agent: Mage2'
+        ];
         $dati = $this->serializeData($fields);
         $url = "http://api.feedaty.com/OAuth/AccessToken";
 
@@ -111,7 +120,6 @@ class WebService {
         return $response;
     }
 
-
     /**
     * Function encryptToken
     *
@@ -121,95 +129,94 @@ class WebService {
     *
     * @return $base64_sha_token - the encrypted token
     */
-    private function encryptToken($token,$merchant,$secret){
-
+    private function encryptToken($token, $merchant, $secret){
         $sha_token = sha1($token->RequestToken.$secret);
         $base64_sha_token = base64_encode($merchant.":".$sha_token);
         return $base64_sha_token;   
     }
 
     /**
-    * Function retrive_informations_product
+    * Function retriveInformationsProduct
     *
     * @param int $id
     *
     */
-    public function retrive_informations_product($id) {
+    public function retriveInformationsProduct($feedaty_code, $id) {
 
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         $cache = $om->get('Magento\Framework\App\CacheInterface');
 
-		$content = $cache->load("feedaty_product_".$id);
-		
-		if (!$content || strlen($content) == 0 || $content === "null") {
-			$feedaty_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-			
-			$ch = curl_init();
+        $content = $cache->load("feedaty_product_".$id);
+        
+        if (!$content || strlen($content) == 0 || $content === "null") 
+        {
+            $ch = curl_init();
 
             $resolver = $om->get('Magento\Framework\Locale\Resolver');
             $url = 'http://widget.zoorate.com/go.php?function=feed&action=ws&task=product&merchant_code='.$feedaty_code.'&ProductID='.$id.'&language='.$resolver->getLocale();
 
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_TIMEOUT, '3');
-			$content = trim(curl_exec($ch));
-			curl_close($ch);
-			
-			if (strlen($content) > 0)
-			$cache->save($content, "feedaty_product_".$id, array("feedaty_cache"), 3*60*60); // 3 hours of cache
-		}
-		
-		$data = json_decode($content,true);
-		
-		return $data;
-	}
-	
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, '3');
+            $content = trim(curl_exec($ch));
+            curl_close($ch);
+            
+            if (strlen($content) > 0) 
+            {
+                // 3 hours of cache
+                $cache->save($content, "feedaty_product_".$id, array("feedaty_cache"), 3*60*60);
+            }
+        }
+        
+        $data = json_decode($content, true);
+        
+        return $data;
+    }
 
     /**
     * Function retrive_informations_store
     * @return $data
     */
-	public function retrive_informations_store() {
+    public function retrive_informations_store($feedaty_code) {
 
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         $cache = $om->get('Magento\Framework\App\CacheInterface');
 
-		$content = $cache->load("feedaty_store");
-		
-		if (!$content || strlen($content) < 5 || $content === "null") {
-			$feedaty_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-
-			$ch = curl_init();
+        $content = $cache->load("feedaty_store");
+        
+        if (!$content || strlen($content) < 5 || $content === "null") 
+        {
+            $ch = curl_init();
             $url = 'http://widget.zoorate.com/go.php?function=feed&action=ws&task=merchant&merchant_code='.$feedaty_code;
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_TIMEOUT, '3');
-			$content = trim(curl_exec($ch));
-			curl_close($ch);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, '3');
+            $content = trim(curl_exec($ch));
+            curl_close($ch);
 
-			if (strlen($content) > 0)
-			$cache->save($content, "feedaty_store", array("feedaty_cache"), 3*60*60); // 3 hours of cache
-		}
-		
-		$data = json_decode($content,true);
+            if (strlen($content) > 0)
+            {
+                // 3 hours of cache
+                $cache->save($content, "feedaty_store", array("feedaty_cache"), 3*60*60);
+            }
+        }
+        
+        $data = json_decode($content,true);
     
-		return $data;
-	}
+        return $data;
+    }
 
-
-	/**
+    /**
     * Function send_order 
     *
     * @param object $data
     * 
     */
-	public function send_order($data) {
+    public function send_order($merchant, $secret, $data) {
 
+        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $ch = curl_init();
         $url = 'http://api.feedaty.com/Orders/Insert';
-
-        $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $secret = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_secret', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
         $token = $this->getReqToken();
         $accessToken = $this->getAccessToken($token, $merchant, $secret);
@@ -219,21 +226,19 @@ class WebService {
         curl_setopt($ch, CURLOPT_TIMEOUT, '60');
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER,array('Content-Type: application/json', 'Authorization: Oauth '.$accessToken->AccessToken));
+        curl_setopt($ch, CURLOPT_HTTPHEADER,['Content-Type: application/json', 'Authorization: Oauth '.$accessToken->AccessToken]);
         curl_setopt($ch, CURLOPT_HEADER, 1);
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $content = trim(curl_exec($ch));
 
         curl_close($ch);
 
-        $fdDebugEnabled = $this->scopeConfig->getValue('feedaty_global/debug/debug_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
         if($fdDebugEnabled != 0) {
             $message = json_encode($content);
             $this->feedatyDebug($message, "ORDER RESPONSE INFO");
         }
-
-	}
-
+    }
 
     /**
     * Function getProductRichSnippet 
@@ -243,19 +248,19 @@ class WebService {
     * @return $response - the html product's rich snippet
     *
     */
-    public function getProductRichSnippet($product_id){
-
-        $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-
+    public function getProductRichSnippet($merchant,$product_id) {
+        
+        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         $cache = $om->get('Magento\Framework\App\CacheInterface');
         $content = json_decode($cache->load("feedaty_prod_snip".$merchant.$product_id));
-
-        if (!$content || strlen($content) < 5 || $content === "null") {
-
+        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
+        
+        if (!$content || strlen($content) < 5 || $content === "null") 
+        {
             $path = 'http://white.zoorate.com/gen';
-            $dati = array( 'w' => 'wp','MerchantCode' => $merchant,'t' => 'microdata', 'version' => 2, 'sku' => $product_id );
-            $header = array( 'Content-Type: text/html','User-Agent: Mage2' );
+            $dati = [ 'w' => 'wp','MerchantCode' => $merchant,'t' => 'microdata', 'version' => 2, 'sku' => $product_id ];
+            $header = [ 'Content-Type: text/html','User-Agent: Mage2' ];
             $dati = $this->serializeData($dati);
             $path.='?'.$dati;
             $ch = curl_init($path);
@@ -268,12 +273,13 @@ class WebService {
             $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            // 6 hours of cache
-            if (strlen($content) > 0 && $http_resp == "200")
-            $cache->save(json_encode($content), "feedaty_prod_snip".$merchant.$product_id, array("feedaty_cache"), 6*60*60);
-
+            if (strlen($content) > 0 && $http_resp == "200") 
+            {
+                // 6 hours of cache
+                $cache->save(json_encode($content), "feedaty_prod_snip".$merchant.$product_id, array("feedaty_cache"), 6*60*60);
+            }
             //debug call
-            $fdDebugEnabled = $this->scopeConfig->getValue('feedaty_global/debug/debug_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+            
             if($fdDebugEnabled != 0) {
                 $message = "Product microdata response with ".$http_resp." http code";
                 $this->feedatyDebug($message, "MICRODATA RESPONSE INFO");
@@ -283,33 +289,33 @@ class WebService {
         return $content;
     }
     
-
     /**
     * Function getMerchantRichSnippet
     *
     * @return $response - the html merchant's rich snippet
     *
     */
-    public function getMerchantRichSnippet(){
-
-        $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    public function getMerchantRichSnippet($merchant){
 
         $om = \Magento\Framework\App\ObjectManager::getInstance();
+        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $cache = $om->get('Magento\Framework\App\CacheInterface');
         $content = json_decode($cache->load("feedaty_store_snip".$merchant));
+        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
 
-        if (!$content || strlen($content) < 5 || $content === "null") {
-
+        if (!$content || strlen($content) < 5 || $content === "null") 
+        {
             $path = 'http://white.zoorate.com/gen';
-            $dati = array(
+            $dati = [
                 'w' => 'wp',
                 'MerchantCode' => $merchant,
                 't' => 'microdata',
                 'version' => 2,
-            );
-            $header = array('Content-Type: text/html',
+            ];
+            $header = [
+                'Content-Type: text/html',
                 'User-Agent: Mage2'
-            );
+            ];
             $dati = $this->serializeData($dati);
             $path.='?'.$dati;
             $path = str_replace("=2&", "=2", $path);
@@ -324,11 +330,12 @@ class WebService {
             curl_close($ch);
             
             // 6 hours of cache            
-            if (strlen($content) > 0 && $http_resp == "200")
-            $cache->save(json_encode($content), "feedaty_store_snip".$merchant, array("feedaty_cache"), 6*60*60); 
+            if (strlen($content) > 0 && $http_resp == "200") 
+            {
+                $cache->save(json_encode($content), "feedaty_store_snip".$merchant, array("feedaty_cache"), 6*60*60);  
+            }
             
             //debug call
-            $fdDebugEnabled = $this->scopeConfig->getValue('feedaty_global/debug/debug_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
             if($fdDebugEnabled != 0) {
                 $message = "Merchant microdata response with ".$http_resp." http code";
                 $this->feedatyDebug($message, "MICRODATA RESPONSE INFO");
@@ -337,31 +344,29 @@ class WebService {
         return $content;
     }
 
-
-
-
     /**
     * Function _get_FeedatyData
     *
     * @return $data
     */
-    public function _get_FeedatyData() {
+    public function _get_FeedatyData($feedaty_code) {
 
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         $cache = $om->get('Magento\Framework\App\CacheInterface');
-
         $content = $cache->load("feedaty_store");
 
-        if(rand(1,3000) === 2000) $this->send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
-
-        $feedaty_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        if (rand(1,3000) === 2000) 
+        {
+            $this->send_notification($this->_scopeConfig, $this->_storeManager, $this->_dataHelper);
+        } 
 
         $resolver = $om->get('Magento\Framework\Locale\Resolver');
 
         $string = "FeedatyData".$feedaty_code.$resolver->getLocale();
         $content =$cache->load($string);
 
-		if (!$content || strlen($content) == 0 || $content === "null") {
+        if (!$content || strlen($content) == 0 || $content === "null") 
+        {
             $ch = curl_init();
             $url = 'http://widget.zoorate.com/go.php?function=feed_be&action=widget_list&merchant_code='.$feedaty_code.'&language='.$resolver->getLocale();
 
@@ -374,7 +379,7 @@ class WebService {
             $cache->save($content, "FeedatyData".$feedaty_code.$resolver->getLocale(), array("feedaty_cache"), 24*60*60); // 24 hours of cache
         }
 
-        $data = json_decode($content,true);
+        $data = json_decode($content, true);
         return $data;
     }
 
@@ -383,55 +388,42 @@ class WebService {
     *
     * @param object $_scopeConfig
     * @param object $_storeManager
-    * @param object $_dataHelper
+    * @param object Feedaty\Helper\Data dataHelper
     */
-    public function send_notification($_scopeConfig,$_storeManager,$_dataHelper) {
+    public function send_notification($_scopeConfig, $_storeManager, $feedatyHelper) {
 
+        $store = $_storeManager->getStore();
+        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        $ver = json_decode(json_encode($feedatyHelper->getExtensionVersion()), true);
+        $prodMetadata = $om->get('Magento\Framework\App\ProductMetadataInterface');
 
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        $cache = $om->get('Magento\Framework\App\CacheInterface');
+        $fdata['keyValuePairs'][] = ["Key" => "Platform", "Value" => "Magento ".$prodMetadata->getVersion()];
+        $fdata['keyValuePairs'][] = ["Key" => "Version", "Value" => (string) $feedatyHelper->getExtensionVersion()];
+        $fdata['keyValuePairs'][] = ["Key" => "Url", "Value" => $_storeManager->getStore()->getBaseUrl()];
+        $fdata['keyValuePairs'][] = ["Key" => "Os", "Value" => PHP_OS];
+        $fdata['keyValuePairs'][] = ["Key" => "Php Version", "Value" => phpversion()];
+        $fdata['keyValuePairs'][] = ["Key" => "Name", "Value" => $store->getName()];
+        $fdata['keyValuePairs'][] = ["Key" => "Action", "Value" => "Enabled"];
+        $fdata['keyValuePairs'][] = ["Key" => "Position_Merchant", "Value" => $_scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', $store_scope)];
+        $fdata['keyValuePairs'][] = ["Key" => "Position_Product", "Value" => $_scopeConfig->getValue('feedaty_badge_options/widget_products/product_position', $store_scope)];
+        $fdata['keyValuePairs'][] = ["Key" => "Status", "Value" => $_scopeConfig->getValue('feedaty_global/sendorder/sendorder', $store_scope)];
+        $fdata['merchantCode'] = $_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
 
-        $content = $cache->load("feedaty_notification");
+        $ch = curl_init();
 
-        $cnt = $_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)."-".$_scopeConfig->getValue('feedaty_badge_options/widget_store/enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)."-".$_scopeConfig->getValue('feedaty_badge_options/widget_products/product_enabled', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $url = 'http://www.zoorate.com/ws/feedatyapi.svc/SetPluginKeyValue';
 
-        if ($content != $cnt) {
-            $store = $_storeManager->getStore();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, '60');
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($fdata));
+        curl_setopt($ch, CURLOPT_HTTPHEADER,['Content-Type: application/json','Expect:']);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+        $content = trim(curl_exec($ch));
 
-            $ver = json_decode(json_encode($_dataHelper->getExtensionVersion()),true);
-
-            $prodMetadata = $om->get('Magento\Framework\App\ProductMetadataInterface');
-
-            $fdata['keyValuePairs'][] = array("Key" => "Platform", "Value" => "Magento ".$prodMetadata->getVersion());
-            $fdata['keyValuePairs'][] = array("Key" => "Version", "Value" => (string) $_dataHelper->getExtensionVersion());
-            $fdata['keyValuePairs'][] = array("Key" => "Url", "Value" => $_storeManager->getStore()->getBaseUrl());
-            $fdata['keyValuePairs'][] = array("Key" => "Os", "Value" => PHP_OS);
-            $fdata['keyValuePairs'][] = array("Key" => "Php Version", "Value" => phpversion());
-            $fdata['keyValuePairs'][] = array("Key" => "Name", "Value" => $store->getName());
-            $fdata['keyValuePairs'][] = array("Key" => "Action", "Value" => "Enabled");
-            $fdata['keyValuePairs'][] = array("Key" => "Position_Merchant", "Value" => $_scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
-            $fdata['keyValuePairs'][] = array("Key" => "Position_Product", "Value" => $_scopeConfig->getValue('feedaty_badge_options/widget_products/product_position', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
-            $fdata['keyValuePairs'][] = array("Key" => "Status", "Value" => $_scopeConfig->getValue('feedaty_global/sendorder/sendorder', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
-            $fdata['merchantCode'] = $_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-
-            $ch = curl_init();
-
-            $url = 'http://www.zoorate.com/ws/feedatyapi.svc/SetPluginKeyValue';
-
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, '60');
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($fdata));
-            curl_setopt($ch, CURLOPT_HTTPHEADER,array('Content-Type: application/json','Expect:'));
-            curl_setopt($ch, CURLOPT_HEADER, 1);
-            curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-            $content = trim(curl_exec($ch));
-
-            curl_close($ch);
-            
-            $cache->save($cnt, "feedaty_notification", array("feedaty_cache"), 10*24*60*60);
-        }
+        curl_close($ch);      
     }
 
     /**
@@ -444,4 +436,5 @@ class WebService {
         $fdlogger->addWriter($fdwriter);
         $fdlogger->info("\n".$severity."\n".$message."\n");
     }
-}	
+}
+// TODO: use magento curl client

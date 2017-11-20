@@ -7,12 +7,11 @@ class FeedatyOrder implements ArrayInterface
 {
     public function toOptionArray()
     {
-    	$return = array(
-    		array("value"=>"0","label"=>__("Newest reviews first")),
-    		array("value"=>"1","label"=>__("Old reviews first")),
-    	);
-		
-		return $return;
+        $return = [
+            ["value" => "0","label" => __("Newest reviews first")],
+            ["value" => "1","label" => __("Old reviews first")],
+        ];
+        
+        return $return;
     }
 }
-

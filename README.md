@@ -1,6 +1,6 @@
 <h1> FEEDATY BADGE 2</h1>
----------------------------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------------------------
+
+
 Feedaty is a social commerce site dedicated to online stores for the professional management of customer feedback. 
 The service is provided through a platform Saas (Software as a Service) and may be activated quickly and easily through a short integration process.
 
@@ -28,13 +28,13 @@ magento/module-cache-invalidate		100.0.* | <br/>
 
 <h3> REQUIRED SERVER CONFIGURATIONS </h3>
 
-- php >=5.5.27 | php 5.6.* | php 7.0.0
+- php >=5.5.27 | php 5.6.* | php ~ 7.0.0
 - php-curl 
 
 
----------------------------------------------------------------------------------------------------------------------
 <h2> INSTALL FEEDATY MODULE </h2>
----------------------------------------------------------------------------------------------------------------------
+
+
 <h3> Install from composer </h3>
 
 1st) move to your magento root directory
@@ -61,9 +61,9 @@ magento/module-cache-invalidate		100.0.* | <br/>
 1st) Move Feedaty_Badge-2.0.1 directory in path/to/your/magento-root-dir/app/code/ and rename it Feedaty
 
 
----------------------------------------------------------------------------------------------------------------------
 <h2> ENABLE FEEDATY MODULE </h2>
----------------------------------------------------------------------------------------------------------------------
+
+
 <h3> Enable Feedaty module from backend </h3>
 
 1st) Move Feedaty directory in path/to/your/magento-root-dir/app/code/
@@ -99,7 +99,7 @@ or if your server run on Debian/Ubuntu:
 
  to let apache get the permission to write cache.
 
-<h3> enable module from Magento consolle </h3>
+<h3> enable module from Magento console </h3>
 1st) login with the own of the magento installation for example:
 
 ```bash
@@ -115,19 +115,20 @@ now enter below commands:
  # bin/magento module:enable Feedaty_Badge
 
 ```
- consolle ask to run setup:di:compile command, some times you can avoid enter this command
+ console ask to run setup:di:compile command, some times you can avoid enter this command
  if you enter "setup:di:compile" command, don't forget to check permissions to 
  "path/to/your/magento-root-dir/var" directory, otherwise a zend exeption rise
  because magento can't write cache in var directory.
 
------------------------------------------------------------------------------------------------------------------------
+
 <h2> DISABLE FEEDATY MODULE </h2>
------------------------------------------------------------------------------------------------------------------------
+
+
 <h3> Disable feedaty module from backend</h3>
 
 same procedure like enabling, when you arrive in "component manager", select "Disable" and save your configuration.
 
-<h3> Disable feedaty module from Magento Consolle. </h3>
+<h3> Disable feedaty module from Magento Console. </h3>
 
 1st) login with the own of the magento installation, after you must enter below commands:
 ```bash
@@ -140,12 +141,16 @@ same procedure like enabling, when you arrive in "component manager", select "Di
 
 to clear static contents you can append "--clear-static-contents" in module:disable command
 If you append "--clear-static-contents" don't forget to run
+```bash
 
  # bin/magento setup:di:compile
  # bin/magento setup:static-content:deploy
------------------------------------------------------------------------------------------------------------------------
+
+```
+
 <h2> SETUP/CONFIG FEEDATY WIDGETS </h2>
------------------------------------------------------------------------------------------------------------------------
+
+
 To setup Feedaty Widgets follow these steps;
 
 1st) Click on "Stores" in the left-side bar menu.
@@ -156,9 +161,9 @@ To setup Feedaty Widgets follow these steps;
 
 4th) Select preferences aboute module design, and set on enable widgets and/or product reviews.
 
------------------------------------------------------------------------------------------------------------------------
+
 <h2> INFOS AND CONTACTS </h2>
------------------------------------------------------------------------------------------------------------------------
+
 www.zoorate.com
 www.feedaty.com
 

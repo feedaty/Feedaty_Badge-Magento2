@@ -1,4 +1,5 @@
 <?php
+
 namespace Feedaty\Badge\Model\Config\Source;
 
 use \Magento\Framework\Option\ArrayInterface;
@@ -6,6 +7,7 @@ use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Feedaty\Badge\Model\Config\Source\WebService;
 use \Magento\Store\Model\StoreManagerInterface; 
 use Feedaty\Badge\Helper\Data as DataHelp;
+use \Magento\Framework\App\Request\Http;
 
 class StyleProduct implements ArrayInterface
 {
@@ -17,7 +19,7 @@ class StyleProduct implements ArrayInterface
     /**
     * @var Feedaty\Badge\Helper\Data
     */
-    protected $_dataHelper;
+    protected $dataHelper;
 
     /*
     * Constructor
@@ -26,13 +28,17 @@ class StyleProduct implements ArrayInterface
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
-        DataHelp $dataHelper
-    ) {
+        DataHelp $dataHelper,
+        Http $request,
+        WebService $fdservice
+        ) 
+    {
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->_dataHelper = $dataHelper;
+        $this->_request = $request;
+        $this->_fdservice = $fdservice;
     }
-
 
     /**
     *
@@ -40,17 +46,29 @@ class StyleProduct implements ArrayInterface
     */
     public function toOptionArray()
     {
-        $service = new WebService($this->scopeConfig, $this->storeManager,$this->_dataHelper);
-		if (strlen($this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) == 0) return array();
+        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        $store = $this->storeManager->getStore($this->_request->getParam('store',0));
+        $merchant_code = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
 
-        $data = $service->_get_FeedatyData();
-		foreach ($data as $k=>$v) {
-            if ($v['type'] == "product")
-			    $return[] = array('value'=>$k,'label'=>' <img src="'.$v['thumb'].'"><br />');
-		}
-		
-		
-		return $return;
+        if($this->_request->getParam('store', 0) == 0) 
+        {
+            $merchant_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
+        }
+
+        if (strlen($merchant_code) == 0)
+        {
+           return array(); 
+        } 
+
+        $data = $this->_fdservice->_get_FeedatyData($merchant_code);
+        foreach ($data as $k => $v) 
+        {
+            if ($v['type'] == "product") 
+            {
+                $return[] = ['value' => $k,'label' => ' <img src="'.$v['thumb'].'"><br />'];
+            }
+        }
+        
+        return $return;
     }
 }
-
