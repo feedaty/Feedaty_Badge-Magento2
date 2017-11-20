@@ -48,13 +48,13 @@ class StyleStore implements ArrayInterface
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $store = $this->storeManager->getStore($this->_request->getParam('store', 0));
         $merchant_code = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
-        
+
         if($this->_request->getParam('store', 0) == 0) 
         {
             $merchant_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
         }
 
-        if (strlen($this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope )) == 0)  
+        if (strlen($merchant_code == 0))  
         {
             return array();
         }

@@ -55,7 +55,7 @@ class StyleProduct implements ArrayInterface
             $merchant_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
         }
 
-        if (strlen($this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope)) == 0)
+        if (strlen($merchant_code) == 0)
         {
            return array(); 
         } 
