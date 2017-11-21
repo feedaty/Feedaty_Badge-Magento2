@@ -31,12 +31,19 @@ class WebService
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
-        DataHelp $dataHelper
+        DataHelp $dataHelper,
+        Curl $curl
         ) 
     {
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
         $this->_dataHelper = $dataHelper;
+        $this->_curl = $curl;
+        $this->_curl->setOption(CURLOPT_SSL_VERIFYPEER, false);
+        $this->_curl->setOption(CURLOPT_SSL_VERIFYHOST, false);
+        $this->_curl->setOption(CURLOPT_FOLLOWLOCATION, 1);
+        $this->_curl->setOption(CURLOPT_RETURNTRANSFER, 1);
+        $this->_curl->setOption(CURLOPT_VERBOSE, true);
     }
 
     /**
@@ -47,21 +54,11 @@ class WebService
     */
     private function getReqToken(){
         
-        $header = [
-            'Content-Type: application/x-www-form-urlencoded'
-        ];
         $url = "http://api.feedaty.com/OAuth/RequestToken";
+        $this->_curl->addHeader('Content-Type','application/x-www-form-urlencoded');
+        $this->_curl->get($url);
 
-        $ch = curl_init($url);
-
-        curl_setopt($ch, CURLOPT_HTTPGET, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
-
-        $response = json_decode(curl_exec($ch));
-
-        curl_close($ch);
+        $response = json_decode($this->_curl->getBody());
 
         return $response;
     }
@@ -78,7 +75,7 @@ class WebService
         foreach($fields as $k => $v){
             $data .= $k . '=' . urlencode($v) . '&';
         }
-        rtrim($data, '&');
+        $data = rtrim($data, '&');
         return $data;
     }
 
@@ -93,29 +90,19 @@ class WebService
 
         $encripted_code = $this->encryptToken($token,$merchant,$secret);
 
+        $url = "http://api.feedaty.com/OAuth/AccessToken";
+        $this->_curl->addHeader("Content-Type","application/x-www-form-urlencoded");
+        $this->_curl->addHeader("Authorization", "Basic " . $encripted_code);
+        $this->_curl->addHeader("User-Agent","Mage2");
+
         $fields = [
             'oauth_token' => $token->RequestToken,
             'grant_type'=>'authorization'
         ];
-        $header = [
-            'Content-Type: application/x-www-form-urlencoded',
-            'Authorization: Basic '.$encripted_code,
-            'User-Agent: Mage2'
-        ];
-        $dati = $this->serializeData($fields);
-        $url = "http://api.feedaty.com/OAuth/AccessToken";
 
-        $ch = curl_init($url);
+        $this->_curl->post($url,$fields);
 
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $dati);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
-
-        $response = json_decode(curl_exec($ch));
-
-        curl_close($ch);
+        $response = $this->_curl->getBody();
 
         return $response;
     }
@@ -219,8 +206,8 @@ class WebService
         $url = 'http://api.feedaty.com/Orders/Insert';
 
         $token = $this->getReqToken();
-        $accessToken = $this->getAccessToken($token, $merchant, $secret);
-        
+        $accessToken =json_decode($this->getAccessToken($token, $merchant, $secret));
+
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, '60');
