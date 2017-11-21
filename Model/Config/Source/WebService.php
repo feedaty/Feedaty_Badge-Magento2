@@ -39,8 +39,6 @@ class WebService
         $this->_storeManager = $storeManager;
         $this->_dataHelper = $dataHelper;
         $this->_curl = $curl;
-        $this->_curl->setOption(CURLOPT_SSL_VERIFYPEER, false);
-        $this->_curl->setOption(CURLOPT_SSL_VERIFYHOST, false);
         $this->_curl->setOption(CURLOPT_FOLLOWLOCATION, 1);
         $this->_curl->setOption(CURLOPT_RETURNTRANSFER, 1);
         $this->_curl->setOption(CURLOPT_VERBOSE, true);
