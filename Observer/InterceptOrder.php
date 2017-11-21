@@ -8,6 +8,7 @@ use \Magento\Catalog\Helper\Image;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Feedaty\Badge\Helper\Data as DataHelp;
+use \Magento\Framework\App\Request\Http;
 
 class InterceptOrder implements ObserverInterface
 {
@@ -36,14 +37,16 @@ class InterceptOrder implements ObserverInterface
         StoreManagerInterface $storeManager,
         Image $imageHelper,
         DataHelp $dataHelpler,
-        WebService $fdservice
+        WebService $fdservice,
+        Http $request //remove http dependecy
         ) 
     {
-        $this->scopeConfig = $scopeConfig;
-        $this->storeManager = $storeManager;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_storeManager = $storeManager;
         $this->imageHelper = $imageHelper;
         $this->_dataHelpler = $dataHelpler;
         $this->_fdservice = $fdservice;
+        $this->_request = $request;
     }
 
     /**
@@ -54,15 +57,15 @@ class InterceptOrder implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer){
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $order = $observer->getEvent()->getOrder();
+        $store = $this->_storeManager->getStore($order->getStore_id());
         $order_id = $order->getIncrementId();
         $billingAddress = $order->getBillingAddress()->getCountryId();
         $verify = 0;
-
-        $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
-        $secret = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_secret', $store_scope);
-        $orderopt = $this->scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', $store_scope);
+        
+        $merchant = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
+        $secret = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_secret');
+        $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
 
         foreach (($order->getAllStatusHistory()) as $orderComment) 
         {
@@ -72,7 +75,7 @@ class InterceptOrder implements ObserverInterface
         if ($order->getStatus() == $orderopt && $verify <= 1) 
         {
 
-            $baseurl_store = $this->storeManager->getStore($order->getStore_id())->getBaseUrl(UrlInterface::URL_TYPE_LINK);
+            $baseurl_store = $store->getBaseUrl(UrlInterface::URL_TYPE_LINK);
 
             $objproducts = $order->getAllItems();
 
@@ -92,7 +95,7 @@ class InterceptOrder implements ObserverInterface
                         //get the image url
                     if ($fd_oProduct->getImage() != "no_selection") 
                     {
-                        $store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
+                        //$store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
                         $tmp['ThumbnailURL'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
                     }
                     else 
@@ -128,7 +131,6 @@ class InterceptOrder implements ObserverInterface
             $fd_data[] = $tmp_order;
 
             // send to feedaty
-
             $this->_fdservice->send_order($merchant,$secret,$fd_data);
 
         }
