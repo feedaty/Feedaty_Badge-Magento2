@@ -1,10 +1,13 @@
 #### CHANGELOG FEEDATY FOR MAGENTO 2
 
 
-
------------------------------------------------------------------------------------------------------------------------
 ### RELASE NOTES
------------------------------------------------------------------------------------------------------------------------
+
+### V2.2.1 - Cosimo
+
+- Code Convenction enchancements
+- Fix bug "invalid argument supplied for foreach" in StyleStore.php
+
 ### V2.2.0 - Cosimo
 
 ## Fixed issues

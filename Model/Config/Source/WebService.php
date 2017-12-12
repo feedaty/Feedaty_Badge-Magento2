@@ -338,7 +338,6 @@ class WebService
 
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         $cache = $om->get('Magento\Framework\App\CacheInterface');
-        $content = $cache->load("feedaty_store");
 
         if (rand(1,3000) === 2000) 
         {
