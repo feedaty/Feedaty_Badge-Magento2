@@ -5,13 +5,13 @@ use \Magento\Framework\Data\Form\Element\AbstractElement;
 
 class LinkCsv extends \Magento\Config\Block\System\Config\Form\Field
 {
+
     /**
     * @param $element
     * @return $html
     */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $store_id = (int) $this->_request->getParam('store', 0);
 
         $this->setElement($element);

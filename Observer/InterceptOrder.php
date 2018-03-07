@@ -4,10 +4,12 @@ namespace Feedaty\Badge\Observer;
 use Feedaty\Badge\Model\Config\Source\WebService;
 use \Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\UrlInterface;
+use \Magento\Catalog\Helper\Image;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Feedaty\Badge\Helper\Data as DataHelp;
-use \Magento\Framework\App\ObjectManager;
+use \Magento\Framework\App\Request\Http;
+use \Magento\Framework\ObjectManagerInterface;
 
 class InterceptOrder implements ObserverInterface
 {
@@ -23,18 +25,13 @@ class InterceptOrder implements ObserverInterface
     protected $storeManager;
 
     /**
-    * @var Feedaty\Badge\Helper\Data
+    * @var \Magento\Catalog\Helper\Image
     */
-    protected $dataHelpler;
+    protected $imageHelper;
 
     /**
-    * @var Feedaty\Badge\Model\Config\Source\WebService
-    */
-    protected $fdservice;
-
-    /**
-    * @var \Magento\Framework\App\ObjectManager
-    */
+    * @var \Magento\Framework\ObjectManagerInterface
+    */   
     protected $objectManager;
 
     /**
@@ -44,16 +41,20 @@ class InterceptOrder implements ObserverInterface
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
+        Image $imageHelper,
         DataHelp $dataHelpler,
         WebService $fdservice,
-        ObjectManager $objectManager
+        Http $request, //remove http dependecy
+        ObjectManagerInterface $objectmanager
         ) 
     {
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
+        $this->imageHelper = $imageHelper;
         $this->_dataHelpler = $dataHelpler;
         $this->_fdservice = $fdservice;
-        $this->_objectManager = $objectManager;
+        $this->_request = $request;
+        $this->_objectManager = $objectmanager;
     }
 
     /**
@@ -64,11 +65,11 @@ class InterceptOrder implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer){
 
         $order = $observer->getEvent()->getOrder();
+        $store = $this->_storeManager->getStore($order->getStore_id());
         $order_id = $order->getIncrementId();
         $billingAddress = $order->getBillingAddress()->getCountryId();
         $verify = 0;
-        $store = $this->_storeManager->getStore($order->getStore_id());
-
+        
         $merchant = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
         $secret = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_secret');
         $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
@@ -101,6 +102,7 @@ class InterceptOrder implements ObserverInterface
                         //get the image url
                     if ($fd_oProduct->getImage() != "no_selection") 
                     {
+                        //$store = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
                         $tmp['ThumbnailURL'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
                     }
                     else 
@@ -136,10 +138,8 @@ class InterceptOrder implements ObserverInterface
             $fd_data[] = $tmp_order;
 
             // send to feedaty
-
             $this->_fdservice->send_order($merchant,$secret,$fd_data);
 
         }
     }
 }
-

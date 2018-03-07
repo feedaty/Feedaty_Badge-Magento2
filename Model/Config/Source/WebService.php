@@ -5,6 +5,7 @@ use \Magento\Framework\HTTP\Client\Curl;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Magento\Store\Model\StoreManagerInterface;
 use Feedaty\Badge\Helper\Data as DataHelp;
+use \Magento\Framework\ObjectManagerInterface;
 
 class WebService 
 {
@@ -24,6 +25,11 @@ class WebService
     */
     protected $dataHelper;
 
+    /**
+    * @var \Magento\Framework\ObjectManagerInterface
+    */   
+    protected $objectManager;
+
     /*
     * Constructor
     *
@@ -32,13 +38,15 @@ class WebService
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         DataHelp $dataHelper,
-        Curl $curl
+        Curl $curl,
+        ObjectManagerInterface $objectmanager
         ) 
     {
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
         $this->_dataHelper = $dataHelper;
         $this->_curl = $curl;
+        $this->_objectManager = $objectmanager;
         $this->_curl->setOption(CURLOPT_FOLLOWLOCATION, 1);
         $this->_curl->setOption(CURLOPT_RETURNTRANSFER, 1);
         $this->_curl->setOption(CURLOPT_VERBOSE, true);
@@ -128,8 +136,7 @@ class WebService
     */
     public function retriveInformationsProduct($feedaty_code, $id) {
 
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        $cache = $om->get('Magento\Framework\App\CacheInterface');
+        $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
 
         $content = $cache->load("feedaty_product_".$id);
         
@@ -137,7 +144,7 @@ class WebService
         {
             $ch = curl_init();
 
-            $resolver = $om->get('Magento\Framework\Locale\Resolver');
+            $resolver = $this->_objectManager->get('Magento\Framework\Locale\Resolver');
             $url = 'http://widget.zoorate.com/go.php?function=feed&action=ws&task=product&merchant_code='.$feedaty_code.'&ProductID='.$id.'&language='.$resolver->getLocale();
 
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -164,8 +171,7 @@ class WebService
     */
     public function retrive_informations_store($feedaty_code) {
 
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        $cache = $om->get('Magento\Framework\App\CacheInterface');
+        $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
 
         $content = $cache->load("feedaty_store");
         
@@ -236,8 +242,7 @@ class WebService
     public function getProductRichSnippet($merchant,$product_id) {
         
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        $cache = $om->get('Magento\Framework\App\CacheInterface');
+        $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
         $content = json_decode($cache->load("feedaty_prod_snip".$merchant.$product_id));
         $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
         
@@ -282,9 +287,8 @@ class WebService
     */
     public function getMerchantRichSnippet($merchant){
 
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $cache = $om->get('Magento\Framework\App\CacheInterface');
+        $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
         $content = json_decode($cache->load("feedaty_store_snip".$merchant));
         $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
 
@@ -336,15 +340,15 @@ class WebService
     */
     public function _get_FeedatyData($feedaty_code) {
 
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        $cache = $om->get('Magento\Framework\App\CacheInterface');
+        $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
+        $content = $cache->load("feedaty_store");
 
         if (rand(1,3000) === 2000) 
         {
             $this->send_notification($this->_scopeConfig, $this->_storeManager, $this->_dataHelper);
         } 
 
-        $resolver = $om->get('Magento\Framework\Locale\Resolver');
+        $resolver = $this->_objectManager->get('Magento\Framework\Locale\Resolver');
 
         $string = "FeedatyData".$feedaty_code.$resolver->getLocale();
         $content =$cache->load($string);
@@ -352,7 +356,7 @@ class WebService
         if (!$content || strlen($content) == 0 || $content === "null") 
         {
             $ch = curl_init();
-            $url = 'http://widget.zoorate.com/go.php?function=feed_be&action=widget_list&merchant_code='.$feedaty_code.'&language='.$resolver->getLocale();
+            $url = 'http://widget.stage.zoorate.com/go.php?function=feed_be&action=widget_list&merchant_code='.$feedaty_code.'&language='.$resolver->getLocale();
 
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -379,7 +383,7 @@ class WebService
         $store = $_storeManager->getStore();
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $ver = json_decode(json_encode($feedatyHelper->getExtensionVersion()), true);
-        $prodMetadata = $om->get('Magento\Framework\App\ProductMetadataInterface');
+        $prodMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
 
         $fdata['keyValuePairs'][] = ["Key" => "Platform", "Value" => "Magento ".$prodMetadata->getVersion()];
         $fdata['keyValuePairs'][] = ["Key" => "Version", "Value" => (string) $feedatyHelper->getExtensionVersion()];
