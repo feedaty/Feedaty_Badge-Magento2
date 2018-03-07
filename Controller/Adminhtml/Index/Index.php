@@ -5,6 +5,7 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use \Magento\Store\Model\StoreManagerInterface;
+use \Magento\Framework\ObjectManagerInterface;
 
 class Index extends \Magento\Backend\App\Action
 {
@@ -22,7 +23,11 @@ class Index extends \Magento\Backend\App\Action
      * @var \Magento\Store\Model\StoreManagerInterface
      */
     protected $storeManager;
-
+    
+    /**
+    * @var \Magento\Framework\ObjectManagerInterface
+    */   
+    protected $objectManager;
 
     /*
     * Constructor
@@ -32,12 +37,14 @@ class Index extends \Magento\Backend\App\Action
         Context $context,
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
-        PageFactory $resultPageFactory
+        PageFactory $resultPageFactory,
+        ObjectManagerInterface $objectmanager
     ) {
         parent::__construct($context);
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
         $this->resultPageFactory = $resultPageFactory;
+        $this->_objectManager = $objectmanager;
     }
 
     /*
@@ -46,7 +53,6 @@ class Index extends \Magento\Backend\App\Action
     */
     public function execute() {
         
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $store_id = (int) $this->_request->getParam('store', 0);
         if ($store_id === 0) 
         {
@@ -55,11 +61,11 @@ class Index extends \Magento\Backend\App\Action
         $scope_store = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         //$fromDate = date("Y-m-d H:i:s", strtotime("-3 months"));
 
-        $orders = $objectManager->create('\Magento\Sales\Model\Order')->getCollection()
+        $orders = $this->_objectManager->create('\Magento\Sales\Model\Order')->getCollection()
             ->addFieldToFilter('status', $this->_scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', $scope_store))
             ->addFieldToFilter('store_id', $store_id);
 
-        $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
+        $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
 
 
         $heading = [
@@ -86,7 +92,7 @@ class Index extends \Magento\Backend\App\Action
                 unset($tmp);
                 if (!$item->getParentItem()) {
 
-                    $fd_oProduct = $objectManager->create('\Magento\Catalog\Model\Product')->load((int) $item->getProductId());
+                    $fd_oProduct = $this->_objectManager->create('\Magento\Catalog\Model\Product')->load((int) $item->getProductId());
 
                     $tmp['Id'] = $item->getProductId();
 
@@ -94,7 +100,7 @@ class Index extends \Magento\Backend\App\Action
 
                     if ($fd_oProduct->getImage() != "no_selection") 
                     { 
-                        $store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
+                        $store = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
                         $tmp['ImageUrl'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
                     }
                     else 
