@@ -356,7 +356,7 @@ class WebService
         if (!$content || strlen($content) == 0 || $content === "null") 
         {
             $ch = curl_init();
-            $url = 'http://widget.stage.zoorate.com/go.php?function=feed_be&action=widget_list&merchant_code='.$feedaty_code.'&language='.$resolver->getLocale();
+            $url = 'http://widget.zoorate.com/go.php?function=feed_be&action=widget_list&merchant_code='.$feedaty_code.'&language='.$resolver->getLocale();
 
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
