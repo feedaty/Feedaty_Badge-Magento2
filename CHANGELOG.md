@@ -1,9 +1,12 @@
 ##### CHANGELOG FEEDATY FOR MAGENTO 2
 
 
-
-
 #### RELASE NOTES
+
+### V2.2.3 - Cosimo
+
+## Fixed issues
+- Remove stage from getdata
 
 ### V2.2.2 - Cosimo
 
