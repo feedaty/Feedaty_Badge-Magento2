@@ -226,8 +226,10 @@ class WebService
 
         $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
         if($fdDebugEnabled != 0) {
+            $message = json_encode($data);
+            $this->feedatyDebug($message, "FEEDATY DATA SENT INFO");
             $message = json_encode($content);
-            $this->feedatyDebug($message, "ORDER RESPONSE INFO");
+            $this->feedatyDebug($message, "FEEDATY RESPONSE INFO");
         }
     }
 
