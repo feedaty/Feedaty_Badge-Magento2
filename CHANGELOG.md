@@ -3,6 +3,11 @@
 
 #### RELASE NOTES
 
+### V2.2.4 - Cosimo
+
+## Functional enchancements
+- extend Debug functionality, to debug data sent to feedaty
+
 ### V2.2.3 - Cosimo
 
 ## Fixed issues
