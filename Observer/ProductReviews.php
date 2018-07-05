@@ -3,7 +3,7 @@ namespace Feedaty\Badge\Observer;
 
 use Feedaty\Badge\Model\Config\Source\WebService;
 use \Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Event\Observer;
+use \Magento\Framework\Event\Observer;
 use \Magento\Framework\ObjectManagerInterface;
 use \Magento\Backend\Model\UrlInterface;
 use \Magento\Framework\Registry;

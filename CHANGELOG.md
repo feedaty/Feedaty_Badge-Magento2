@@ -3,6 +3,11 @@
 
 #### RELASE NOTES
 
+### V2.2.5 - Cosimo
+
+- Fix conflict with trd-party plugin tempaltes for base.phtml overrides
+- Fix Merchant and Product snippet observers 
+
 ### V2.2.4 - Cosimo
 
 ## Functional enchancements

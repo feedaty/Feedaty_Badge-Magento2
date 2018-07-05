@@ -70,7 +70,7 @@ class StoreSnippet implements ObserverInterface
         {
             if ($plugin_enabled != 0)
             {
-                $html = $this->_fdservice->getMerchantRichSnippet($merchant);
+                $html = $this->_fdservice->getMerchantRichSnippet($merchant).$observer->getTransport()->getOutput();
                 $observer->getTransport()->setOutput($html);
             }
         }
