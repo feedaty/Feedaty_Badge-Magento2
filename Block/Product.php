@@ -8,6 +8,6 @@ class Product extends Template implements \Magento\Widget\Block\BlockInterface
     public function _construct()
     {
         parent::_construct();
-        $this->setTemplate('Feedaty_Badge::base.phtml');
+        $this->setTemplate('Feedaty_Badge::fdtbase.phtml');
     }
 }

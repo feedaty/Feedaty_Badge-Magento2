@@ -66,7 +66,7 @@ class ProductSnippet implements ObserverInterface
                 if ($product !== null) 
                 {
                     $product = $product->getId();
-                    $html = $this->_fdservice->getProductRichSnippet($merchant,$product);
+                    $html = $this->_fdservice->getProductRichSnippet($merchant,$product).$observer->getTransport()->getOutput();
                     $observer->getTransport()->setOutput($html);
                 }
             }

@@ -2,7 +2,7 @@
     <body>
     	<referenceBlock name="product.info">
         	<referenceContainer name="feedaty">
-           		<block class="Feedaty\Badge\Block\Product" name="catalog_product_view" template="Feedaty_Badge::base.phtml">
+           		<block class="Feedaty\Badge\Block\Product" name="catalog_product_view" template="Feedaty_Badge::fdtbase.phtml">
            			
            		</block>
         	</referenceContainer>

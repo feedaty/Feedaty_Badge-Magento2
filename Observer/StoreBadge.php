@@ -69,10 +69,6 @@ class StoreBadge implements ObserverInterface
 
         if ($observer->getElementName() == $fdWidStorePos) 
         {
-            if (rand(1,3000) === 2000) 
-            {
-                $this->_fdservice->send_notification($this->scopeConfig,$this->storeManager,$this->_dataHelper);
-            }
             
             if ($plugin_enabled != 0)
             {
