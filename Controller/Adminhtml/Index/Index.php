@@ -58,11 +58,19 @@ class Index extends \Magento\Backend\App\Action
         {
             $store_id = $this->_storeManager->getStore()->getId();
         }
+
         $scope_store = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        //$fromDate = date("Y-m-d H:i:s", strtotime("-3 months"));
+        $orderStatus = $this->_scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', $scope_store);
+        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $scope_store);
+
+        if($fdDebugEnabled != 0) {
+            $message = "Status: ".$orderStatus." Store ID: ".$store_id;
+            $feedatyHelper = $this->_objectManager->create('Feedaty\Badge\Helper\Data');
+            $feedatyHelper->feedatyDebug($message, "FEEDATY CSV PARAMS");
+        }
 
         $orders = $this->_objectManager->create('\Magento\Sales\Model\Order')->getCollection()
-            ->addFieldToFilter('status', $this->_scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', $scope_store))
+            ->addFieldToFilter('status',$orderStatus)
             ->addFieldToFilter('store_id', $store_id);
 
         $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');

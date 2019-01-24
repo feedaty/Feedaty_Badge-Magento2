@@ -7,9 +7,9 @@ use \Magento\Framework\UrlInterface;
 use \Magento\Catalog\Helper\Image;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
-use Feedaty\Badge\Helper\Data as DataHelp;
 use \Magento\Framework\App\Request\Http;
 use \Magento\Framework\ObjectManagerInterface;
+use \Magento\Framework\App\State;
 
 class InterceptOrder implements ObserverInterface
 {
@@ -35,6 +35,11 @@ class InterceptOrder implements ObserverInterface
     protected $objectManager;
 
     /**
+    * @var \Magento\Framework\App\State
+    */   
+    protected $state;
+
+    /**
     * Constructor
     *
     */
@@ -42,19 +47,17 @@ class InterceptOrder implements ObserverInterface
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         Image $imageHelper,
-        DataHelp $dataHelpler,
         WebService $fdservice,
-        Http $request, //remove http dependecy
-        ObjectManagerInterface $objectmanager
+        ObjectManagerInterface $objectmanager,
+        State $state
         ) 
     {
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
         $this->imageHelper = $imageHelper;
-        $this->_dataHelpler = $dataHelpler;
         $this->_fdservice = $fdservice;
-        $this->_request = $request;
         $this->_objectManager = $objectmanager;
+        $this->_state = $state;
     }
 
     /**
@@ -65,14 +68,27 @@ class InterceptOrder implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer){
 
         $order = $observer->getEvent()->getOrder();
-        $store = $this->_storeManager->getStore($order->getStore_id());
-        $order_id = $order->getIncrementId();
-        $billingAddress = $order->getBillingAddress()->getCountryId();
-        $verify = 0;
-        
+
+        if ($this->_state->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
+            $store = $order->getStore();
+        }
+        else {
+            $store = $this->_storeManager->getStore();
+        }
+
         $merchant = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
         $secret = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_secret');
         $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
+        $fdDebugEnabled = $store->getConfig('feedaty_global/debug/debug_enabled');
+        $order_id = $order->getIncrementId();
+        $billingAddress = $order->getBillingAddress()->getCountryId();
+        $verify = 0;
+
+        if($fdDebugEnabled != 0) {
+            $message = "MerchantCode: ".$merchant." MerchantSecret: ".$secret. "OrderID: " . $order_id;
+            $feedatyHelper = $this->_objectManager->create('Feedaty\Badge\Helper\Data');
+            $feedatyHelper->feedatyDebug($message, "FEEDATY OBSERVER DATA");
+        }
 
         foreach (($order->getAllStatusHistory()) as $orderComment) 
         {
