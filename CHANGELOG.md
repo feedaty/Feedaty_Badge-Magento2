@@ -3,6 +3,14 @@
 
 #### RELASE NOTES
 
+### V2.2.6 - Cosimo
+
+- Update configurations (allow sets up only on storeviews)
+- Insert new debug function in csv export 
+- Insert new debug function intercept order event observer
+- Fix Store id in intercept order event observer when the context is AdminHtml
+- Deleted deprecated D.I in intercept order event observer 
+
 ### V2.2.5 - Cosimo
 
 - Fix conflict with trd-party plugin tempaltes for base.phtml overrides
@@ -95,6 +103,21 @@
 ----------------------------------------------------------------------------------------------------------------------------
 ### METHOD/CLASS CHANGES
 ----------------------------------------------------------------------------------------------------------------------------
+
+### V2.2.6 - Cosimo
+
+## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class
+- DELETED METHOD feedatyDebug()
+
+## UPDATES IN Feedaty\Badge\Observer\InterceptOrder Class
+- UPDATED METHOD execute()
+
+## UPDATES IN Feedaty\Badge\Helper\Data Class
+- ADDED METHOD feedatyDebug()
+
+## UPDATES IN Feedaty\Badge\etc\adminhtml\system.xml
+- Show Feedaty configurations only if scope is in store view
+
 ### V2.0.4 - Cosimo
 
 ## UPDATES IN Feedaty\Badge\Model\Config\Source\WebService Class

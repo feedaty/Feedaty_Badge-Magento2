@@ -227,9 +227,9 @@ class WebService
         $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
         if($fdDebugEnabled != 0) {
             $message = json_encode($data);
-            $this->feedatyDebug($message, "FEEDATY DATA SENT INFO");
+            $this->_dataHelper->feedatyDebug($message, "FEEDATY DATA SENT INFO");
             $message = json_encode($content);
-            $this->feedatyDebug($message, "FEEDATY RESPONSE INFO");
+            $this->_dataHelper->feedatyDebug($message, "FEEDATY RESPONSE INFO");
         }
     }
 
@@ -274,7 +274,7 @@ class WebService
             
             if($fdDebugEnabled != 0) {
                 $message = "Product microdata response with ".$http_resp." http code";
-                $this->feedatyDebug($message, "MICRODATA RESPONSE INFO");
+                $this->_dataHelper->feedatyDebug($message, "MICRODATA RESPONSE INFO");
             }
         }
 
@@ -329,7 +329,7 @@ class WebService
             //debug call
             if($fdDebugEnabled != 0) {
                 $message = "Merchant microdata response with ".$http_resp." http code";
-                $this->feedatyDebug($message, "MICRODATA RESPONSE INFO");
+                $this->_dataHelper->feedatyDebug($message, "MICRODATA RESPONSE INFO");
             }
         }
         return $content;
@@ -416,15 +416,5 @@ class WebService
         curl_close($ch);      
     }
 
-    /**
-    * Function feedatyDebug() - Save debug infoes in BP/var/log/feedaty.log
-    *
-    */
-    private function feedatyDebug($message, $severity) {
-        $fdwriter = new \Zend\Log\Writer\Stream(BP . '/var/log/feedaty.log');
-        $fdlogger = new \Zend\Log\Logger();
-        $fdlogger->addWriter($fdwriter);
-        $fdlogger->info("\n".$severity."\n".$message."\n");
-    }
 }
 // TODO: use magento curl client

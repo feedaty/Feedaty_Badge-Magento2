@@ -23,10 +23,21 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         parent::__construct($context);
     }
 
-    public function getExtensionVersion()
-    {
+    public function getExtensionVersion() {
         $moduleCode = 'Feedaty_Badge';
         $moduleInfo = $this->_moduleList->getOne($moduleCode);
         return $moduleInfo['setup_version'];
+    }
+
+    /**
+    * Function Feedaty Debug - Save debug infoes in MageBasePath/var/log/feedaty.log
+    *   @param $message - string - the debug message
+    *   @param $severity - string - the message severity
+    */
+    public function feedatyDebug($message, $severity) {
+        $fdwriter = new \Zend\Log\Writer\Stream(BP . '/var/log/feedaty.log');
+        $fdlogger = new \Zend\Log\Logger();
+        $fdlogger->addWriter($fdwriter);
+        $fdlogger->info("\n".$severity."\n".$message."\n");
     }
 }
