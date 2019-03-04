@@ -65,7 +65,7 @@ class InterceptOrder implements ObserverInterface
     *
     * @param $observer
     */
-    public function execute(\Magento\Framework\Event\Observer $observer){
+    public function execute(\Magento\Framework\Event\Observer $observer) {
 
         $order = $observer->getEvent()->getOrder();
 
@@ -81,6 +81,7 @@ class InterceptOrder implements ObserverInterface
         $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
         $fdDebugEnabled = $store->getConfig('feedaty_global/debug/debug_enabled');
         $order_id = $order->getIncrementId();
+        if(!$order_id) {$order_id = $order->getRealOrderId();}
         $billingAddress = $order->getBillingAddress()->getCountryId();
         $verify = 0;
 

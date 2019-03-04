@@ -6,9 +6,11 @@ use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Framework\ObjectManagerInterface;
+use /Magento/Framework/File/Csv;
 
 class Index extends \Magento\Backend\App\Action
 {
+
     /**
      * @var Magento\Framework\View\Result\PageFactory
      */
@@ -29,6 +31,11 @@ class Index extends \Magento\Backend\App\Action
     */   
     protected $objectManager;
 
+    /**
+     * @var Magento\Framework\File\Csv
+     */
+    protected $csvProcessor;
+
     /*
     * Constructor
     *
@@ -38,13 +45,15 @@ class Index extends \Magento\Backend\App\Action
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         PageFactory $resultPageFactory,
-        ObjectManagerInterface $objectmanager
+        ObjectManagerInterface $objectmanager,
+        Csv $csvProcessor
     ) {
         parent::__construct($context);
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
         $this->resultPageFactory = $resultPageFactory;
         $this->_objectManager = $objectmanager;
+        $this->_csvProcessor = $csvProcessor;
     }
 
     /*
@@ -148,7 +157,7 @@ class Index extends \Magento\Backend\App\Action
             header('Cache-Control: must-revalidate');
             header('Pragma: public');
             header('Content-Length: ' . filesize($file));
-            ob_clean();
+            if (ob_get_contents() || ob_get_length()) ob_clean();
             flush();
             readfile($file);
         }
