@@ -3,6 +3,10 @@
 
 #### RELASE NOTES
 
+### V2.2.7 - Cosimo
+- Update Intercept order Observer 
+- Fix OB_CLEAN Error
+
 ### V2.2.6 - Cosimo
 
 - Update configurations (allow sets up only on storeviews)
@@ -103,6 +107,13 @@
 ----------------------------------------------------------------------------------------------------------------------------
 ### METHOD/CLASS CHANGES
 ----------------------------------------------------------------------------------------------------------------------------
+### V2.2.7 - Cosimo
+
+## UPDATES IN Feedaty\Badge\Observer\InterceptOrder Class
+- UPDATED METHOD execute()
+
+## UPDATES IN Feedaty\Badge\Controller\Adminhtml\Index\Index
+- UPDATED METHOD downloadCsv()
 
 ### V2.2.6 - Cosimo
 
