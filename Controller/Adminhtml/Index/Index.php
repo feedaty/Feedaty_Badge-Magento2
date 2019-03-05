@@ -6,7 +6,7 @@ use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Framework\ObjectManagerInterface;
-use /Magento/Framework/File/Csv;
+use \Magento\Framework\File\Csv;
 
 class Index extends \Magento\Backend\App\Action
 {
@@ -46,14 +46,14 @@ class Index extends \Magento\Backend\App\Action
         StoreManagerInterface $storeManager,
         PageFactory $resultPageFactory,
         ObjectManagerInterface $objectmanager,
-        Csv $csvProcessor
+        Csv $csv
     ) {
         parent::__construct($context);
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
         $this->resultPageFactory = $resultPageFactory;
         $this->_objectManager = $objectmanager;
-        $this->_csvProcessor = $csvProcessor;
+        $this->_csv = $csv;
     }
 
     /*
@@ -71,6 +71,7 @@ class Index extends \Magento\Backend\App\Action
         $scope_store = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $orderStatus = $this->_scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', $scope_store);
         $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $scope_store);
+        $last4months = date('Y-m-d', strtotime("-4 months"));
 
         if($fdDebugEnabled != 0) {
             $message = "Status: ".$orderStatus." Store ID: ".$store_id;
@@ -80,26 +81,22 @@ class Index extends \Magento\Backend\App\Action
 
         $orders = $this->_objectManager->create('\Magento\Sales\Model\Order')->getCollection()
             ->addFieldToFilter('status',$orderStatus)
-            ->addFieldToFilter('store_id', $store_id);
+            ->addFieldToFilter('store_id', $store_id)
+            ->addAttributeToFilter('created_at', ['gteq'  => $last4months]);
 
         $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
 
+        $delimiter = ',';
+        $enclosure = '"';
 
-        $heading = [
-            __('Order ID'),
-            __('UserID'),
-            __('E-mail'),
-            __('Date'),
-            __('Product ID'),
-            __('Extra'),
-            __('Product Url'),
-            __('Product Image'),
-            __('Platform'),           
-        ];
+        $heading = ["Order ID","UserID","E-mail","Date","Product ID","Extra","Product Url","Product Image","Platform"];
 
         $outputFile = "FeedatyExport". date('Ymd_His').".csv";
-        $handle = fopen($outputFile, 'w');
-        fputcsv($handle, $heading);
+
+        $this->_csv->setDelimiter($delimiter);
+        $this->_csv->setEnclosure($enclosure);
+        
+        $data[] = $heading;
 
         foreach ($orders as $order) {
 
@@ -140,10 +137,15 @@ class Index extends \Magento\Backend\App\Action
                         $tmp['ImageUrl'], 
                         "Magento".$productMetadata->getVersion()."CSV"
                     ];
-                    fputcsv($handle, $row);
+
+                     $data[] = $row;
+
                 }
             }
+
         }
+        //var_dump($data);exit;
+        $this->_csv->saveData($outputFile, $data);
         $this->downloadCsv($outputFile);
     }
 
