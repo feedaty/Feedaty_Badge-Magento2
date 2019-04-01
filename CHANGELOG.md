@@ -3,6 +3,10 @@
 
 #### RELASE NOTES
 
+### V2.2.8 - Cosimo
+- Update feedaty event name and make it unique to avoid observer conflicts with other plugins
+
+
 ### V2.2.7 - Cosimo
 - Update Intercept order Observer 
 - Fix OB_CLEAN Error
@@ -107,6 +111,10 @@
 ----------------------------------------------------------------------------------------------------------------------------
 ### METHOD/CLASS CHANGES
 ----------------------------------------------------------------------------------------------------------------------------
+### V2.2.8 - Cosimo
+
+- UPDATE FILE /etc/events.xml
+
 ### V2.2.7 - Cosimo
 
 ## UPDATES IN Feedaty\Badge\Observer\InterceptOrder Class
