@@ -2,43 +2,36 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <tab id="feedaty" translate="label" sortOrder="100">
-            
             <label>Feedaty</label>
         </tab>
 
         <section id="feedaty_global" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
-            <!-- add a new section with id feedaty_global and for tab feedaty -->
             <class>separator-top</class>
             <label>Feedaty Preferences</label>
             <tab>feedaty</tab>
             <resource>Feedaty_Badge::feedaty_global</resource>
-
-            <!-- group with id feedaty_preferences in section feedaty_global-->
-            <group id="feedaty_preferences" translate="label" type="text" sortOrder="10" showInDefault="0" showInWebsite="0" showInStore="1">
+            <group id="feedaty_preferences" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Feedaty</label>
-                <field id="feedaty_code" translate="label" type="text" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
-                    <!-- add a new field with id feedaty_code -->
+                <field id="feedaty_code" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Feedaty Code</label>
                     <validate>validate-alphanum</validate>
                 </field>
-                <field id="feedaty_secret" translate="label" type="text" sortOrder="2" showInDefault="0" showInWebsite="0" showInStore="1">
-                    <!-- add a new field with id feedaty_code -->
+                <field id="feedaty_secret" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Feedaty Secret</label>
                     <validate>validate-alphanum</validate>
                 </field>
             </group>
 
-            <!-- group with id feedaty_sendorder in section feedaty_global-->
-            <group id="feedaty_sendorder" translate="label" sortOrder="20" showInDefault="0" showInWebsite="0" showInStore="1" >
+            <group id="feedaty_sendorder" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
                 <label>Order options</label>
-                <field id="sendorder" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="sendorder" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Status</label>
                     <source_model>Feedaty\Badge\Model\Config\Source\OrderStatuses</source_model>
                 </field>
             </group>
 
             <!-- group with id export in feedaty_global section -->
-            <group id="export" type="select" sortOrder="30" showInDefault="0" showInWebsite="0" showInStore="1" translate="label source_model">
+            <group id="export" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" translate="label source_model">
                 <label>Initial orders export</label>
                 <field id="exportbutton" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
                     <label>Export to csv</label>
@@ -46,8 +39,7 @@
                 </field>
             </group>
 
-            <!-- group with id export in feedaty_global section -->
-            <group id="debug" type="select" sortOrder="40" showInDefault="0" showInWebsite="0" showInStore="1" translate="label source_model">
+            <group id="debug" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" translate="label source_model">
                 <label>Feedaty debug</label>
                 <field id="debug_enabled" translate="label" type="select" sortOrder="3" showInDefault="0" showInWebsite="0" showInStore="1">
                     <label>Enabled</label>
@@ -56,90 +48,90 @@
             </group>
         </section>
 
-        <section id="feedaty_badge_options" translate="label" sortOrder="260" showInDefault="0" showInWebsite="0" showInStore="1">
-            <!-- add a new section with id feedaty_badge_options and for tab feedaty -->
+        <section id="feedaty_badge_options" translate="label" sortOrder="260" showInDefault="1" showInWebsite="1" showInStore="1">
             <class>separator-top</class>
             <label>Widget Preferences</label>
             <tab>feedaty</tab>
             <resource>Feedaty_Badge::widget_preferences</resource>
-            <group id="widget_store" type="text" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1" translate="label source_model">
+            <group id="widget_store" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1" translate="label source_model">
                 <label>Widget store</label>
-                <field id="enabled" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="badge_style" translate="label" type="radios" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="badge_style" translate="label" type="radios" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Style</label>
                     <source_model>Feedaty\Badge\Model\Config\Source\StyleStore</source_model>
                 </field>
-                <field id="store_position" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="store_position" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Position</label>
                     <source_model>Feedaty\Badge\Model\Config\Source\PositionStore</source_model>
                 </field>
             </group>
-            <group id="widget_products" type="text" sortOrder="2" showInDefault="0" showInWebsite="0" showInStore="1" translate="label">
+            <group id="widget_products" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" translate="label">
                 <label>Widget products</label>
                 <field id="product_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="badge_style" translate="label" type="radios" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="badge_style" translate="label" type="radios" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Style</label>
-                    <!--<frontend_type></frontend_type>-->
                     <source_model>Feedaty\Badge\Model\Config\Source\StyleProduct</source_model>
                 </field>
-                <field id="product_position" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="product_position" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Position</label>
                     <source_model>Feedaty\Badge\Model\Config\Source\PositionProduct</source_model>
                 </field>
             </group>
-            <group id="review_products" type="text" sortOrder="3" showInDefault="0" showInWebsite="0" showInStore="1" translate="label">
+            <group id="review_products" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1" translate="label">
                 <label>Review products</label>
-                <field id="product_enabled" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="product_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="count_review" translate="label" type="text" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="count_review" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Number of reviews</label>
                     <validate>validate-number</validate>
                 </field>
-                <field id="order_review" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="order_review" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Order</label>
                     <source_model>Feedaty\Badge\Model\Config\Source\FeedatyOrder</source_model>
                 </field>
-                <field id="product_position" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="product_position" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Position</label>
                     <source_model>Feedaty\Badge\Model\Config\Source\PositionProduct</source_model>
                 </field>
             </group>
         </section>
-        <section id="feedaty_microdata_options" translate="label" sortOrder="390" showInDefault="0" showInWebsite="0" showInStore="1">
+
+        <section id="feedaty_microdata_options" translate="label" sortOrder="390" showInDefault="1" showInWebsite="1" showInStore="1">
             <class>separator-top</class>
             <label>Microdata Preferences</label>
             <tab>feedaty</tab>
             <resource>Feedaty_Badge::microdata_preferences</resource>
-            <group id="snippet_store" type="text" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1" translate="label source_model">
+            <group id="snippet_store" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1" translate="label source_model">
                 <label>Microdata store</label>
-                <field id="snippet_enabled" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="snippet_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="store_position" translate="label" type="select" sortOrder="2" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="store_position" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Position</label>
                     <source_model>Feedaty\Badge\Model\Config\Source\PositionStore</source_model>
                 </field>
             </group>
-            <group id="snippet_products" type="text" sortOrder="2" showInDefault="0" showInWebsite="0" showInStore="1" translate="label">
+            <group id="snippet_products" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" translate="label">
                 <label>Microdata products</label>
-                <field id="snippet_prod_enabled" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="snippet_prod_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="product_position" translate="label" type="select" sortOrder="2" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="product_position" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Position</label>
                     <source_model>Feedaty\Badge\Model\Config\Source\PositionProduct</source_model>
                 </field>
             </group>
         </section>
+
     </system>
 </config>
