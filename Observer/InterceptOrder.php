@@ -80,8 +80,11 @@ class InterceptOrder implements ObserverInterface
         $secret = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_secret');
         $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
         $fdDebugEnabled = $store->getConfig('feedaty_global/debug/debug_enabled');
+
         $order_id = $order->getIncrementId();
+
         if(!$order_id) {$order_id = $order->getRealOrderId();}
+        
         $billingAddress = $order->getBillingAddress()->getCountryId();
         $verify = 0;
 

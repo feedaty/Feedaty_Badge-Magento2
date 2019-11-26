@@ -3,7 +3,7 @@
     <menu>
 	   <add id="Feedaty_Badge::feedatycodes" title="Feedaty" module="Feedaty_Badge" sortOrder="51" resource="Feedaty_Badge::feedatycodes"/>
 
-	   <add id="Feedaty_Badge::feedaty_preferences" title="Feedaty Preferences" module="Feedaty_Badge" sortOrder="20" parent="Feedaty_Badge::feedatycodes" action="adminhtml/system_config/edit/section/feedaty_preferences" resource="Feedaty_Badge::feedaty_preferences"/>
+	   <add id="Feedaty_Badge::feedaty_global" title="Feedaty Preferences" module="Feedaty_Badge" sortOrder="20" parent="Feedaty_Badge::feedatycodes" action="adminhtml/system_config/edit/section/feedaty_global" resource="Feedaty_Badge::feedaty_global"/>
 
 	   <add id="Feedaty_Badge::widget_preferences" title="Widget Preferences" module="Feedaty_Badge" sortOrder="30" parent="Feedaty_Badge::feedatycodes" action="adminhtml/system_config/edit/section/feedaty_badge_options" resource="Feedaty_Badge::widget_preferences"/>
 
