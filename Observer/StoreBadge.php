@@ -59,28 +59,46 @@ class StoreBadge implements ObserverInterface
     */
     public function execute(Observer $observer) {
 
+        $zoorate_env = "widget.zoorate.com";
+
         $block = $observer->getBlock();
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $fdWidStorePos = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', $store_scope);
         $fdSnipStorPos = $this->scopeConfig->getValue('feedaty_microdata_options/snippet_store/store_position', $store_scope);
         $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
         $plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/enabled', $store_scope);
-        $badge_style = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/badge_style', $store_scope);
+        $badge_style = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/style', $store_scope);
+        $variant = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/variant', $store_scope);
+        $guilang = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/guilang', $store_scope);
+        $rvlang = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/rvlang', $store_scope);
 
         if ($observer->getElementName() == $fdWidStorePos) 
         {
             
             if ($plugin_enabled != 0)
             {
-                $data = $this->_fdservice->_get_FeedatyData($merchant);
+                $data = $this->_fdservice->getFeedatyData($merchant);
                 $ver = json_decode(json_encode($this->_dataHelper->getExtensionVersion()),true);
 
-                $html = '<!-- PlSMa '.$ver[0].' -->'.$data[$badge_style]['html_embed'].$observer->getTransport()->getOutput();
+                $widget = $data[$badge_style];
+                $name = $widget["name"];
+                $variant = $widget["variants"][$variant];
+                $rvlang = $rvlang ? $rvlang : "all";
+                $guilang = $guilang ? $guilang : "it-IT";
 
-                if ($fdWidStorePos == $fdSnipStorPos) 
-                {
-                    $html.= $this->_fdservice->getMerchantRichSnippet($merchant);
-                }
+                
+
+                $widget['html'] = str_replace("ZOORATE_SERVER", $zoorate_env, $widget['html']);
+                $widget['html'] = str_replace("VARIANT", $variant, $widget['html']);
+                $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
+                $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
+
+                var_dump($widget["html"]);exit;
+                
+                $element = htmlspecialchars_decode($widget["html"]);
+
+                $html = $observer->getTransport()->getOutput();
+                $html.= "<!-- PlPMa ".$ver[0]." -->".$element."<\-- PlPMa -->";
 
                 $observer->getTransport()->setOutput($html);
 
