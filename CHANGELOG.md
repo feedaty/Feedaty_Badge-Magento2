@@ -3,6 +3,10 @@
 
 #### RELASE NOTES
 
+### V2.3.0 - Cosimo
+
+- New Widgets V6
+
 ### V2.2.9 - Cosimo
 
 - Fix all scope settings
