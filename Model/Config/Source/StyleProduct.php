@@ -60,12 +60,12 @@ class StyleProduct implements ArrayInterface
            return array(); 
         } 
 
-        $data = $this->_fdservice->_get_FeedatyData($merchant_code);
+        $data = $this->_fdservice->getFeedatyData($merchant_code);
         foreach ($data as $k => $v) 
         {
             if ($v['type'] == "product") 
             {
-                $return[] = ['value' => $k,'label' => ' <img src="'.$v['thumb'].'"><br />'];
+                $return[] = ['value' => $k,'label' => $v['name']];
             }
         }
         

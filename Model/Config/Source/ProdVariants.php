@@ -1,16 +1,16 @@
 <?php
 namespace Feedaty\Badge\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use \Magento\Framework\Option\ArrayInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Feedaty\Badge\Model\Config\Source\WebService;
 use \Magento\Store\Model\StoreManagerInterface; 
 use \Magento\Framework\App\Request\Http;
 use Feedaty\Badge\Helper\Data as DataHelp;
 
-class StyleStore implements ArrayInterface
+class ProdVariants implements ArrayInterface
 {
-    /**
+       /**
     * @var \Magento\Framework\App\Config\ScopeConfigInterface
     */
     protected $scopeConfig;
@@ -39,15 +39,13 @@ class StyleStore implements ArrayInterface
         $this->_fdservice = $fdservice;
     }
 
-    /**
-    *
-    * @return $return
-    */
     public function toOptionArray()
     {
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $store = $this->storeManager->getStore($this->_request->getParam('store', 0));
         $merchant_code = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
+        $plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_products/prod_enabled', $store_scope);
+        $badge_style = $this->scopeConfig->getValue('feedaty_badge_options/widget_products/prod_style', $store_scope);
 
         if($this->_request->getParam('store', 0) == 0) 
         {
@@ -60,15 +58,20 @@ class StyleStore implements ArrayInterface
         }
 
         $data = $this->_fdservice->getFeedatyData($merchant_code);
- 
-        foreach ($data as $k => $v) 
-        {
-            if ($v['type'] == "merchant") 
+
+        foreach ($data as $k => $v) {
+
+            if ($k == $badge_style) 
             {
-                $return[] = ['value' => $k,'label' => $v['name']];
+                foreach ($v['variants'] as $key => $value) {
+
+                    $return[] = ['value' => $key,'label' => $value];
+                }
+                
             }
         }
 
         return $return;
+
     }
 }

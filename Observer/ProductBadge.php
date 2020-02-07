@@ -52,11 +52,14 @@ class ProductBadge implements ObserverInterface
 
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $block = $observer->getBlock();
-        $fdWidgetPos = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/product_position', $store_scope);
-        $fdSnipPos = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/product_position', $store_scope);
+        $fdWidgetPos = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_position', $store_scope);
+        $fdSnipPos = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/prod_snip_position', $store_scope);
         $merchant = $this->_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
-        $badge_style = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/badge_style', $store_scope);
-        $plugin_enabled = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/product_enabled', $store_scope);
+        $badge_style = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_style', $store_scope);
+        $plugin_enabled = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_enabled', $store_scope);
+        $variant = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_variant', $store_scope);
+        $guilang = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_guilang', $store_scope);
+        $rvlang = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_rvlang', $store_scope);
 
         if ($observer->getElementName() == $fdWidgetPos) 
         {
@@ -67,10 +70,24 @@ class ProductBadge implements ObserverInterface
                 if ($product !== null) 
                 {
                     $product = $product->getId();
-                    $data = $this->_fdservice->_get_FeedatyData($merchant);
+                    $data = $this->_fdservice->getFeedatyData($merchant);
                     $ver = json_decode(json_encode($this->_dataHelper->getExtensionVersion()), true);
 
-                    $html = '<!-- PlPMa '.$ver[0].' -->'.str_replace("__insert_ID__", "$product",$data[$badge_style]['html_embed']).$observer->getTransport()->getOutput();
+                    $widget = $data[$badge_style];
+                    $name = $widget["name"];
+                    $variant = $widget["variants"][$variant];
+                    $rvlang = $rvlang ? $rvlang : "all";
+                    $guilang = $guilang ? $guilang : "it-IT";
+
+                
+
+                    $widget['html'] = str_replace("ZOORATE_SERVER", $zoorate_env, $widget['html']);
+                    $widget['html'] = str_replace("VARIANT", $variant, $widget['html']);
+                    $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
+                    $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
+                    $widget['html'] = str_replace("SKU", $product,$widget['html']);
+
+                    $html = '<!-- PlPMa '.$ver[0].' -->'.$observer->getTransport()->getOutput().htmlspecialchars_decode($widget['html']);
 
                     if ($fdWidgetPos == $fdSnipPos) 
                     {

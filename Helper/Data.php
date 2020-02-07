@@ -35,9 +35,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     *   @param $severity - string - the message severity
     */
     public function feedatyDebug($message, $severity) {
+        $message = json_encode($message);
         $fdwriter = new \Zend\Log\Writer\Stream(BP . '/var/log/feedaty.log');
         $fdlogger = new \Zend\Log\Logger();
         $fdlogger->addWriter($fdwriter);
         $fdlogger->info("\n".$severity."\n".$message."\n");
+
     }
 }

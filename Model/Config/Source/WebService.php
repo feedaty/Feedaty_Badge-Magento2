@@ -206,12 +206,13 @@ class WebService
     public function send_order($merchant, $secret, $data) {
 
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+
         $ch = curl_init();
         $url = 'http://api.feedaty.com/Orders/Insert';
 
         $token = $this->getReqToken();
         $accessToken =json_decode($this->getAccessToken($token, $merchant, $secret));
-
+            
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, '60');
@@ -222,15 +223,32 @@ class WebService
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $content = trim(curl_exec($ch));
 
+        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
+
+        if($fdDebugEnabled != 0) {
+
+            $message = $data;
+            $this->_dataHelper->feedatyDebug($message, "FEEDATY DATA");
+
+            $message = $content;
+            $this->_dataHelper->feedatyDebug($message, "FEEDATY RESPONSE");
+
+            $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
+            $this->_dataHelper->feedatyDebug($message, "CURL HEADER INFO");
+
+            $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
+            $this->_dataHelper->feedatyDebug($message, "CURL INFO");
+
+            $message  = curl_getinfo($ch,CURLINFO_PROTOCOL);
+            $this->_dataHelper->feedatyDebug($message, "CURL INFO");
+
+            if(curl_errno($ch))
+                $this->_dataHelper->feedatyDebug(curl_error($ch), "CURL ERROR");
+        
+        }
+
         curl_close($ch);
 
-        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
-        if($fdDebugEnabled != 0) {
-            $message = json_encode($data);
-            $this->_dataHelper->feedatyDebug($message, "FEEDATY DATA SENT INFO");
-            $message = json_encode($content);
-            $this->_dataHelper->feedatyDebug($message, "FEEDATY RESPONSE INFO");
-        }
     }
 
     /**
@@ -340,25 +358,20 @@ class WebService
     *
     * @return $data
     */
-    public function _get_FeedatyData($feedaty_code) {
+    public function getFeedatyData($feedaty_code) {
 
         $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
         $content = $cache->load("feedaty_store");
-
-        if (rand(1,3000) === 2000) 
-        {
-            $this->send_notification($this->_scopeConfig, $this->_storeManager, $this->_dataHelper);
-        } 
 
         $resolver = $this->_objectManager->get('Magento\Framework\Locale\Resolver');
 
         $string = "FeedatyData".$feedaty_code.$resolver->getLocale();
         $content =$cache->load($string);
 
-        if (!$content || strlen($content) == 0 || $content === "null") 
+        if (!$content || strlen($content) == 0 || $content === "null" || 1==1) 
         {
             $ch = curl_init();
-            $url = 'http://widget.zoorate.com/go.php?function=feed_be&action=widget_list&merchant_code='.$feedaty_code.'&language='.$resolver->getLocale();
+            $url = 'http://widget.zoorate.com/go.php?function=feed_v6&action=widget_list&merchant_code='.$feedaty_code;
 
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -367,54 +380,19 @@ class WebService
             curl_close($ch);
 
             $cache->save($content, "FeedatyData".$feedaty_code.$resolver->getLocale(), array("feedaty_cache"), 24*60*60); // 24 hours of cache
+
         }
 
         $data = json_decode($content, true);
         return $data;
     }
 
-    /**
-    * Function send_notification
-    *
-    * @param object $_scopeConfig
-    * @param object $_storeManager
-    * @param object Feedaty\Helper\Data dataHelper
-    */
-    public function send_notification($_scopeConfig, $_storeManager, $feedatyHelper) {
-
-        $store = $_storeManager->getStore();
-        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $ver = json_decode(json_encode($feedatyHelper->getExtensionVersion()), true);
-        $prodMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
-
-        $fdata['keyValuePairs'][] = ["Key" => "Platform", "Value" => "Magento ".$prodMetadata->getVersion()];
-        $fdata['keyValuePairs'][] = ["Key" => "Version", "Value" => (string) $feedatyHelper->getExtensionVersion()];
-        $fdata['keyValuePairs'][] = ["Key" => "Url", "Value" => $_storeManager->getStore()->getBaseUrl()];
-        $fdata['keyValuePairs'][] = ["Key" => "Os", "Value" => PHP_OS];
-        $fdata['keyValuePairs'][] = ["Key" => "Php Version", "Value" => phpversion()];
-        $fdata['keyValuePairs'][] = ["Key" => "Name", "Value" => $store->getName()];
-        $fdata['keyValuePairs'][] = ["Key" => "Action", "Value" => "Enabled"];
-        $fdata['keyValuePairs'][] = ["Key" => "Position_Merchant", "Value" => $_scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', $store_scope)];
-        $fdata['keyValuePairs'][] = ["Key" => "Position_Product", "Value" => $_scopeConfig->getValue('feedaty_badge_options/widget_products/product_position', $store_scope)];
-        $fdata['keyValuePairs'][] = ["Key" => "Status", "Value" => $_scopeConfig->getValue('feedaty_global/sendorder/sendorder', $store_scope)];
-        $fdata['merchantCode'] = $_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
-
-        $ch = curl_init();
-
-        $url = 'http://www.zoorate.com/ws/feedatyapi.svc/SetPluginKeyValue';
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, '60');
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($fdata));
-        curl_setopt($ch, CURLOPT_HTTPHEADER,['Content-Type: application/json','Expect:']);
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-        $content = trim(curl_exec($ch));
-
-        curl_close($ch);      
-    }
-
 }
-// TODO: use magento curl client
+/* TODO:
+
+-Implement magento curl client
+-Implement new API for product page reviews list
+-Implement Carousel Section
+-Implement Popup Section
+
+*/
