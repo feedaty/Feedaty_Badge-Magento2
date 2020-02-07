@@ -3,6 +3,10 @@
 
 #### RELASE NOTES
 
+### V2.3.1-stable - Cosimo
+
+- Fixato problema con info curl protocollo
+
 ### V2.3.1-beta - Cosimo
 
 - Fixato path di export csv (viene sportato nella cartella tmp)
