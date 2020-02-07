@@ -206,12 +206,13 @@ class WebService
     public function send_order($merchant, $secret, $data) {
 
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+
         $ch = curl_init();
         $url = 'http://api.feedaty.com/Orders/Insert';
 
         $token = $this->getReqToken();
         $accessToken =json_decode($this->getAccessToken($token, $merchant, $secret));
-
+            
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, '60');
@@ -222,15 +223,32 @@ class WebService
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $content = trim(curl_exec($ch));
 
+        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
+
+        if($fdDebugEnabled != 0) {
+
+            $message = $data;
+            $this->_dataHelper->feedatyDebug($message, "FEEDATY DATA");
+
+            $message = $content;
+            $this->_dataHelper->feedatyDebug($message, "FEEDATY RESPONSE");
+
+            $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
+            $this->_dataHelper->feedatyDebug($message, "CURL HEADER INFO");
+
+            $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
+            $this->_dataHelper->feedatyDebug($message, "CURL INFO");
+
+            $message  = curl_getinfo($ch,CURLINFO_PROTOCOL);
+            $this->_dataHelper->feedatyDebug($message, "CURL INFO");
+
+            if(curl_errno($ch))
+                $this->_dataHelper->feedatyDebug(curl_error($ch), "CURL ERROR");
+        
+        }
+
         curl_close($ch);
 
-        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
-        if($fdDebugEnabled != 0) {
-            $message = json_encode($data);
-            $this->_dataHelper->feedatyDebug($message, "FEEDATY DATA SENT INFO");
-            $message = json_encode($content);
-            $this->_dataHelper->feedatyDebug($message, "FEEDATY RESPONSE INFO");
-        }
     }
 
     /**

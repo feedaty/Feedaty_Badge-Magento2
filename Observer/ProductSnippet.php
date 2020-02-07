@@ -52,10 +52,10 @@ class ProductSnippet implements ObserverInterface
 
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $block = $observer->getBlock();
-        $fdSnipPos = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/product_position', $store_scope);
-        $fdWidgetPos = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/product_position', $store_scope);
+        $fdSnipPos = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/prod_position', $store_scope);
+        $fdWidgetPos = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_snip_position', $store_scope);
         $merchant = $this->_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
-        $plugin_enabled = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/snippet_prod_enabled', $store_scope);
+        $plugin_enabled = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/prod_snippet_enabled', $store_scope);
 
         if ($observer->getElementName()== $fdSnipPos && $fdSnipPos != $fdWidgetPos) 
         {

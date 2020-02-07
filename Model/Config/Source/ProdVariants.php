@@ -44,8 +44,8 @@ class ProdVariants implements ArrayInterface
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $store = $this->storeManager->getStore($this->_request->getParam('store', 0));
         $merchant_code = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
-        $plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_products/product_enabled', $store_scope);
-        $badge_style = $this->scopeConfig->getValue('feedaty_badge_options/widget_products/product_style', $store_scope);
+        $plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_products/prod_enabled', $store_scope);
+        $badge_style = $this->scopeConfig->getValue('feedaty_badge_options/widget_products/prod_style', $store_scope);
 
         if($this->_request->getParam('store', 0) == 0) 
         {

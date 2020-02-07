@@ -3,6 +3,16 @@
 
 #### RELASE NOTES
 
+### V2.3.1-beta - Cosimo
+
+- Fixato path di export csv (viene sportato nella cartella tmp)
+- Ampliata Funzione di debug per rilevare errori CURL e info HEADER
+
+### V2.3.0-beta - Cosimo
+
+Fixata visualizzazione store badge
+Fixata visualizzazione product badge
+
 ### V2.3.0 - Cosimo
 
 - New Widgets V6

@@ -63,14 +63,14 @@ class StoreBadge implements ObserverInterface
 
         $block = $observer->getBlock();
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $fdWidStorePos = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/store_position', $store_scope);
-        $fdSnipStorPos = $this->scopeConfig->getValue('feedaty_microdata_options/snippet_store/store_position', $store_scope);
+        $fdWidStorePos = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/merch_position', $store_scope);
+        $fdSnipStorPos = $this->scopeConfig->getValue('feedaty_microdata_options/snippet_store/merch_snip_position', $store_scope);
         $merchant = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
-        $plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/enabled', $store_scope);
-        $badge_style = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/style', $store_scope);
-        $variant = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/variant', $store_scope);
-        $guilang = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/guilang', $store_scope);
-        $rvlang = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/rvlang', $store_scope);
+        $plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/merch_enabled', $store_scope);
+        $badge_style = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/merch_style', $store_scope);
+        $variant = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/merch_variant', $store_scope);
+        $guilang = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/merch_guilang', $store_scope);
+        $rvlang = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/merch_rvlang', $store_scope);
 
         if ($observer->getElementName() == $fdWidStorePos) 
         {
@@ -92,13 +92,11 @@ class StoreBadge implements ObserverInterface
                 $widget['html'] = str_replace("VARIANT", $variant, $widget['html']);
                 $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
                 $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
-
-                var_dump($widget["html"]);exit;
                 
                 $element = htmlspecialchars_decode($widget["html"]);
 
                 $html = $observer->getTransport()->getOutput();
-                $html.= "<!-- PlPMa ".$ver[0]." -->".$element."<\-- PlPMa -->";
+                $html.= "<!-- PlPMa ".$ver[0]." -->".$element;
 
                 $observer->getTransport()->setOutput($html);
 
