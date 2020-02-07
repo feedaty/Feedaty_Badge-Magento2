@@ -239,15 +239,14 @@ class WebService
             $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
             $this->_dataHelper->feedatyDebug($message, "CURL INFO");
 
-            $message  = curl_getinfo($ch,CURLINFO_PROTOCOL);
-            $this->_dataHelper->feedatyDebug($message, "CURL INFO");
-
             if(curl_errno($ch))
                 $this->_dataHelper->feedatyDebug(curl_error($ch), "CURL ERROR");
         
         }
 
         curl_close($ch);
+
+        return 1 ;
 
     }
 
