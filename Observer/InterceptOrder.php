@@ -68,20 +68,14 @@ class InterceptOrder implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer) {
 
         $order = $observer->getEvent()->getOrder();
-
-        if ($this->_state->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
-            $store = $order->getStore();
-        }
-        else {
-            $store = $this->_storeManager->getStore();
-        }
+        $store = $order->getStore();
 
         $merchant = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
         $secret = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_secret');
         $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
         $fdDebugEnabled = $store->getConfig('feedaty_global/debug/debug_enabled');
 
-        $order_id = $order->getIncrementId();
+        $order_id = $order->getEntityId();
 
         if(!$order_id) {$order_id = $order->getRealOrderId();}
         
