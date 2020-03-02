@@ -3,6 +3,10 @@
 
 #### RELASE NOTES
 
+### V2.3.2-beta - Cosimo
+
+- Fixato problema order id e store id nel'intrcept dell'ordine
+
 ### V2.3.1-stable - Cosimo
 
 - Fixato problema con info curl protocollo
