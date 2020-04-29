@@ -108,7 +108,10 @@ class InterceptOrder implements ObserverInterface
 
                 if (!$item->getParentItem()) 
                 {
-                    $fd_oProduct = $this->_objectManager->get('Magento\Catalog\Model\Product')->load((int) $item->getProductId());
+                    //TODO ASSESMENT: Use factories
+                    //https://magento.stackexchange.com/questions/91997/magento-2-how-to-retrieve-product-informations/113038#113038
+
+                    $fd_oProduct = $this->_objectManager->create('Magento\Catalog\Model\Product')->load((int) $item->getProductId());
 
                     $tmp['SKU'] = $item->getProductId();
                     $tmp['URL'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);

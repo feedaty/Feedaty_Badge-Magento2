@@ -143,6 +143,7 @@ class Index extends \Magento\Backend\App\Action
 
                     if ($fd_oProduct->getImage() != "no_selection") 
                     { 
+                        // TODO: Use store manager
                         $store = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
                         $tmp['ImageUrl'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
                     }
