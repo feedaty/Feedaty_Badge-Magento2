@@ -1,5 +1,12 @@
 ##### CHANGELOG FEEDATY FOR MAGENTO 2
 
+#### RELASE NOTES
+
+### V2.3.3-beta - Cosimo
+
+UPDATES:
+
+	- Fix bug get instance model product in foreach nel File ./Observer/InterceptOrder.php
 
 #### RELASE NOTES
 
