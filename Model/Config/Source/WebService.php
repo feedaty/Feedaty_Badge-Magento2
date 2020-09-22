@@ -50,6 +50,16 @@ class WebService
         $this->_curl->setOption(CURLOPT_FOLLOWLOCATION, 1);
         $this->_curl->setOption(CURLOPT_RETURNTRANSFER, 1);
         $this->_curl->setOption(CURLOPT_VERBOSE, true);
+
+        $timeout = $this->_scopeConfig->getValue(
+            'feedaty_global/timeout_connection/timeout', 
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        $timeout = $timeout == null ? "1000" : $timeout;
+
+        $this->_curl->setOption(CURLOPT_CONNECTTIMEOUT_MS, $timeout);
+        $this->_curl->setOption(CURLOPT_TIMEOUT_MS, $timeout);
     }
 
     /**
@@ -138,6 +148,11 @@ class WebService
 
         $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
 
+        $timeout = $this->_scopeConfig->getValue(
+            'feedaty_global/timeout_widgets/timeout', 
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        
         $content = $cache->load("feedaty_product_".$id);
         
         if (!$content || strlen($content) == 0 || $content === "null") 
@@ -149,14 +164,14 @@ class WebService
 
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, '3');
+            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
             $content = trim(curl_exec($ch));
             curl_close($ch);
             
             if (strlen($content) > 0) 
             {
                 // 3 hours of cache
-                $cache->save($content, "feedaty_product_".$id, array("feedaty_cache"), 3*60*60);
+                $cache->save($content, "feedaty_product_".$id, array("feedaty_cache"), 24*60*60);
             }
         }
         
@@ -172,7 +187,10 @@ class WebService
     public function retrive_informations_store($feedaty_code) {
 
         $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
-
+        $timeout = $this->_scopeConfig->getValue(
+            'feedaty_global/timeout_widgets/timeout', 
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
         $content = $cache->load("feedaty_store");
         
         if (!$content || strlen($content) < 5 || $content === "null") 
@@ -181,14 +199,14 @@ class WebService
             $url = 'http://widget.zoorate.com/go.php?function=feed&action=ws&task=merchant&merchant_code='.$feedaty_code;
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, '3');
+            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
             $content = trim(curl_exec($ch));
             curl_close($ch);
 
             if (strlen($content) > 0)
             {
                 // 3 hours of cache
-                $cache->save($content, "feedaty_store", array("feedaty_cache"), 3*60*60);
+                $cache->save($content, "feedaty_store", array("feedaty_cache"), 24*60*60);
             }
         }
         
@@ -206,6 +224,10 @@ class WebService
     public function send_order($merchant, $secret, $data) {
 
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        $timeout = $this->_scopeConfig->getValue(
+            'feedaty_global/timeout_orders/timeout', 
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
 
         $ch = curl_init();
         $url = 'http://api.feedaty.com/Orders/Insert';
@@ -215,7 +237,7 @@ class WebService
             
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, '60');
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
         curl_setopt($ch, CURLOPT_HTTPHEADER,['Content-Type: application/json', 'Authorization: Oauth '.$accessToken->AccessToken]);
@@ -264,20 +286,28 @@ class WebService
         $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
         $content = json_decode($cache->load("feedaty_prod_snip".$merchant.$product_id));
         $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
-        
+        $timeout = $this->_scopeConfig->getValue('feedaty_global/timeout_microdata/timeout', $store_scope );
+
         if (!$content || strlen($content) < 5 || $content === "null") 
         {
             $path = 'http://white.zoorate.com/gen';
-            $dati = [ 'w' => 'wp','MerchantCode' => $merchant,'t' => 'microdata', 'version' => 2, 'sku' => $product_id ];
+            $dati = [ 
+                'w' => 'wp',
+                'MerchantCode' => $merchant,
+                't' => 'microdata', 
+                'sku' => $product_id,
+                'version' => 2
+            ];
             $header = [ 'Content-Type: text/html','User-Agent: Mage2' ];
             $dati = $this->serializeData($dati);
             $path.='?'.$dati;
+            $path = str_replace("=2&", "=2", $path);
             $ch = curl_init($path);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, '250');
-            curl_setopt($ch, CURLOPT_TIMEOUT_MS, '250');
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, $timeout);
+            curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout);
             $content = curl_exec($ch);
             $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
@@ -285,7 +315,7 @@ class WebService
             if (strlen($content) > 0 && $http_resp == "200") 
             {
                 // 6 hours of cache
-                $cache->save(json_encode($content), "feedaty_prod_snip".$merchant.$product_id, array("feedaty_cache"), 6*60*60);
+                $cache->save(json_encode($content), "feedaty_prod_snip".$merchant.$product_id, array("feedaty_cache"), 24*60*60);
             }
             //debug call
             
@@ -310,6 +340,7 @@ class WebService
         $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
         $content = json_decode($cache->load("feedaty_store_snip".$merchant));
         $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
+        $timeout = $this->_scopeConfig->getValue('feedaty_global/timeout_microdata/timeout', $store_scope);
 
         if (!$content || strlen($content) < 5 || $content === "null") 
         {
@@ -331,8 +362,8 @@ class WebService
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, '250');
-            curl_setopt($ch, CURLOPT_TIMEOUT_MS, '250');
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, $timeout);
+            curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout);
             $content = curl_exec($ch);
             $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
@@ -340,7 +371,7 @@ class WebService
             // 6 hours of cache            
             if (strlen($content) > 0 && $http_resp == "200") 
             {
-                $cache->save(json_encode($content), "feedaty_store_snip".$merchant, array("feedaty_cache"), 6*60*60);  
+                $cache->save(json_encode($content), "feedaty_store_snip".$merchant, array("feedaty_cache"), 24*60*60);  
             }
             
             //debug call
@@ -363,6 +394,10 @@ class WebService
         $content = $cache->load("feedaty_store");
 
         $resolver = $this->_objectManager->get('Magento\Framework\Locale\Resolver');
+        $timeout = $this->_scopeConfig->getValue(
+            'feedaty_global/timeout_widgets/timeout', 
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
 
         $string = "FeedatyData".$feedaty_code.$resolver->getLocale();
         $content =$cache->load($string);
@@ -374,7 +409,7 @@ class WebService
 
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, '60');
+            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
             $content = trim(curl_exec($ch));
             curl_close($ch);
 

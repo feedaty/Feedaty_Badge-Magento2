@@ -46,6 +46,39 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
+
+            <group id="timeout_connection" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
+                <label>Connection Timeout</label>
+                <field id="timeout" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Connection Timeout</label>
+                    <source_model>Feedaty\Badge\Model\Config\Source\FeedatyTimeout</source_model>
+                </field>
+            </group>
+
+            <group id="timeout_orders" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
+                <label>Send Order timeout</label>
+                <field id="timeout" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send Order Timeout</label>
+                    <source_model>Feedaty\Badge\Model\Config\Source\FeedatyTimeout</source_model>
+                </field>
+            </group>
+
+            <group id="timeout_microdata" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
+                <label>Rich Snippet timeout</label>
+                <field id="timeout" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Rich snippet Timeout</label>
+                    <source_model>Feedaty\Badge\Model\Config\Source\FeedatyTimeout</source_model>
+                </field>
+            </group>
+
+            <group id="timeout_widgets" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
+                <label>Widgets timeout options</label>
+                <field id="timeout" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widgets timeout options</label>
+                    <source_model>Feedaty\Badge\Model\Config\Source\FeedatyTimeout</source_model>
+                </field>
+            </group>
+
         </section>
 
         <section id="feedaty_badge_options" translate="label" sortOrder="260" showInDefault="1" showInWebsite="1" showInStore="1">
