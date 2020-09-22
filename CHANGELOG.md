@@ -2,6 +2,18 @@
 
 #### RELASE NOTES
 
+### V2.3.4-beta - Cosimo
+
+UPDATES:
+
+	- Fix bug nei microdati prodotto che appendeva una & che rompeva le cache nel File:
+		./Model/Config/Source/WebService.php
+		
+	- Inserita gestione configurazione timeout
+		(nel caso di timeout reached il plugin logga errore e rilascia processo)
+	- Aumentata la cache a 24h
+
+
 ### V2.3.3-beta - Cosimo
 
 UPDATES:
