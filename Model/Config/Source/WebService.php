@@ -49,7 +49,7 @@ class WebService
         $this->_objectManager = $objectmanager;
         $this->_curl->setOption(CURLOPT_FOLLOWLOCATION, 1);
         $this->_curl->setOption(CURLOPT_RETURNTRANSFER, 1);
-        $this->_curl->setOption(CURLOPT_VERBOSE, true);
+        $this->_curl->setOption(CURLOPT_VERBOSE, false);
 
         $timeout = $this->_scopeConfig->getValue(
             'feedaty_global/timeout_connection/timeout', 
