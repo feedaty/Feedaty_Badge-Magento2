@@ -43,30 +43,43 @@ class StyleStore implements ArrayInterface
     *
     * @return $return
     */
-    public function toOptionArray()
-    {
+    public function toOptionArray() {
+
+        $retun = array();
+
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+
         $store = $this->storeManager->getStore($this->_request->getParam('store', 0));
+
         $merchant_code = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
 
-        if($this->_request->getParam('store', 0) == 0) 
-        {
+        if($this->_request->getParam('store', 0) == 0) {
+
             $merchant_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
+
         }
 
-        if (strlen($merchant_code == 0))  
-        {
-            return array();
+        if (strlen($merchant_code == 0))  {
+
+            return $return;
+
         }
 
         $data = $this->_fdservice->getFeedatyData($merchant_code);
- 
-        foreach ($data as $k => $v) 
-        {
-            if ($v['type'] == "merchant") 
-            {
-                $return[] = ['value' => $k,'label' => $v['name']];
+
+        if($data) {
+
+            // get Badges
+            foreach ($data as $k => $v) {
+
+                if ($v['type'] == "merchant" && $v['name'] != "dynamic" ) {
+
+                    $return[] = ['value' => $k,'label' => $v['name']];
+
+                }
+
             }
+
         }
 
         return $return;

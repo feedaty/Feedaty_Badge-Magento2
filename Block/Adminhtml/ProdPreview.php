@@ -48,7 +48,8 @@ class ProdPreview extends Field
     * @return $html
     */
     protected function _getElementHtml(AbstractElement $element)
-    {
+    {   
+
 
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $merchant = $this->_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
@@ -71,7 +72,7 @@ class ProdPreview extends Field
 
         if(strlen($variant) > 0 && strlen($name) > 0 ) {
 
-            if( $name == 'dynamic' || $name == 'dynvertical' || $name == 'productdynamic' ) {
+            if( $name == 'productdynamic' ) {
 
                 $sizes = array_keys($widget['thumbs']);
 

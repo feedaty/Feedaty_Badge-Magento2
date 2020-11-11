@@ -402,7 +402,7 @@ class WebService
         $string = "FeedatyData".$feedaty_code.$resolver->getLocale();
         $content =$cache->load($string);
 
-        if (!$content || strlen($content) == 0 || $content === "null" || 1==1) 
+        if ( !$content || strlen($content) == 0 || $content === "null" ) 
         {
             $ch = curl_init();
             $url = 'http://widget.zoorate.com/go.php?function=feed_v6&action=widget_list&merchant_code='.$feedaty_code;
