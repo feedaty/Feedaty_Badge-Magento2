@@ -68,7 +68,7 @@ class Preview extends Field
 
             if(strlen($variant) > 0 && strlen($name) > 0&& $data != null) {
 
-                if( $name == 'dynamic' || $name == 'dynvertical' || $name == 'productdynamic' ) {
+                if( $name == 'dynamic' || $name == 'dynvertical'  ) {
 
                     $sizes = array_keys($widget['thumbs']);
 
@@ -84,9 +84,8 @@ class Preview extends Field
                      $images .= "<img src=\"https://widget.zoorate.com/widgets_v6/thumbs/" . $name . "_" . $variant . "_it-IT.png\" />";
                 }
 
-                $html = $images;
+                $html = $images ;
 
-                return $html;
             }
 
             else {
@@ -99,6 +98,8 @@ class Preview extends Field
 
              $html = "<p>Anteprima del widget non disponibile</p>";
         }
+
         return $html;
+
     }
 }

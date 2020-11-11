@@ -2,6 +2,14 @@
 
 #### RELASE NOTES
 
+### V2.3.5-beta - Cosimo
+
+UPDATES:
+
+	- Fixato sistema widget prodotto
+	- Cambiato sistema configurazione widget (aggiunto JS per gestione preview in tempo reale senza salvataggio)
+	- Fixato problema istanza varianti merch e varianti prodotto (KGC shop)
+
 ### V2.3.4-beta - Cosimo
 
 UPDATES:

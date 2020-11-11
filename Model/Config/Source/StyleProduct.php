@@ -46,27 +46,41 @@ class StyleProduct implements ArrayInterface
     */
     public function toOptionArray()
     {
+
+        $return =  array();
+
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+
         $store = $this->storeManager->getStore($this->_request->getParam('store',0));
+
         $merchant_code = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
 
-        if($this->_request->getParam('store', 0) == 0) 
-        {
+        if ($this->_request->getParam('store', 0) == 0) {
+
             $merchant_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
+
         }
 
-        if (strlen($merchant_code) == 0)
-        {
+        if (strlen($merchant_code) == 0) {
+
            return array(); 
+
         } 
 
         $data = $this->_fdservice->getFeedatyData($merchant_code);
-        foreach ($data as $k => $v) 
-        {
-            if ($v['type'] == "product") 
-            {
-                $return[] = ['value' => $k,'label' => $v['name']];
+
+        if($data) {
+        
+            foreach ($data as $k => $v)  {
+
+                if ( $v['type'] == "product" && $v['name'] != "dynamicprod" ) {
+
+                    $return[] = ['value' => $k,'label' => $v['name']];
+
+                }
+                
             }
+
         }
         
         return $return;

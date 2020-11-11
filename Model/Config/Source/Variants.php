@@ -54,21 +54,32 @@ class Variants implements ArrayInterface
 
         if (strlen($merchant_code == 0))  
         {
-            return array();
+            $return = array();
         }
 
         $data = $this->_fdservice->getFeedatyData($merchant_code);
 
-        foreach ($data as $k => $v) {
+        if($data && $data != null) {
 
-            if ($k == $badge_style) 
-            {
-                foreach ($v['variants'] as $key => $value) {
+            foreach ($data as $k => $v) {
 
-                    $return[] = ['value' => $key,'label' => $value];
-                }
+                if ($k == $badge_style) {
+
+                    foreach ($v['variants'] as $key => $value) {
+
+                        $return[] = ['value' => $key,'label' => $value];
+
+                    }
                 
+                }
+
             }
+
+        }
+        else {
+
+            $return = array();
+            
         }
 
         return $return;
