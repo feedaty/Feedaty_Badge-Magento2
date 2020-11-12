@@ -46,39 +46,34 @@ class ProdVariants implements ArrayInterface
         $merchant_code = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
         $plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_products/prod_enabled', $store_scope);
         $badge_style = $this->scopeConfig->getValue('feedaty_badge_options/widget_products/prod_style', $store_scope);
+        $return = array();
 
         if($this->_request->getParam('store', 0) == 0) 
         {
             $merchant_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
         }
 
-        if (strlen($merchant_code == 0))  
-        {
-            $return = array();
-        }
-
-        $data = $this->_fdservice->getFeedatyData($merchant_code);
-
-        if($data) {
-
-            foreach ($data as $k => $v) {
-
-                if ($k == $badge_style) {
-
-                    foreach ($v['variants'] as $key => $value) {
-
-                        $return[] = ['value' => $key,'label' => $value];
-
-                    }
-                
-                }
-            }
-        }
-
-        else {
-
-            $return = array();
+        if (strlen($merchant_code > 0))  {
             
+
+        	$data = $this->_fdservice->getFeedatyData($merchant_code);
+
+        	if($data) {
+
+            	foreach ($data as $k => $v) {
+
+                	if ($k == $badge_style) {
+
+                    	foreach ($v['variants'] as $key => $value) {
+
+                        	$return[] = ['value' => $key,'label' => $value];
+
+                    	}
+                
+                	}
+            	}
+        	}
+
         }
 
         return $return;
