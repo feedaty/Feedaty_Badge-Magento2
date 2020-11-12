@@ -2,6 +2,12 @@
 
 #### RELASE NOTES
 
+### V2.3.6-beta - Cosimo
+
+UPDATES:
+
+	- Fixato errore variabile $return non dichiarata in ProdVariants.php at line 84
+
 ### V2.3.5-beta - Cosimo
 
 UPDATES:
