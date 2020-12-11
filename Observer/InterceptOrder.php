@@ -87,15 +87,15 @@ class InterceptOrder implements ObserverInterface
 
         $store = $this->_storeManager->getStore();
 
-        $feedatyHelper = $this->_objectManager->create('Feedaty\Badge\Helper\Data');
-
         $order_id = $observer->getEvent()->getOrder()->getEntityId();
 
         if(!$order_id) {$order_id = $order->getRealOrderId();}
 
-        $order = $this->_orderRepository->get((int)$order_id);
+        $order = $this->_orderRepository->get( (int)$order_id );
 
         if( $order !== null ) {
+
+            $feedatyHelper = $this->_objectManager->create('Feedaty\Badge\Helper\Data');
 
             $merchant = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
 
@@ -105,7 +105,7 @@ class InterceptOrder implements ObserverInterface
 
             $fdDebugEnabled = $store->getConfig('feedaty_global/debug/debug_enabled');
         
-            $billingAddress = $order->getBillingAddress()->getCountryId();
+            //$billingAddress = $order->getBillingAddress()->getCountryId();
 
             $verify = 0;
 
@@ -178,7 +178,7 @@ class InterceptOrder implements ObserverInterface
                 $tmp_order['CustomerID'] = $order->getCustomerEmail();
                 $tmp_order['Platform'] = "Magento ".$productMetadata->getVersion();
 
-                if (
+                /*if (
 
                     $billingAddress == 'IT' || 
                     $billingAddress == 'EN' || 
@@ -191,7 +191,7 @@ class InterceptOrder implements ObserverInterface
 
                 }
 
-                else $tmp_order['Culture'] = 'en';
+                else*/ $tmp_order['Culture'] = 'en';
 
                 $tmp_order['Products'] = $fd_products;
 
