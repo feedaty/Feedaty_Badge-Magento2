@@ -271,117 +271,7 @@ class WebService
         return 1 ;
 
     }
-
-    /**
-    * Function getProductRichSnippet 
-    *
-    * @param $product_id
-    *
-    * @return $response - the html product's rich snippet
-    *
-    */
-    public function getProductRichSnippet($merchant,$product_id) {
-        
-        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
-        $content = json_decode($cache->load("feedaty_prod_snip".$merchant.$product_id));
-        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
-        $timeout = $this->_scopeConfig->getValue('feedaty_global/timeout_microdata/timeout', $store_scope );
-
-        if (!$content || strlen($content) < 5 || $content === "null") 
-        {
-            $path = 'http://white.zoorate.com/gen';
-            $dati = [ 
-                'w' => 'wp',
-                'MerchantCode' => $merchant,
-                't' => 'microdata', 
-                'sku' => $product_id,
-                'version' => 2
-            ];
-            $header = [ 'Content-Type: text/html','User-Agent: Mage2' ];
-            $dati = $this->serializeData($dati);
-            $path.='?'.$dati;
-            $path = str_replace("=2&", "=2", $path);
-            $ch = curl_init($path);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, $timeout);
-            curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout);
-            $content = curl_exec($ch);
-            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if (strlen($content) > 0 && $http_resp == "200") 
-            {
-                // 6 hours of cache
-                $cache->save(json_encode($content), "feedaty_prod_snip".$merchant.$product_id, array("feedaty_cache"), 24*60*60);
-            }
-            //debug call
-            
-            if($fdDebugEnabled != 0) {
-                $message = "Product microdata response with ".$http_resp." http code";
-                $this->_dataHelper->feedatyDebug($message, "MICRODATA RESPONSE INFO");
-            }
-        }
-
-        return $content;
-    }
     
-    /**
-    * Function getMerchantRichSnippet
-    *
-    * @return $response - the html merchant's rich snippet
-    *
-    */
-    public function getMerchantRichSnippet($merchant){
-
-        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
-        $content = json_decode($cache->load("feedaty_store_snip".$merchant));
-        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
-        $timeout = $this->_scopeConfig->getValue('feedaty_global/timeout_microdata/timeout', $store_scope);
-
-        if (!$content || strlen($content) < 5 || $content === "null") 
-        {
-            $path = 'http://white.zoorate.com/gen';
-            $dati = [
-                'w' => 'wp',
-                'MerchantCode' => $merchant,
-                't' => 'microdata',
-                'version' => 2,
-            ];
-            $header = [
-                'Content-Type: text/html',
-                'User-Agent: Mage2'
-            ];
-            $dati = $this->serializeData($dati);
-            $path.='?'.$dati;
-            $path = str_replace("=2&", "=2", $path);
-            $ch = curl_init($path);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, $timeout);
-            curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout);
-            $content = curl_exec($ch);
-            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-            
-            // 6 hours of cache            
-            if (strlen($content) > 0 && $http_resp == "200") 
-            {
-                $cache->save(json_encode($content), "feedaty_store_snip".$merchant, array("feedaty_cache"), 24*60*60);  
-            }
-            
-            //debug call
-            if($fdDebugEnabled != 0) {
-                $message = "Merchant microdata response with ".$http_resp." http code";
-                $this->_dataHelper->feedatyDebug($message, "MICRODATA RESPONSE INFO");
-            }
-        }
-        return $content;
-    }
 
     /**
     * Function _get_FeedatyData
@@ -419,6 +309,78 @@ class WebService
 
         $data = json_decode($content, true);
         return $data;
+    }
+
+
+    public function getRatings( $merchant, $sku = "null" , $scope = "product" ) {
+
+        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+
+        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
+
+        $timeout = $this->_scopeConfig->getValue('feedaty_global/timeout_microdata/timeout', $store_scope );
+
+        $cache_interface = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
+
+    	$cache_key = "feedaty_ratings_". $merchant . "_" . $sku;
+
+        $content = json_decode( $cache_interface->load( $cache_key ), true);
+
+        if ( !$content['data'] || $content['data'] == null ) 
+        {
+
+            $url = 'https://widget.zoorate.com/go.php?function=feed_v6&action=ratings'.
+            '&scope=' . $scope . 
+            '&sku=' . $sku .
+            '&merchant=' . $merchant .
+            '&lang=null' ;
+     
+            $header = [ 'Content-Type: text/html','User-Agent: Mage2' ];
+
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, $url);
+
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
+
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, $timeout);
+
+            curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout);
+
+            $content = json_decode( curl_exec($ch), true );
+
+            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            curl_close($ch);
+
+            if ($content != null && $http_resp == "200") 
+            {
+                // 6 hours of cache
+                $cache_interface->save( 
+
+                	json_encode($content ,true), 
+                	$cache_key, 
+                	array("feedaty_cache"), 
+                	24*60*60 
+
+                );
+            }
+            //debug call
+            
+            if($fdDebugEnabled != 0) {
+
+                $message = "Rating API response:  ".$http_resp." http code";
+                $this->_dataHelper->feedatyDebug($message, "API RATINGS RESPONSE INFO");
+
+            }
+        }
+
+        return $content['data'];
+
     }
 
 }

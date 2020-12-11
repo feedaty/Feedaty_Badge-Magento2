@@ -84,9 +84,9 @@ class ProductReviews implements ObserverInterface
             
             if ($plugin_enabled != 0 && $product !== null) 
             {
-                $product = $product->getId();
+                $product_id = $product->getId();
 
-                $toview['data_review'] = $this->_fdservice->retriveInformationsProduct($merchant, $product);
+                $toview['data_review'] = $this->_fdservice->retriveInformationsProduct($merchant, $product_id);
 
                 if ($this->_scopeConfig->getValue('feedaty_badge_options/review_products/order_review', $store_scope) == 1) 
                 {

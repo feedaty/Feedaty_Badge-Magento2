@@ -166,7 +166,7 @@
 
                 <field id="prod_position" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Position</label>
-                    <source_model>Feedaty\Badge\Model\Config\Source\PositionStore</source_model>
+                    <source_model>Feedaty\Badge\Model\Config\Source\PositionProduct</source_model>
                 </field>
             </group>
 
@@ -193,21 +193,12 @@
         </section>
 
         <section id="feedaty_microdata_options" translate="label" sortOrder="390" showInDefault="1" showInWebsite="1" showInStore="1">
+            
             <class>separator-top</class>
             <label>Microdata Preferences</label>
             <tab>feedaty</tab>
             <resource>Feedaty_Badge::microdata_preferences</resource>
-            <group id="snippet_store" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1" translate="label source_model">
-                <label>Microdata store</label>
-                <field id="snippet_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="store_position" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Position</label>
-                    <source_model>Feedaty\Badge\Model\Config\Source\PositionStore</source_model>
-                </field>
-            </group>
+
             <group id="snippet_products" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" translate="label">
                 <label>Microdata products</label>
                 <field id="snippet_prod_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -219,6 +210,7 @@
                     <source_model>Feedaty\Badge\Model\Config\Source\PositionProduct</source_model>
                 </field>
             </group>
+
         </section>
 
     </system>
