@@ -42,4 +42,20 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $fdlogger->info("\n".$severity."\n".$message."\n");
 
     }
+
+        /**
+     * Returns system configuration value
+     *
+     * @param $key
+     * @param null $store
+     * @return mixed
+     */
+    public function getConfigurationValue($key, $store = null)
+    {
+        return $this->scopeConfig->getValue(
+            'example_section/' . $key,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
 }

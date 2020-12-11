@@ -26,7 +26,11 @@ class PositionProduct implements ArrayInterface
             ["value"=>"product.attributes","label"=>__("Product attributes")],
             ["value"=>"product.info.upsell","label"=>__("Product upsell")],
             ["value"=>"product.info.product_additional_data","label"=>__("Product additional")],
-            ["value"=>"product_tag_list","label"=>__("Product tag list")]
+            ["value"=>"product_tag_list","label"=>__("Product tag list")],
+            ["value"=>"product.info.review","label"=>__("Product Info - Review")],
+            ["value"=>"product.review.form","label"=>__("Product Review - Form")],
+            ["value"=>"product.reviews","label"=>__("Product Reviews")]
+            
         ];
         return $return;
     }

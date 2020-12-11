@@ -50,18 +50,27 @@ class ProductBadge implements ObserverInterface
     */
     public function execute(\Magento\Framework\Event\Observer $observer) {
 
+        $zoorate_env = "widget.zoorate.com";
+        
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+
         $block = $observer->getBlock();
+
         $fdWidgetPos = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_position', $store_scope);
-        $fdSnipPos = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/prod_snip_position', $store_scope);
+
         $merchant = $this->_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
+
         $badge_style = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_style', $store_scope);
+
         $plugin_enabled = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_enabled', $store_scope);
+
         $variant = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_variant', $store_scope);
+
         $guilang = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_guilang', $store_scope);
+
         $rvlang = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_rvlang', $store_scope);
 
-        if ($observer->getElementName() == $fdWidgetPos) 
+        if ( $observer->getElementName() == $fdWidgetPos ) 
         {
             if ($plugin_enabled != 0) 
             {
@@ -87,12 +96,9 @@ class ProductBadge implements ObserverInterface
                     $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
                     $widget['html'] = str_replace("SKU", $product,$widget['html']);
 
-                    $html = '<!-- PlPMa '.$ver[0].' -->'.$observer->getTransport()->getOutput().htmlspecialchars_decode($widget['html']);
+                    $html = $observer->getTransport()->getOutput();
 
-                    if ($fdWidgetPos == $fdSnipPos) 
-                    {
-                        $html.= $this->_fdservice->getProductRichSnippet($merchant, $product);
-                    } 
+                    $html .= '<!-- PlPMa '.$ver[0].' -->'. htmlspecialchars_decode($widget['html']);
 
                     $observer->getTransport()->setOutput($html);
                 }

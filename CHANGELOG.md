@@ -2,6 +2,18 @@
 
 #### RELASE NOTES
 
+### V2.4.0-beta - 03/12/2020
+
+UPDATES:
+
+ - Refactory codice Observer utiizzando API INTERFACE ORDERS
+ - Refactory Snippets prodotto
+
+FIXES:
+
+- Fix undefined $zoorate_env 
+- Fix Intercept order (qaplà)
+
 ### V2.3.6-beta - Cosimo
 
 UPDATES:

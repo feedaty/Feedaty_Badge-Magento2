@@ -1,45 +1,40 @@
+<?php   
+    $view = $this->getView(); 
+    $reviews = $view['data_review']['Feedbacks'];
+?>
 
 <div class="box-collateral box-reviews" id="customer-reviews">
-    <h2><?php echo __('Customer Reviews') ?></h2>
-    <dl>
 
-        <?php   
-            $view = $this->getView(); 
-            $reviews = $view['data_review']['Feedbacks'];
-        ?>
+    <h2><?php echo __('Feedaty Reviews') ?></h2>
+
+    <dl>    
 
         <?php foreach ($reviews as $k => $r) { ?>
         <!-- start here -->
     
-        <div>
+        <div >
+
             <div class="review-ratings" >
-                <div class="rating-summary item" itemprop="reviewRating" itemtype="http://schema.org/Rating">
-                    <div class="rating-result">
-                        <span style="width:<?php echo ($r['ProductRating'])*20?>%;">
-                        </span>
-                    </div>
+
+                <meta content="<?php echo ($r['ProductRating']);?>" />
+
+            </div>
+
+            <div class="rating-summary item" >
+                <div class="rating-result">
+                    <span style="width:<?php echo ($r['ProductRating'])*20;?>%;"></span>
                 </div>
             </div>
-            
-            <div class="review-content" itemprop="description">
+
+            <div class="review-content" >
                 <?php echo $r['ProductReview']; ?>
             </div>
-            <!-- TODO custom : Implementing author and date of feed-->
-            <!-- 
-            <div class="review-details">
-                <p class="review-author">
-                    <span class="review-details-label">Review by</span>
-                    <strong class="review-details-value" itemprop="author">$r['Author']</strong>
-                </p>
-                <p class="review-date">
-                        <span class="review-details-label">Posted on</span>
-                        <time class="review-details-value" itemprop="datePublished" datetime="10/11/16">10/11/16</time>
-                </p>
-            </div>-->
+
         </div>
     
         <!-- end here -->
         <?php } ?>
     </dl>
     <?php echo $view['link']; ?>
+
 </div>

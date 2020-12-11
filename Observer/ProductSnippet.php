@@ -51,13 +51,17 @@ class ProductSnippet implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer) {
 
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $block = $observer->getBlock();
-        $fdSnipPos = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/prod_position', $store_scope);
-        $fdWidgetPos = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_snip_position', $store_scope);
-        $merchant = $this->_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
-        $plugin_enabled = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/prod_snippet_enabled', $store_scope);
 
-        if ($observer->getElementName()== $fdSnipPos && $fdSnipPos != $fdWidgetPos) 
+        $block = $observer->getBlock();
+
+        $fdSnipPos = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/product_position', $store_scope);
+
+
+        $merchant = $this->_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
+
+        $plugin_enabled = $this->_scopeConfig->getValue('feedaty_microdata_options/snippet_products/snippet_prod_enabled', $store_scope);
+
+        if ( $observer->getElementName() == $fdSnipPos  ) 
         {
             if ($plugin_enabled != 0) 
             {
@@ -65,8 +69,20 @@ class ProductSnippet implements ObserverInterface
 
                 if ($product !== null) 
                 {
-                    $product = $product->getId();
-                    $html = $this->_fdservice->getProductRichSnippet($merchant,$product).$observer->getTransport()->getOutput();
+                    $sku= $product->getId();
+
+                    $ratings = $this->_fdservice->getRatings($merchant, $sku, "product");
+
+                    $snippet = 
+                        '<div itemprop="aggregateRating" itemtype="http://schema.org/AggregateRating" itemscope>
+                            <meta itemprop="reviewCount" content="' . $ratings['RatingsCount'] . '" />
+                            <meta itemprop="ratingValue" content="' . $ratings['AvgRating'] . '" />
+                        </div>';
+
+                    $html = $observer->getTransport()->getOutput();
+
+                    $html.= $snippet;
+
                     $observer->getTransport()->setOutput($html);
                 }
             }
