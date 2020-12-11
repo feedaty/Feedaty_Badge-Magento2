@@ -191,7 +191,8 @@ class InterceptOrder implements ObserverInterface
 
                 }
 
-                else*/ $tmp_order['Culture'] = 'en';
+                else*/
+                //$tmp_order['Culture'] = 'en';
 
                 $tmp_order['Products'] = $fd_products;
 
