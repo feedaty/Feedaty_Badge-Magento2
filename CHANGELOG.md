@@ -2,6 +2,12 @@
 
 #### RELASE NOTES
 
+### V2.5.0-beta - 23/12/2020 - ciao ragazzi è il mio compleanno!!!
+
+ - Sostituita classe OrderRepository con OrderInterface e caricato ordine tramite increment ID
+ - Incremento di una minor per via della classe sostituita in teoria i cambiamenti sono incompatibili 
+ - Con le vecchie versioni 
+ 
 ### V2.4.0-beta - 03/12/2020
 
 UPDATES:
