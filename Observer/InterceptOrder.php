@@ -10,7 +10,7 @@ use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Magento\Framework\App\Request\Http;
 use \Magento\Framework\ObjectManagerInterface;
 use \Magento\Framework\App\State;
-use \Magento\Sales\Api\OrderRepositoryInterface;
+use \Magento\Sales\Api\Data\OrderInterface;
 use \Magento\Customer\Api\CustomerRepositoryInterface;
 
 class InterceptOrder implements ObserverInterface
@@ -50,7 +50,7 @@ class InterceptOrder implements ObserverInterface
     /**
     * @var 
     */
-    protected $_orderRepository;
+    protected $_orderInterface;
 
 
     /**
@@ -64,7 +64,7 @@ class InterceptOrder implements ObserverInterface
         WebService $fdservice,
         ObjectManagerInterface $objectmanager,
         State $state,
-        OrderRepositoryInterface $orderRepository,
+        OrderInterface $orderInterface,
         CustomerRepositoryInterface $customerRepository
         ) 
     {
@@ -74,7 +74,7 @@ class InterceptOrder implements ObserverInterface
         $this->_fdservice = $fdservice;
         $this->_objectManager = $objectmanager;
         $this->_state = $state;
-        $this->_orderRepository = $orderRepository;
+        $this->_orderInterface = $orderInterface;
         $this->_customerRepository = $customerRepository;
     }
 
@@ -87,13 +87,15 @@ class InterceptOrder implements ObserverInterface
 
         $store = $this->_storeManager->getStore();
 
-        $order_id = $observer->getEvent()->getOrder()->getEntityId();
+        $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
 
-        if(!$order_id) {$order_id = $order->getRealOrderId();}
+        $increment_id = $observer->getEvent()->getOrder()->getIncrementId();
 
-        $order = $this->_orderRepository->get( (int)$order_id );
+        $order = $this->_orderInterface->loadByIncrementId($increment_id);
 
-        if( $order !== null ) {
+        $order_id = $order->getId();
+
+        if( $order !== null && $order->getStatus() == $orderopt ) {
 
             $feedatyHelper = $this->_objectManager->create('Feedaty\Badge\Helper\Data');
 
@@ -101,10 +103,8 @@ class InterceptOrder implements ObserverInterface
 
             $secret = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_secret');
 
-            $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
-
             $fdDebugEnabled = $store->getConfig('feedaty_global/debug/debug_enabled');
-        
+            
             //$billingAddress = $order->getBillingAddress()->getCountryId();
 
             $verify = 0;
@@ -123,7 +123,16 @@ class InterceptOrder implements ObserverInterface
 
             }
 
-            if ($order->getStatus() == $orderopt && $verify <= 1)  {
+            // Verifica che lo status sia per la prima volta
+            // Nella condizione desiderata
+            // Ciò potrebbe impedire ad alcuni ordini di passare
+            // Era stato inserito nel plugin per magento 1
+            // per evitare di rielaborare ogni salvataggio di stato
+            // anche solo per un update all'ordine
+            // Non tenendo memoria in nessuna tabella gli ordini elaborati non
+            // abbiamo modo per ora lato Magento di rimuovere questo controllo
+
+            if ( $verify <= 1 )  {
 
                 $baseurl_store = $store->getBaseUrl(UrlInterface::URL_TYPE_LINK);
 
@@ -199,10 +208,10 @@ class InterceptOrder implements ObserverInterface
                 $fd_data[] = $tmp_order;
 
                 // send to feedaty
+
                 $this->_fdservice->send_order($merchant,$secret,$fd_data);
 
             }
-
 
         }
 
