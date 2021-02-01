@@ -152,9 +152,9 @@ class InterceptOrder implements ObserverInterface
                     $baseurl_store = $store->getBaseUrl( UrlInterface::URL_TYPE_LINK );
 
                     // errore
-                    $objproducts = $order->getItems();
+                    $objproducts = $order->getAllItems() ;
 
-                    $objproducts = empty($objproducts) ? $order->getAllItems() : $objproducts ;
+                    $objproducts = empty($objproducts) ? $order->getItems() : $objproducts ;
 
                     if( !empty($objproducts) ) {
 
