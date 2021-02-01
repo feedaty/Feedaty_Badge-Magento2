@@ -2,9 +2,15 @@
 
 #### RELASE NOTES
 
-### V2.5.1-beta - 11/01/2020 -
+### V2.5.2-beta - 11/01/2020 
 
- - Fix errore da frontend su getAllItems();
+ - Gestiti Prodotti Configurabili (viene presa immagine del children sku del padre e url del padre)
+ - Gestito errore stato pending e gestito array prodotti vuoto
+
+### V2.5.1-beta - 11/01/2020 
+
+- 
+
 
 ### V2.5.0-beta - 23/12/2020 
 
