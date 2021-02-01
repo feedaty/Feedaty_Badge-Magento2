@@ -1,17 +1,31 @@
 <?php
+
 namespace Feedaty\Badge\Observer;
 
 use Feedaty\Badge\Model\Config\Source\WebService;
+
+use Feedaty\Badge\Helper\Data as FeedatyHelper;
+
 use \Magento\Framework\Event\ObserverInterface;
+
 use \Magento\Framework\UrlInterface;
+
 use \Magento\Catalog\Helper\Image;
+
 use \Magento\Store\Model\StoreManagerInterface;
+
+use \Magento\Store\Api\Data\StoreConfigInterface;
+
 use \Magento\Framework\App\Config\ScopeConfigInterface;
+
 use \Magento\Framework\App\Request\Http;
+
 use \Magento\Framework\ObjectManagerInterface;
+
 use \Magento\Framework\App\State;
+
 use \Magento\Sales\Api\Data\OrderInterface;
-use \Magento\Customer\Api\CustomerRepositoryInterface;
+
 
 class InterceptOrder implements ObserverInterface
 {
@@ -25,6 +39,11 @@ class InterceptOrder implements ObserverInterface
     * @var \Magento\Store\Model\StoreManagerInterface
     */
     protected $_storeManager;
+
+    /**
+    * @var \Magento\Store\Api\Data\StoreInterface
+    */
+    protected $_storeConfigInterface;
 
     /**
     * @var \Magento\Catalog\Helper\Image
@@ -42,9 +61,9 @@ class InterceptOrder implements ObserverInterface
     protected $_state;
 
     /**
-    * @var 
+    * @var Feedaty\Badge\Helper\Data
     */
-    protected $_customerRepository;
+    protected $feedatyHelper;
 
 
     /**
@@ -60,22 +79,24 @@ class InterceptOrder implements ObserverInterface
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
+        StoreConfigInterface $storeConfigInterface,
         Image $imageHelper,
         WebService $fdservice,
         ObjectManagerInterface $objectmanager,
         State $state,
         OrderInterface $orderInterface,
-        CustomerRepositoryInterface $customerRepository
+        FeedatyHelper $feedatyHelper
         ) 
     {
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
+        $this->_storeConfigInterface = $storeConfigInterface;
         $this->_imageHelper = $imageHelper;
         $this->_fdservice = $fdservice;
         $this->_objectManager = $objectmanager;
         $this->_state = $state;
         $this->_orderInterface = $orderInterface;
-        $this->_customerRepository = $customerRepository;
+        $this->_feedatyHelper = $feedatyHelper;
     }
 
     /**
@@ -83,137 +104,193 @@ class InterceptOrder implements ObserverInterface
     *
     * @param $observer
     */
-    public function execute(\Magento\Framework\Event\Observer $observer) {
+    public function execute( \Magento\Framework\Event\Observer $observer ) {
 
         $store = $this->_storeManager->getStore();
 
         $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
 
         $increment_id = $observer->getEvent()->getOrder()->getIncrementId();
+        
+        try {
 
-        $order = $this->_orderInterface->loadByIncrementId($increment_id);
+            $order = $this->_orderInterface->loadByIncrementId( $increment_id );
 
-        $order_id = $order->getId();
+            if( $order !== null && $order->getStatus() == $orderopt ) {
 
-        if( $order !== null && $order->getStatus() == $orderopt ) {
+                $order_id = $order->getId();
 
-            $feedatyHelper = $this->_objectManager->create('Feedaty\Badge\Helper\Data');
+                $merchant = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
 
-            $merchant = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
+                $secret = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_secret');
 
-            $secret = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_secret');
+                $fdDebugEnabled = $store->getConfig('feedaty_global/debug/debug_enabled');
 
-            $fdDebugEnabled = $store->getConfig('feedaty_global/debug/debug_enabled');
-            
-            //$billingAddress = $order->getBillingAddress()->getCountryId();
+                $verify = 0;
 
-            $verify = 0;
+                if($fdDebugEnabled != 0) {
 
-            if($fdDebugEnabled != 0) {
-
-                $message = "MerchantCode: ".$merchant." MerchantSecret: ".$secret. "OrderID: " . $order_id;
+                    $message = "MerchantCode: ".$merchant." MerchantSecret: ".$secret. "OrderID: " . $order_id;
                 
-                $feedatyHelper->feedatyDebug($message, "FEEDATY OBSERVER DATA");
+                    $this->_feedatyHelper->feedatyDebug(
+                        $message, 
+                        "FEEDATY OBSERVER DATA"
+                    );
 
-            }
+                }
 
-            foreach (($order->getAllStatusHistory()) as $orderComment) {
+                foreach ( ($order->getAllStatusHistory() ) as $orderComment ) {
 
-                if ($orderComment->getStatus() === $orderopt) $verify++;
+                    if ( $orderComment->getStatus() === $orderopt ) 
 
-            }
+                        $verify++;
 
-            // Verifica che lo status sia per la prima volta
-            // Nella condizione desiderata
-            // Ciò potrebbe impedire ad alcuni ordini di passare
-            // Era stato inserito nel plugin per magento 1
-            // per evitare di rielaborare ogni salvataggio di stato
-            // anche solo per un update all'ordine
-            // Non tenendo memoria in nessuna tabella gli ordini elaborati non
-            // abbiamo modo per ora lato Magento di rimuovere questo controllo
+                }
 
-            if ( $verify <= 1 )  {
+                if ( $verify <= 1 )  {
 
-                $baseurl_store = $store->getBaseUrl(UrlInterface::URL_TYPE_LINK);
+                    $baseurl_store = $store->getBaseUrl( UrlInterface::URL_TYPE_LINK );
 
-                $objproducts = $order->getAllItems();
+                    // errore
+                    $objproducts = $order->getAllItems() ;
 
-                unset($fd_products);
+                    $objproducts = empty($objproducts) ? $order->getItems() : $objproducts ;
 
-                foreach ($objproducts as $itemId => $item) {
+                    if( !empty($objproducts) ) {
 
-                    unset($tmp);
+                        unset($fd_products);
 
-                    if (!$item->getParentItem()) {
+                        foreach ( $objproducts as $itemId => $item ) {
 
-                        //TODO ASSESMENT: Use factories
-                        //https://magento.stackexchange.com/questions/91997/magento-2-how-to-retrieve-product-informations/113038#113038
+                            unset($tmp);
 
-                        $fd_oProduct = $this->_objectManager->create('Magento\Catalog\Model\Product')->load((int) $item->getProductId());
+                            if ( !$item->getParentItem() ) {
 
-                        $tmp['SKU'] = $item->getProductId();
-                        $tmp['URL'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
-                        $tmp['EAN'] = $item->getEancode();
+                                //TODO ASSESMENT: Use factories
+                                //https://magento.stackexchange.com/questions/91997/magento-2-how-to-retrieve-product-informations/113038#113038
+
+                                $orderProduct = $this->_objectManager->create('Magento\Catalog\Model\Product')->load((int) $item->getProductId());
+
+                                $tmp['SKU'] = $item->getProductId();
+
+                                $tmp['URL'] = $orderProduct->getUrlModel()->getUrl($orderProduct);
+
+                                //$tmp['EAN'] = $item->getCustomAttribute('ean');
                     
-                        //get the image url
-                        if ($fd_oProduct->getImage() != "no_selection") {
-                        
-                            //$store =  $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
-                            $tmp['ThumbnailURL'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
+                                //get the image url
+                                if ( $orderProduct->getImage() != "no_selection" ) {
+
+                                    $tmp['ThumbnailURL'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $orderProduct->getImage();
+                                }
+
+                                else {
+
+                                    $tmp['ThumbnailURL'] = "";
+
+                                }
+
+                                $tmp['Name'] = $item->getName();
+
+                                $tmp['Brand'] = $item->getBrand();
+
+                                if ($tmp['Brand'] === null) $tmp['Brand']  = "";
+
+                                $fd_products[] = $tmp;
+
+                            }
+
+                            //configurable and bundle products
+                            else {
+
+                                $parentProductID = $item->getParentItem()->getProductId();
+
+                                $childProductID = $item->getProductId();
+
+                                $parentProduct = $this->_objectManager->create('Magento\Catalog\Model\Product')
+                                    ->load( (int) $parentProductID );
+
+                                $childProduct = $this->_objectManager->create('Magento\Catalog\Model\Product')
+                                    ->load( (int) $childProductID );
+
+
+                                $tmp['SKU'] = $parentProductID;
+
+                                $tmp['URL'] = $parentProduct->getUrlModel()->getUrl($parentProduct);
+
+                                //$tmp['EAN'] = $childProduct->getCustomAttribute('ean');
+                    
+                                //get the image url
+                                if ($childProduct->getImage() != "no_selection") {
+
+                                    $tmp['ThumbnailURL'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $childProduct->getImage();
+                                }
+
+                                else {
+
+                                    $tmp['ThumbnailURL'] = "";
+
+                                }
+
+                                $tmp['Name'] = $parentProduct->getName();
+
+                                $tmp['Brand'] = $parentProduct->getBrand();
+
+                                if ($tmp['Brand'] === null) $tmp['Brand']  = "";
+
+                                $this->_feedatyHelper->feedatyDebug(
+
+                                    json_encode($tmp), 
+                                    "FEEDATY configurable Product: "
+
+                                );
+
+                                $fd_products[] = $tmp;
+
+                            }
+
                         }
 
-                        else {
+                        $mageMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
 
-                            $tmp['ThumbnailURL'] = "";
+                        // Formatting the array to be sent
+                        $tmp_order['ID'] = $order->getId();
 
-                        }
+                        $tmp_order['Date'] = date("Y-m-d H:i:s");
 
-                        $tmp['Name'] = $item->getName();
-                        $tmp['Brand'] = $item->getBrand();
-                        if ($tmp['Brand'] === null) $tmp['Brand']  = "";
+                        $tmp_order['CustomerEmail'] = $order->getCustomerEmail();
 
-                        //$tmp['Price'] = $item->getPrice();
-                        $fd_products[] = $tmp;
+                        $tmp_order['CustomerID'] = $order->getCustomerEmail();
+
+                        $tmp_order['Platform'] = "Magento ".$mageMetadata->getVersion();
+
+                        $tmp_order['Products'] = $fd_products;
+
+                        $fd_data[] = $tmp_order;
+
+                        // send to feedaty
+
+                        $this->_fdservice->send_order( $merchant, $secret, $fd_data );
+
+                    }
+
+                    else {
+
+                        $this->_feedatyHelper->feedatyDebug( "Can't find order products", "FEEDATY: " );
+
                     }
 
                 }
 
-                $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
-
-                // Formatting the array to be sent
-                $tmp_order['ID'] = $order->getId();
-                $tmp_order['Date'] = date("Y-m-d H:i:s");
-                $tmp_order['CustomerEmail'] = $order->getCustomerEmail();
-                $tmp_order['CustomerID'] = $order->getCustomerEmail();
-                $tmp_order['Platform'] = "Magento ".$productMetadata->getVersion();
-
-                /*if (
-
-                    $billingAddress == 'IT' || 
-                    $billingAddress == 'EN' || 
-                    $billingAddress == 'ES' || 
-                    $billingAddress == 'DE' || 
-                    $billingAddress == 'FR' )  
-                {
-
-                    $tmp_order['Culture'] = strtolower($billingAddress);
-
-                }
-
-                else*/
-                //$tmp_order['Culture'] = 'en';
-
-                $tmp_order['Products'] = $fd_products;
-
-                $fd_data[] = $tmp_order;
-
-                // send to feedaty
-
-                $this->_fdservice->send_order($merchant,$secret,$fd_data);
-
             }
 
         }
+
+        catch (Exception $exception) {
+
+            $this->_feedatyHelper->feedatyDebug( $exception->getMessage, "FEEDATY: " );
+
+        }
+
 
     }
 

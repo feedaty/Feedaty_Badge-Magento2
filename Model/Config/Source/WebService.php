@@ -4,7 +4,7 @@ namespace Feedaty\Badge\Model\Config\Source;
 use \Magento\Framework\HTTP\Client\Curl;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Magento\Store\Model\StoreManagerInterface;
-use Feedaty\Badge\Helper\Data as DataHelp;
+use Feedaty\Badge\Helper\Data as FeedatyHelper;
 use \Magento\Framework\ObjectManagerInterface;
 
 class WebService 
@@ -23,7 +23,7 @@ class WebService
     /**
     * @var Feedaty\Badge\Helper\Data
     */
-    protected $dataHelper;
+    protected $feedatyHelper;
 
     /**
     * @var \Magento\Framework\ObjectManagerInterface
@@ -37,14 +37,14 @@ class WebService
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
-        DataHelp $dataHelper,
+        FeedatyHelper $feedatyHelper,
         Curl $curl,
         ObjectManagerInterface $objectmanager
         ) 
     {
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
-        $this->_dataHelper = $dataHelper;
+        $this->_feedatyHelper = $feedatyHelper;
         $this->_curl = $curl;
         $this->_objectManager = $objectmanager;
         $this->_curl->setOption(CURLOPT_FOLLOWLOCATION, 1);
@@ -250,19 +250,19 @@ class WebService
         if($fdDebugEnabled != 0) {
 
             $message = $data;
-            $this->_dataHelper->feedatyDebug($message, "FEEDATY DATA");
+            $this->_feedatyHelper->feedatyDebug($message, "FEEDATY DATA");
 
             $message = $content;
-            $this->_dataHelper->feedatyDebug($message, "FEEDATY RESPONSE");
+            $this->_feedatyHelper->feedatyDebug($message, "FEEDATY RESPONSE");
 
             $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
-            $this->_dataHelper->feedatyDebug($message, "CURL HEADER INFO");
+            $this->_feedatyHelper->feedatyDebug($message, "CURL HEADER INFO");
 
             $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
-            $this->_dataHelper->feedatyDebug($message, "CURL INFO");
+            $this->_feedatyHelper->feedatyDebug($message, "CURL INFO");
 
             if(curl_errno($ch))
-                $this->_dataHelper->feedatyDebug(curl_error($ch), "CURL ERROR");
+                $this->_feedatyHelper->feedatyDebug(curl_error($ch), "CURL ERROR");
         
         }
 
@@ -374,7 +374,7 @@ class WebService
             if($fdDebugEnabled != 0) {
 
                 $message = "Rating API response:  ".$http_resp." http code";
-                $this->_dataHelper->feedatyDebug($message, "API RATINGS RESPONSE INFO");
+                $this->_feedatyHelper->feedatyDebug($message, "API RATINGS RESPONSE INFO");
 
             }
         }
