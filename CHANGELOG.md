@@ -2,14 +2,16 @@
 
 #### RELASE NOTES
 
+### V2.5.3-beta - 04/02/2020 
+
+ - Gestione dello store e delle conf in base allo store dell'ordine 
+
 ### V2.5.2-beta - 11/01/2020 
 
  - Gestiti Prodotti Configurabili (viene presa immagine del children sku del padre e url del padre)
  - Gestito errore stato pending e gestito array prodotti vuoto
 
 ### V2.5.1-beta - 11/01/2020 
-
-- 
 
 
 ### V2.5.0-beta - 23/12/2020 
