@@ -105,16 +105,18 @@ class InterceptOrder implements ObserverInterface
     * @param $observer
     */
     public function execute( \Magento\Framework\Event\Observer $observer ) {
-
-        $store = $this->_storeManager->getStore();
-
-        $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
-
-        $increment_id = $observer->getEvent()->getOrder()->getIncrementId();
         
+        $increment_id = $observer->getEvent()->getOrder()->getIncrementId();
+
         try {
 
             $order = $this->_orderInterface->loadByIncrementId( $increment_id );
+
+            $store_id = $order->getStoreId();
+
+            $store = $store_id == null ? $this->_storeManager->getStore() : $this->_storeManager->getStore($store_id);
+
+            $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
 
             if( $order !== null && $order->getStatus() == $orderopt ) {
 

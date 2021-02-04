@@ -153,13 +153,16 @@ class WebService
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
         
-        $content = $cache->load("feedaty_product_".$id);
+        $cache_key = "feedaty_product_tab_".$feedaty_code . "PID=" .$id;
+
+        $content = $cache->load($cache_key);
         
         if (!$content || strlen($content) == 0 || $content === "null") 
         {
             $ch = curl_init();
 
             $resolver = $this->_objectManager->get('Magento\Framework\Locale\Resolver');
+
             $url = 'http://widget.zoorate.com/go.php?function=feed&action=ws&task=product&merchant_code='.$feedaty_code.'&ProductID='.$id.'&language='.$resolver->getLocale();
 
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -171,7 +174,7 @@ class WebService
             if (strlen($content) > 0) 
             {
                 // 3 hours of cache
-                $cache->save($content, "feedaty_product_".$id, array("feedaty_cache"), 24*60*60);
+                $cache->save($content, $cache_key, array("feedaty_cache"), 24*60*60);
             }
         }
         
@@ -180,40 +183,7 @@ class WebService
         return $data;
     }
 
-    /**
-    * Function retrive_informations_store
-    * @return $data
-    */
-    public function retrive_informations_store($feedaty_code) {
 
-        $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
-        $timeout = $this->_scopeConfig->getValue(
-            'feedaty_global/timeout_widgets/timeout', 
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-        $content = $cache->load("feedaty_store");
-        
-        if (!$content || strlen($content) < 5 || $content === "null") 
-        {
-            $ch = curl_init();
-            $url = 'http://widget.zoorate.com/go.php?function=feed&action=ws&task=merchant&merchant_code='.$feedaty_code;
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-            $content = trim(curl_exec($ch));
-            curl_close($ch);
-
-            if (strlen($content) > 0)
-            {
-                // 3 hours of cache
-                $cache->save($content, "feedaty_store", array("feedaty_cache"), 24*60*60);
-            }
-        }
-        
-        $data = json_decode($content,true);
-    
-        return $data;
-    }
 
     /**
     * Function send_order 
@@ -224,28 +194,39 @@ class WebService
     public function send_order($merchant, $secret, $data) {
 
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+
         $timeout = $this->_scopeConfig->getValue(
             'feedaty_global/timeout_orders/timeout', 
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
         $ch = curl_init();
+
         $url = 'http://api.feedaty.com/Orders/Insert';
 
         $token = $this->getReqToken();
+
         $accessToken =json_decode($this->getAccessToken($token, $merchant, $secret));
             
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER,['Content-Type: application/json', 'Authorization: Oauth '.$accessToken->AccessToken]);
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-        $content = trim(curl_exec($ch));
 
-        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+
+        curl_setopt($ch, CURLOPT_POST, 1);
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER,['Content-Type: application/json', 'Authorization: Oauth '.$accessToken->AccessToken]);
+
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+
+        $content = trim( curl_exec($ch) );
+
+        $fdDebugEnabled = $this->_scopeConfig->getValue( 'feedaty_global/debug/debug_enabled', $store_scope );
 
         if($fdDebugEnabled != 0) {
 
@@ -281,34 +262,42 @@ class WebService
     public function getFeedatyData($feedaty_code) {
 
         $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
-        $content = $cache->load("feedaty_store");
 
         $resolver = $this->_objectManager->get('Magento\Framework\Locale\Resolver');
+
         $timeout = $this->_scopeConfig->getValue(
             'feedaty_global/timeout_widgets/timeout', 
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
-        $string = "FeedatyData".$feedaty_code.$resolver->getLocale();
-        $content =$cache->load($string);
+        $string = "FeedatyData" . $feedaty_code . $resolver->getLocale();
+
+        $content = $cache->load( $string );
 
         if ( !$content || strlen($content) == 0 || $content === "null" ) 
         {
             $ch = curl_init();
+
             $url = 'http://widget.zoorate.com/go.php?function=feed_v6&action=widget_list&merchant_code='.$feedaty_code;
 
             curl_setopt($ch, CURLOPT_URL, $url);
+
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
             curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+
             $content = trim(curl_exec($ch));
+
             curl_close($ch);
 
-            $cache->save($content, "FeedatyData".$feedaty_code.$resolver->getLocale(), array("feedaty_cache"), 24*60*60); // 24 hours of cache
+            $cache->save($content, $string, array("feedaty_cache"), 24*60*60); // 24 hours of cache
 
         }
 
         $data = json_decode($content, true);
+
         return $data;
+
     }
 
 
@@ -322,7 +311,7 @@ class WebService
 
         $cache_interface = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
 
-    	$cache_key = "feedaty_ratings_". $merchant . "_" . $sku;
+        $cache_key = "feedaty_ratings_". $merchant . "_" . $sku;
 
         $content = json_decode( $cache_interface->load( $cache_key ), true);
 
@@ -362,10 +351,10 @@ class WebService
                 // 6 hours of cache
                 $cache_interface->save( 
 
-                	json_encode($content ,true), 
-                	$cache_key, 
-                	array("feedaty_cache"), 
-                	24*60*60 
+                    json_encode($content ,true), 
+                    $cache_key, 
+                    array("feedaty_cache"), 
+                    24*60*60 
 
                 );
             }
