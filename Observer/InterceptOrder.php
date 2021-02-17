@@ -116,6 +116,9 @@ class InterceptOrder implements ObserverInterface
 
             $store = $store_id == null ? $this->_storeManager->getStore() : $this->_storeManager->getStore($store_id);
 
+    
+            $culture_code = $store->getConfig('general/locale/code');
+
             $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
 
             if( $order !== null && $order->getStatus() == $orderopt ) {
@@ -127,6 +130,8 @@ class InterceptOrder implements ObserverInterface
                 $secret = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_secret');
 
                 $fdDebugEnabled = $store->getConfig('feedaty_global/debug/debug_enabled');
+
+
 
                 $verify = 0;
 
@@ -252,6 +257,17 @@ class InterceptOrder implements ObserverInterface
 
                         }
 
+                        $cultures = explode( "_", $culture_code );
+
+                        $culture = $cultures[0];
+
+                        if( $culture != 'it' || $culture != 'en'|| $culture != 'es'|| $culture != 'fr'|| $culture != 'de' ) {
+
+                            $culture = 'en';
+
+                        }
+
+
                         $mageMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
 
                         // Formatting the array to be sent
@@ -262,6 +278,8 @@ class InterceptOrder implements ObserverInterface
                         $tmp_order['CustomerEmail'] = $order->getCustomerEmail();
 
                         $tmp_order['CustomerID'] = $order->getCustomerEmail();
+
+                        $tmp_order['Cultures'] = $culture;
 
                         $tmp_order['Platform'] = "Magento ".$mageMetadata->getVersion();
 

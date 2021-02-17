@@ -2,6 +2,10 @@
 
 #### RELASE NOTES
 
+### V2.5.4-beta - 04/02/2020 
+
+ - Gestione parametro Culture tramite API per invio mail survey
+
 ### V2.5.3-beta - 04/02/2020 
 
  - Gestione dello store e delle conf in base allo store dell'ordine 
