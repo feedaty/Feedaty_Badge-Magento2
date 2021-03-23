@@ -2,6 +2,11 @@
 
 #### RELASE NOTES
 
+### V2.5.5-beta - 04/02/2020 
+
+ - 	Patch Errore Store style
+ -	Corretto Prametro Culture in web service feedaty
+
 ### V2.5.4-beta - 04/02/2020 
 
  - Gestione parametro Culture tramite API per invio mail survey
