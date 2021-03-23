@@ -279,7 +279,7 @@ class InterceptOrder implements ObserverInterface
 
                         $tmp_order['CustomerID'] = $order->getCustomerEmail();
 
-                        $tmp_order['Cultures'] = $culture;
+                        $tmp_order['Culture'] = $culture;
 
                         $tmp_order['Platform'] = "Magento ".$mageMetadata->getVersion();
 

@@ -56,52 +56,101 @@ class ProductBadge implements ObserverInterface
 
         $block = $observer->getBlock();
 
-        $fdWidgetPos = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_position', $store_scope);
+        $fdWidgetPos = $this->_scopeConfig->getValue(
 
-        $merchant = $this->_scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
+            'feedaty_badge_options/widget_products/prod_position', $store_scope
 
-        $badge_style = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_style', $store_scope);
+        );
 
-        $plugin_enabled = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_enabled', $store_scope);
+        $merchant = $this->_scopeConfig->getValue(
 
-        $variant = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_variant', $store_scope);
+            'feedaty_global/feedaty_preferences/feedaty_code', $store_scope
 
-        $guilang = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_guilang', $store_scope);
+        );
 
-        $rvlang = $this->_scopeConfig->getValue('feedaty_badge_options/widget_products/prod_rvlang', $store_scope);
+        $badge_style = $this->_scopeConfig->getValue(
+
+            'feedaty_badge_options/widget_products/prod_style', $store_scope
+
+        );
+
+        $plugin_enabled = $this->_scopeConfig->getValue(
+
+            'feedaty_badge_options/widget_products/prod_enabled', $store_scope
+
+        );
+
+        $variant = $this->_scopeConfig->getValue(
+
+            'feedaty_badge_options/widget_products/prod_variant', $store_scope
+
+        );
+
+        $guilang = $this->_scopeConfig->getValue(
+
+            'feedaty_badge_options/widget_products/prod_guilang', $store_scope
+
+        );
+
+        $rvlang = $this->_scopeConfig->getValue(
+
+            'feedaty_badge_options/widget_products/prod_rvlang', $store_scope
+
+        );
 
         if ( $observer->getElementName() == $fdWidgetPos ) 
         {
-            if ($plugin_enabled != 0) 
-            {
+
+            if ( $plugin_enabled != 0 )  {
+
                 $product = $this->registry->registry('current_product');
 
-                if ($product !== null) 
-                {
+                if ( $product !== null ) {
+
                     $product = $product->getId();
-                    $data = $this->_fdservice->getFeedatyData($merchant);
-                    $ver = json_decode(json_encode($this->_dataHelper->getExtensionVersion()), true);
 
-                    $widget = $data[$badge_style];
-                    $name = $widget["name"];
-                    $variant = $widget["variants"][$variant];
-                    $rvlang = $rvlang ? $rvlang : "all";
-                    $guilang = $guilang ? $guilang : "it-IT";
+                    // Rendere Persistente ?
 
-                
+                    $data = $this->_fdservice->getFeedatyData( $merchant );
 
-                    $widget['html'] = str_replace("ZOORATE_SERVER", $zoorate_env, $widget['html']);
-                    $widget['html'] = str_replace("VARIANT", $variant, $widget['html']);
-                    $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
-                    $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
-                    $widget['html'] = str_replace("SKU", $product,$widget['html']);
+                    if( count( $data ) > 0 ) {
 
-                    $html = $observer->getTransport()->getOutput();
+                        $ver = json_decode( json_encode( $this->_dataHelper->getExtensionVersion() ), true );
 
-                    $html .= '<!-- PlPMa '.$ver[0].' -->'. htmlspecialchars_decode($widget['html']);
+                        if( array_key_exists( $badge_style, $data )) {
 
-                    $observer->getTransport()->setOutput($html);
+                            $widget = $data[$badge_style];
+
+                            if(array_key_exists($variant, $widget["variants"])) {
+
+                                $name = $widget["name"];
+
+                                $variant = $widget["variants"][$variant];
+
+                                $rvlang = $rvlang ? $rvlang : "all";
+
+                                $guilang = $guilang ? $guilang : "it-IT";
+
+                                $widget['html'] = str_replace("ZOORATE_SERVER", $zoorate_env, $widget['html']);
+                                $widget['html'] = str_replace("VARIANT", $variant, $widget['html']);
+                                $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
+                                $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
+                                $widget['html'] = str_replace("SKU", $product,$widget['html']);
+
+                                $html = $observer->getTransport()->getOutput();
+
+                                $html .= '<!-- PlPMa '.$ver[0].' -->'. htmlspecialchars_decode($widget['html']);
+
+                                $observer->getTransport()->setOutput($html);
+
+                            }
+
+                        }
+
+                    }
+
                 }
+
             }
         }
     }

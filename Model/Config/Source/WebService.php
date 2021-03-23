@@ -266,8 +266,10 @@ class WebService
         $resolver = $this->_objectManager->get('Magento\Framework\Locale\Resolver');
 
         $timeout = $this->_scopeConfig->getValue(
+
             'feedaty_global/timeout_widgets/timeout', 
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+
         );
 
         $string = "FeedatyData" . $feedaty_code . $resolver->getLocale();
