@@ -101,7 +101,7 @@ class ProductBadge implements ObserverInterface
         if ( $observer->getElementName() == $fdWidgetPos ) 
         {
 
-            if ($plugin_enabled != 0)  {
+            if ( $plugin_enabled != 0 )  {
 
                 $product = $this->registry->registry('current_product');
 
@@ -117,30 +117,40 @@ class ProductBadge implements ObserverInterface
 
                         $ver = json_decode( json_encode( $this->_dataHelper->getExtensionVersion() ), true );
 
-                        $widget = $data[$badge_style];
+                        if( array_key_exists( $badge_style, $data )) {
 
-                        $name = $widget["name"];
+                            $widget = $data[$badge_style];
 
-                        $variant = $widget["variants"][$variant];
+                            if(array_key_exists($variant, $widget["variants"])) {
 
-                        $rvlang = $rvlang ? $rvlang : "all";
+                                $name = $widget["name"];
 
-                        $guilang = $guilang ? $guilang : "it-IT";
+                                $variant = $widget["variants"][$variant];
 
-                        $widget['html'] = str_replace("ZOORATE_SERVER", $zoorate_env, $widget['html']);
-                        $widget['html'] = str_replace("VARIANT", $variant, $widget['html']);
-                        $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
-                        $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
-                        $widget['html'] = str_replace("SKU", $product,$widget['html']);
+                                $rvlang = $rvlang ? $rvlang : "all";
 
-                        $html = $observer->getTransport()->getOutput();
+                                $guilang = $guilang ? $guilang : "it-IT";
 
-                        $html .= '<!-- PlPMa '.$ver[0].' -->'. htmlspecialchars_decode($widget['html']);
+                                $widget['html'] = str_replace("ZOORATE_SERVER", $zoorate_env, $widget['html']);
+                                $widget['html'] = str_replace("VARIANT", $variant, $widget['html']);
+                                $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
+                                $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
+                                $widget['html'] = str_replace("SKU", $product,$widget['html']);
 
-                        $observer->getTransport()->setOutput($html);
+                                $html = $observer->getTransport()->getOutput();
+
+                                $html .= '<!-- PlPMa '.$ver[0].' -->'. htmlspecialchars_decode($widget['html']);
+
+                                $observer->getTransport()->setOutput($html);
+
+                            }
+
+                        }
 
                     }
+
                 }
+
             }
         }
     }
