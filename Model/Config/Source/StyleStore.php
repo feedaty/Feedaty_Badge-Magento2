@@ -45,7 +45,7 @@ class StyleStore implements ArrayInterface
     */
     public function toOptionArray() {
 
-        $retun = array();
+        $return = array();
 
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
 
