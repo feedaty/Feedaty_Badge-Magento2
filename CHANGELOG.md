@@ -2,6 +2,11 @@
 
 #### RELASE NOTES
 
+
+### V2.5.6-beta - 04/02/2020 
+
+ - 	Fix undefined variable 
+
 ### V2.5.5-beta - 04/02/2020 
 
  - 	Patch Errore Store style

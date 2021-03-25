@@ -41,6 +41,8 @@ class Variants implements ArrayInterface
 
     public function toOptionArray()
     {
+        $return = array();
+        
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $store = $this->storeManager->getStore($this->_request->getParam('store', 0));
         $merchant_code = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
