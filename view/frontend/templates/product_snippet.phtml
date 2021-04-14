@@ -1,0 +1,154 @@
+<?php
+
+/* @var $block \Feedaty\Badge\Block\ProductSnippet */
+$store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+
+/**
+ * Get Product
+ */
+$product = $block->getProduct();
+
+/**
+ * Get merchantId
+ */
+$merchant = $block->getFeedatyCode();
+
+/**
+ * Get Base domain URL
+ */
+$baseUrl = $this->getBaseUrl();
+
+/**
+ * Get media URL
+ */
+$mediaUrl = $this->getMediaUrl();
+
+/**
+ * If product exist
+ */
+if ($product !== null)
+{
+    // TODO SET REAL ID
+    $product_id = $product->getId();
+   // mock $product_id = 'PROD_03';
+
+    /**
+     * Retrive Product Infomation
+     */
+    $toview['data_review'] = $block->retriveInformationsProduct($merchant, $product_id);
+
+}
+?>
+
+<?php if (!empty($toview['data_review']['Feedbacks'])) : ?>
+
+
+<?php
+
+    /**
+     * Product Reviews data
+     */
+    $reviews = $toview['data_review']['Feedbacks'];
+
+    /**
+     * Product name
+     */
+    $productName =  $block->getProductName();
+
+    /**
+     * Product sku
+     */
+    $productSku =  $block->getProductSku();
+
+    /**
+     * Product Desc
+     */
+    $productDescription =  $block->getProductDescription();
+
+    /**
+     * Merchant Code
+     */
+    $merchantName = $toview['data_review']['MerchantName'];
+
+    $reviewsJson = array();
+
+
+    /**
+     * Get all product reviews
+     */
+    foreach ($reviews as $item){
+
+    /**
+     * Product rating
+     */
+    $ratingValue = $item['ProductRating'];
+    /**
+     * Review Desc Details
+     */
+    $productReview =  $item['ProductReview'];
+
+    /**
+     * Review Date
+     */
+    $productReviewDate =  $item['Recorded'];
+
+
+    $reviewsJson[] =
+        array(
+            "@type" => "Review",
+            "reviewRating" => [
+                    "@type" => "Rating",
+                    "ratingValue" => "$ratingValue"
+                ],
+            "name" =>  "$productName",
+            "datePublished" =>  "$productReviewDate",
+            "author" => [
+                "@type" => "Person",
+                "name" => "John Doe"
+                ],
+            "reviewBody" =>  "$productReview",
+            "publisher" =>  [
+                    "@type" => "Organization",
+                    "name" => "$merchantName"
+            ]
+        );
+}
+
+    /**
+     * Rating Value
+     */
+    $ratingValue = $toview['data_review']['AvgRating'];
+
+    /**
+     * Product rating
+     */
+    $avgProductsRating = $toview['data_review']['AvgProductsRating'];
+
+    /**
+     * Total product feedback
+     */
+    $ratingsCount = $toview['data_review']['TotalFeedbacks'];
+
+    /**
+     * Get Aggregate Rating and Product info
+     */
+    $snippet = array(
+        "@context" => "http://schema.org/",
+        "@type" => "Product",
+        "description" => $productDescription,
+        "sku" => $productSku,
+        "image" => $mediaUrl.'catalog/product'.$block->getProductImage(),
+        "name" => $productName,
+        "aggregateRating" => [
+            "@type" => "AggregateRating",
+            "ratingValue" => $ratingValue,
+            "ratingCount" => $ratingsCount
+        ],
+        "review" => $reviewsJson
+    );
+
+    ?>
+
+<?php echo '<script type="application/ld+json">'.json_encode($snippet).'</script>'; ?>
+
+<?php endif; ?>
