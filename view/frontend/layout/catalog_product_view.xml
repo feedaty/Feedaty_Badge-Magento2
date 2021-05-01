@@ -5,7 +5,7 @@
             <block ifconfig="feedaty_microdata_options/snippet_products/snippet_prod_enabled"
                    class="Feedaty\Badge\Block\ProductSnippet"
                    name="product_snippet"
-                   template="Feedaty_Badge::product_snippet.phtml"
+                   template="Feedaty_Badge::product-snippet.phtml"
             />
         </referenceBlock>
     </body>
