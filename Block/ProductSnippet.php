@@ -118,4 +118,9 @@ class ProductSnippet extends Template
     public function getMediaUrl(){
         return $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
     }
+
+    public function getAllReview()
+    {
+        return $this->_webservice->getAllReviews($params = '');
+    }
 }
