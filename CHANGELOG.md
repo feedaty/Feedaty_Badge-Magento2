@@ -2,8 +2,11 @@
 
 #### RELASE NOTES
 
+### V2.5.7-dev- 14/04/2020 
 
-### V2.5.6-beta - 04/02/2020 
+ - 	Snippet prodotto
+
+### V2.5.6-beta2 - 04/02/2020 
 
  - 	Fix undefined variable 
 

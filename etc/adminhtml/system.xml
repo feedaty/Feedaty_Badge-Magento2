@@ -193,7 +193,7 @@
         </section>
 
         <section id="feedaty_microdata_options" translate="label" sortOrder="390" showInDefault="1" showInWebsite="1" showInStore="1">
-            
+
             <class>separator-top</class>
             <label>Microdata Preferences</label>
             <tab>feedaty</tab>
@@ -204,10 +204,6 @@
                 <field id="snippet_prod_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="product_position" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Position</label>
-                    <source_model>Feedaty\Badge\Model\Config\Source\PositionProduct</source_model>
                 </field>
             </group>
 
