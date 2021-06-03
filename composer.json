@@ -12,7 +12,7 @@
             	"name": "Zoorate"
         	}
     	],
-	"require": { 
+	"require": {
        	 "ext-curl": "*"
 	},
 	"suggest": {
@@ -42,6 +42,6 @@
 	"autoload": {
     	"psr-4": { "Feedaty\\Badge\\": "" },
     	"files": [ "registration.php" ]
-	} 
+	}
 
 }

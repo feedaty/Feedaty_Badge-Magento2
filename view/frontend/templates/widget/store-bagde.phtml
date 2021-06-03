@@ -1,0 +1,62 @@
+<?php
+/* @var $block Feedaty\Badge\Block\Widget\StoreBadge */
+
+?>
+
+<?php
+
+$zoorate_env = "widget.zoorate.com";
+/*
+ * Merchant Code
+ */
+$merchant =  $block->getFeedatyCode();
+
+$data = $block->getFeedatyData($merchant);
+
+$badge_style = $block->getData('style');
+$variant = $block->getData('variant');
+$rvlang = $block->getData('rvlang');
+$guilang = $block->getData('guilang');
+
+$rvlang = $rvlang ? $rvlang : "all";
+
+$guilang = $guilang ? $guilang : "it-IT";
+
+if (count($data) > 0) {
+    $ver = $block->getExtensionVersion();
+
+    if (array_key_exists($badge_style, $data)) {
+        $widget = $data[$badge_style];
+
+        $name = $widget["name"];
+
+        // Se non trova variante setta la blue white
+
+        if (array_key_exists($variant, $widget["variants"])) {
+            $variant = $widget["variants"][$variant];
+
+            $rvlang = $rvlang ? $rvlang : "all";
+
+            $guilang = $guilang ? $guilang : "it-IT";
+
+            $widget['html'] = str_replace("ZOORATE_SERVER", $zoorate_env, $widget['html']);
+
+            $widget['html'] = str_replace("VARIANT", $variant, $widget['html']);
+
+            $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
+
+            $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
+
+            $element = htmlspecialchars_decode($widget["html"]);
+
+            // $html = $observer->getTransport()->getOutput();
+
+            // $html.= "<!-- PlPMa ".$ver[0]." -->".$element;
+            echo "<!-- PlPMa " . $ver[0] . " -->" . $element;
+
+            //  $observer->getTransport()->setOutput( $html );
+        }
+    }
+}
+
+?>
