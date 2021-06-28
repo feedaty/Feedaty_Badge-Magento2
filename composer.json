@@ -12,7 +12,7 @@
             	"name": "Zoorate"
         	}
     	],
-	"require": { 
+	"require": {
        	 "ext-curl": "*"
 	},
 	"suggest": {
@@ -35,13 +35,13 @@
         "AFL-3.0"
     ],
 
-    "version": "2.5.7-dev",
+    "version": "2.6.0-stable",
 
 	"type": "magento2-module",
 
 	"autoload": {
     	"psr-4": { "Feedaty\\Badge\\": "" },
     	"files": [ "registration.php" ]
-	} 
+	}
 
 }

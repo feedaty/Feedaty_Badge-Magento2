@@ -34,12 +34,12 @@ class ProductReviews implements ObserverInterface
 
     /**
     * @var \Magento\Framework\ObjectManagerInterface
-    */   
+    */
     protected $objectManager;
 
     /**
     * @var Feedaty\Badge\Helper\Data
-    */   
+    */
     protected $dataHelper;
 
     /*
@@ -55,7 +55,7 @@ class ProductReviews implements ObserverInterface
         ObjectManagerInterface $objectmanager,
         DataHelp $dataHelper,
         WebService $fdservice
-        ) 
+        )
     {
         $this->_blockFactory = $blockFactory;
         $this->_scopeConfig = $scopeConfig;
@@ -78,29 +78,32 @@ class ProductReviews implements ObserverInterface
         $plugin_enabled = $this->_scopeConfig->getValue('feedaty_badge_options/review_products/product_enabled',  $store_scope);
         $show_reviews = $this->_scopeConfig->getValue('feedaty_badge_options/review_products/count_review', $store_scope);
 
-        if ($observer->getElementName() == $prod_pos) 
+        if ($observer->getElementName() == $prod_pos)
         {
             $product = $this->_registry->registry('current_product');
-            
-            if ($plugin_enabled != 0 && $product !== null) 
+
+            if ($plugin_enabled != 0 && $product !== null)
             {
                 $product_id = $product->getId();
 
                 $toview['data_review'] = $this->_fdservice->retriveInformationsProduct($merchant, $product_id);
 
-                if ($this->_scopeConfig->getValue('feedaty_badge_options/review_products/order_review', $store_scope) == 1) 
+                if ($this->_scopeConfig->getValue('feedaty_badge_options/review_products/order_review', $store_scope) == 1)
                 {
                     $toview['data_review']['Feedbacks'] = array_reverse($toview['data_review']['Feedbacks']);
                 }
-                
+
                 $toview['count_review'] = $show_reviews;
-                $toview['link'] = '<a href="'.$toview['data_review']['Product']['Url'].'">'.__('Read all reviews').'</a>';
-        
-                if (!empty($toview['data_review']['Feedbacks'])) 
+                $toview['link'] = '';
+                if(isset($toview['data_review']['Product'])){
+                    $toview['link'] = '<a href="'.$toview['data_review']['Product']['Url'].'">'.__('Read all reviews').'</a>';
+                }
+
+                if (!empty($toview['data_review']['Feedbacks']))
                 {
                     $html = $observer->getTransport()->getOutput();
-                    $buttons = $this->_objectManager->create('Feedaty\Badge\Block\Product', array('template'=>'Feedaty_Badge::product_reviews.phtml'))->setData('view', $toview)->setTemplate('Feedaty_Badge::product_reviews.phtml'); 
-                    
+                    $buttons = $this->_objectManager->create('Feedaty\Badge\Block\Product', array('template'=>'Feedaty_Badge::product_reviews.phtml'))->setData('view', $toview)->setTemplate('Feedaty_Badge::product_reviews.phtml');
+
                     $html .= $buttons->toHtml();
                     $observer->getTransport()->setOutput($html);
                 }

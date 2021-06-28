@@ -1,13 +1,11 @@
 <?php
 namespace Feedaty\Badge\Block;
 
-
-use \Magento\Framework\View\Element\Template;
-use \Feedaty\Badge\Model\Config\Source\WebService;
-use \Magento\Framework\View\Element\Template\Context;
 use Feedaty\Badge\Helper\ConfigRules;
+use Feedaty\Badge\Model\Config\Source\WebService;
 use Magento\Catalog\Helper\Data;
-
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
 
 class ProductSnippet extends Template
 {
@@ -43,8 +41,7 @@ class ProductSnippet extends Template
         WebService $webservice,
         ConfigRules $configRules,
         Data $catalogData
-    )
-    {
+    ) {
         $this->_configRules = $configRules;
         $this->_webservice = $webservice;
         $this->_catalogData = $catalogData;
@@ -58,48 +55,54 @@ class ProductSnippet extends Template
      */
     public function retriveInformationsProduct($feedaty_code, $id)
     {
-       return $this->_webservice->retriveInformationsProduct($feedaty_code, $id);
+        return $this->_webservice->retriveInformationsProduct($feedaty_code, $id);
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getFeedatyCode(){
-       return  $this->_configRules->getFeedatyCode();
+    public function getFeedatyCode()
+    {
+        return  $this->_configRules->getFeedatyCode();
     }
 
     /**
      * @return \Magento\Catalog\Model\Product|null
      */
-    public function getProduct(){
-       return $this->_catalogData->getProduct();
+    public function getProduct()
+    {
+        return $this->_catalogData->getProduct();
     }
 
     /**
      * @return string
      */
-    public function getProductImage(){
+    public function getProductImage()
+    {
         return $this->getProduct()->getImage();
     }
 
     /**
      * @return string
      */
-    public function getProductName(){
+    public function getProductName()
+    {
         return $this->getProduct()->getName();
     }
 
     /**
      * @return mixed
      */
-    public function getProductDescription(){
+    public function getProductDescription()
+    {
         return $this->getProduct()->getDescription();
     }
 
     /**
      * @return string
      */
-    public function getProductSku(){
+    public function getProductSku()
+    {
         return $this->getProduct()->getSku();
     }
 
@@ -107,7 +110,8 @@ class ProductSnippet extends Template
      * @return string
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getBaseUrl(){
+    public function getBaseUrl()
+    {
         return $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
     }
 
@@ -115,7 +119,8 @@ class ProductSnippet extends Template
      * @return string
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getMediaUrl(){
+    public function getMediaUrl()
+    {
         return $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
     }
 

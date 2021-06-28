@@ -1,7 +1,39 @@
 <?xml version="1.0"?>
 <widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
-	<widget id="badge_product_reviews" class="Feedaty\Badge\Block\Product">
-		    <label>Feedaty Widget Product</label>
-        	<description>Adds the Feedaty Widget for Products</description>
-	</widget>
+    <widget class="Feedaty\Badge\Block\Widget\StoreBadge" id="store_badge_widget">
+        <label>Feedaty Store Badge</label>
+        <description>Show Feedaty Store Badge</description>
+        <parameters>
+            <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleStore" required="true" sort_order="20">
+                <label translate="true">Style</label>
+            </parameter>
+            <parameter name="variant" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Variants" required="true" sort_order="30">
+                <label translate="true">Variants</label>
+            </parameter>
+            <parameter name="rvlang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="40">
+                <label translate="true">Language Filter</label>
+            </parameter>
+            <parameter name="guilang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="50">
+                <label translate="true">Widget Language</label>
+            </parameter>
+        </parameters>
+    </widget>
+    <widget class="Feedaty\Badge\Block\Widget\ProductBadge" id="product_badge_widget">
+        <label>Feedaty Product Badge</label>
+        <description>Show Feedaty Product Badge</description>
+        <parameters>
+            <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProduct" required="true" sort_order="20">
+                <label translate="true">Style</label>
+            </parameter>
+            <parameter name="variant" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\ProdVariants" required="true" sort_order="30">
+                <label translate="true">Variants</label>
+            </parameter>
+            <parameter name="rvlang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="40">
+                <label translate="true">Language Filter</label>
+            </parameter>
+            <parameter name="guilang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="50">
+                <label translate="true">Widget Language</label>
+            </parameter>
+        </parameters>
+    </widget>
 </widgets>
