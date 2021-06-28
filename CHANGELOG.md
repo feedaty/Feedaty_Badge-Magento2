@@ -2,6 +2,11 @@
 
 #### RELASE NOTES
 
+### V2.6.0 14/04/2020
+
+- 	New Product Badge Widget
+- 	New Store Badge Widget
+
 ### V2.5.7-dev- 14/04/2020 
 
  - 	Snippet prodotto

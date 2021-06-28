@@ -83,50 +83,9 @@
 
         <section id="feedaty_badge_options" translate="label" sortOrder="260" showInDefault="1" showInWebsite="1" showInStore="1">
             <class>separator-top</class>
-            <label>Widget Preferences</label>
+            <label>Review products</label>
             <tab>feedaty</tab>
             <resource>Feedaty_Badge::widget_preferences</resource>
-
-            <group id="widget_products" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" translate="label">
-
-                <label>Widget products</label>
-
-                <field id="prod_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-
-                <field id="prod_style" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Style</label>
-                    <frontend_model>Feedaty\Badge\Block\Adminhtml\BadgeSelect</frontend_model>
-                    <source_model>Feedaty\Badge\Model\Config\Source\StyleProduct</source_model>
-                </field>
-
-                <field id="prod_variant" translate="label" type="select" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Variants</label>
-                    <frontend_model>Feedaty\Badge\Block\Adminhtml\BadgeSelect</frontend_model>
-                    <source_model>Feedaty\Badge\Model\Config\Source\ProdVariants</source_model>
-                </field>
-
-                <field id="prod_preview" translate="label" type="label" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Product Badge Preview</label>
-                </field>
-
-                <field id="prod_rvlang" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Language Filter</label>
-                    <source_model>Feedaty\Badge\Model\Config\Source\Languages</source_model>
-                </field>
-
-                <field id="prod_guilang" translate="label" type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Widget Language</label>
-                    <source_model>Feedaty\Badge\Model\Config\Source\Languages</source_model>
-                </field>
-
-                <field id="prod_position" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Position</label>
-                    <source_model>Feedaty\Badge\Model\Config\Source\PositionProduct</source_model>
-                </field>
-            </group>
 
             <group id="review_products" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1" translate="label">
                 <label>Review products</label>

@@ -75,8 +75,8 @@ class StyleStore implements ArrayInterface
             // get Badges
             foreach ($data as $k => $v) {
 
-                if ($v['type'] == "merchant" && $v['name'] != "dynamic" ) {
-
+               // if ($v['type'] == "merchant" && $v['name'] != "dynamic" ) {
+                if ($v['type'] == "merchant"  ) {
                     $return[] = ['value' => $k,'label' => $v['name_shown_it-IT']];
 
                 }

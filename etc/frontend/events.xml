@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="core_layout_render_element">
-        <observer name="product_badge" instance="Feedaty\Badge\Observer\ProductBadge"/>
         <observer name="product_reviews" instance="Feedaty\Badge\Observer\ProductReviews"/>
-        <observer name="product_snippet" instance="Feedaty\Badge\Observer\ProductSnippet"/>
     </event>
 </config>

@@ -215,7 +215,7 @@ class WebService
 
             if (strlen($content) > 0)
             {
-                // 3 hours of cache
+                // 24 hours of cache
                 $cache->save($content, $cache_key, array("feedaty_cache"), 24*60*60);
             }
         }
