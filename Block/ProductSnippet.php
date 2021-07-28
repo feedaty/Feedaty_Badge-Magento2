@@ -6,6 +6,8 @@ use Feedaty\Badge\Model\Config\Source\WebService;
 use Magento\Catalog\Helper\Data;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Directory\Model\CurrencyFactory;
 
 class ProductSnippet extends Template
 {
@@ -25,6 +27,16 @@ class ProductSnippet extends Template
     protected $_configRules;
 
     /**
+     * @var StoreManagerInterface
+     */
+    private $storeConfig;
+
+    /**
+     * @var CurrencyFactory
+     */
+    private $currencyCode;
+
+    /**
      * @var \Magento\Framework\Controller\Result\JsonFactory
      */
     private $jsonResultFactory;
@@ -40,11 +52,15 @@ class ProductSnippet extends Template
         Context $context,
         WebService $webservice,
         ConfigRules $configRules,
-        Data $catalogData
+        Data $catalogData,
+        StoreManagerInterface $storeConfig,
+        CurrencyFactory $currencyFactory
     ) {
         $this->_configRules = $configRules;
         $this->_webservice = $webservice;
         $this->_catalogData = $catalogData;
+        $this->storeConfig = $storeConfig;
+        $this->currencyCode = $currencyFactory->create();
         parent::__construct($context);
     }
 
@@ -91,6 +107,23 @@ class ProductSnippet extends Template
     }
 
     /**
+     * @return string
+     */
+    public function getProductUrl()
+    {
+        return $this->getProduct()->getProductUrl();
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getProductIsSalable()
+    {
+        return $this->getProduct()->getIsSalable();
+    }
+
+    /**
      * @return mixed
      */
     public function getProductDescription()
@@ -104,6 +137,14 @@ class ProductSnippet extends Template
     public function getProductSku()
     {
         return $this->getProduct()->getSku();
+    }
+
+    /**
+     * @return string
+     */
+    public function getProductFinalPrice()
+    {
+        return $this->getProduct()->getFinalPrice();
     }
 
     /**
@@ -127,5 +168,16 @@ class ProductSnippet extends Template
     public function getAllReview()
     {
         return $this->_webservice->getAllReviews($params = '');
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrencyCode()
+    {
+        $currencyCode = $this->storeConfig->getStore()->getCurrentCurrencyCode();
+       // $currency = $this->currencyCode->load($currencyCode);
+        //return $currency->getCurrencySymbol();
+        return $currencyCode;
     }
 }

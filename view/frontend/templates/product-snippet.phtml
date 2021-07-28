@@ -26,8 +26,7 @@ $mediaUrl = $this->getMediaUrl();
 /**
  * If product exist
  */
-if ($product !== null)
-{
+if ($product !== null) {
 
     $product_id = $product->getId();
 
@@ -42,7 +41,7 @@ if ($product !== null)
 <?php if (!empty($toview['data_review']['Feedbacks'])) : ?>
 
 
-<?php
+    <?php
 
     /**
      * Product Reviews data
@@ -52,17 +51,38 @@ if ($product !== null)
     /**
      * Product name
      */
-    $productName =  $block->getProductName();
+    $productName = $block->getProductName();
+
+    /**
+     * Product URL
+     */
+    $productUrl = $block->getProductUrl();
+
+    /**
+     * Product URL
+     */
+    $productIsSalable = $block->getProductIsSalable() === true ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
+
+
+    /**
+     * Product Currency Code
+     */
+    $currencyCode = $block->getCurrencyCode();
+
+    /**
+     * Product Final Price
+     */
+    $productFinalPrice = $block->getProductFinalPrice();
 
     /**
      * Product sku
      */
-    $productSku =  $block->getProductSku();
+    $productSku = $block->getProductSku();
 
     /**
      * Product Desc
      */
-    $productDescription =  $block->getProductDescription();
+    $productDescription = $block->getProductDescription();
 
     /**
      * Merchant Code
@@ -75,43 +95,43 @@ if ($product !== null)
     /**
      * Get all product reviews
      */
-    foreach ($reviews as $item){
+    foreach ($reviews as $item) {
 
-    /**
-     * Product rating
-     */
-    $ratingValue = $item['ProductRating'];
-    /**
-     * Review Desc Details
-     */
-    $productReview =  $item['ProductReview'];
+        /**
+         * Product rating
+         */
+        $ratingValue = $item['ProductRating'];
+        /**
+         * Review Desc Details
+         */
+        $productReview = $item['ProductReview'];
 
-    /**
-     * Review Date
-     */
-    $productReviewDate =  $item['Recorded'];
+        /**
+         * Review Date
+         */
+        $productReviewDate = $item['Recorded'];
 
 
-    $reviewsJson[] =
-        array(
-            "@type" => "Review",
-            "reviewRating" => [
+        $reviewsJson[] =
+            array(
+                "@type" => "Review",
+                "reviewRating" => [
                     "@type" => "Rating",
                     "ratingValue" => "$ratingValue"
                 ],
-            "name" =>  "$productName",
-            "datePublished" =>  "$productReviewDate",
-            "author" => [
-                "@type" => "Organization",
-                "name" => "Feedaty"
+                "name" => "$productName",
+                "datePublished" => "$productReviewDate",
+                "author" => [
+                    "@type" => "Organization",
+                    "name" => "Feedaty"
                 ],
-            "reviewBody" =>  "$productReview",
-            "publisher" =>  [
+                "reviewBody" => "$productReview",
+                "publisher" => [
                     "@type" => "Organization",
                     "name" => "$merchantName"
-            ]
-        );
-}
+                ]
+            );
+    }
 
     /**
      * Rating Value
@@ -136,8 +156,15 @@ if ($product !== null)
         "@type" => "Product",
         "description" => $productDescription,
         "sku" => $productSku,
-        "image" => $mediaUrl.'catalog/product'.$block->getProductImage(),
+        "image" => $mediaUrl . 'catalog/product' . $block->getProductImage(),
         "name" => $productName,
+        "offers" => [
+            "@type" => "Offer",
+            "url" => $productUrl,
+            "priceCurrency" => $currencyCode,
+            "price" => $productFinalPrice,
+            "availability" => $productIsSalable
+        ],
         "aggregateRating" => [
             "@type" => "AggregateRating",
             "ratingValue" => $ratingValue,
@@ -148,6 +175,6 @@ if ($product !== null)
 
     ?>
 
-<?php echo '<script type="application/ld+json">'.json_encode($snippet).'</script>'; ?>
+    <?php echo '<script type="application/ld+json">' . json_encode($snippet) . '</script>'; ?>
 
 <?php endif; ?>
