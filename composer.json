@@ -35,8 +35,9 @@
         "AFL-3.0"
     ],
 
-    "version": "2.6.6-stable",
+    "version": "2.6.7-stable",
 
+    
 	"type": "magento2-module",
 
 	"autoload": {

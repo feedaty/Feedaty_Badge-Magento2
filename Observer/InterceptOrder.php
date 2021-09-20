@@ -52,12 +52,12 @@ class InterceptOrder implements ObserverInterface
 
     /**
     * @var \Magento\Framework\ObjectManagerInterface
-    */   
+    */
     protected $_objectManager;
 
     /**
     * @var \Magento\Framework\App\State
-    */   
+    */
     protected $_state;
 
     /**
@@ -67,7 +67,7 @@ class InterceptOrder implements ObserverInterface
 
 
     /**
-    * @var 
+    * @var
     */
     protected $_orderInterface;
 
@@ -86,7 +86,7 @@ class InterceptOrder implements ObserverInterface
         State $state,
         OrderInterface $orderInterface,
         FeedatyHelper $feedatyHelper
-        ) 
+        )
     {
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
@@ -105,7 +105,7 @@ class InterceptOrder implements ObserverInterface
     * @param $observer
     */
     public function execute( \Magento\Framework\Event\Observer $observer ) {
-        
+
         $increment_id = $observer->getEvent()->getOrder()->getIncrementId();
 
         try {
@@ -116,8 +116,10 @@ class InterceptOrder implements ObserverInterface
 
             $store = $store_id == null ? $this->_storeManager->getStore() : $this->_storeManager->getStore($store_id);
 
-    
+
             $culture_code = $store->getConfig('general/locale/code');
+
+
 
             $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
 
@@ -138,9 +140,9 @@ class InterceptOrder implements ObserverInterface
                 if($fdDebugEnabled != 0) {
 
                     $message = "MerchantCode: ".$merchant." MerchantSecret: ".$secret. "OrderID: " . $order_id;
-                
+
                     $this->_feedatyHelper->feedatyDebug(
-                        $message, 
+                        $message,
                         "FEEDATY OBSERVER DATA"
                     );
 
@@ -148,7 +150,7 @@ class InterceptOrder implements ObserverInterface
 
                 foreach ( ($order->getAllStatusHistory() ) as $orderComment ) {
 
-                    if ( $orderComment->getStatus() === $orderopt ) 
+                    if ( $orderComment->getStatus() === $orderopt )
 
                         $verify++;
 
@@ -183,7 +185,7 @@ class InterceptOrder implements ObserverInterface
                                 $tmp['URL'] = $orderProduct->getUrlModel()->getUrl($orderProduct);
 
                                 //$tmp['EAN'] = $item->getCustomAttribute('ean');
-                    
+
                                 //get the image url
                                 if ( $orderProduct->getImage() != "no_selection" ) {
 
@@ -225,7 +227,7 @@ class InterceptOrder implements ObserverInterface
                                 $tmp['URL'] = $parentProduct->getUrlModel()->getUrl($parentProduct);
 
                                 //$tmp['EAN'] = $childProduct->getCustomAttribute('ean');
-                    
+
                                 //get the image url
                                 if ($childProduct->getImage() != "no_selection") {
 
@@ -246,7 +248,7 @@ class InterceptOrder implements ObserverInterface
 
                                 $this->_feedatyHelper->feedatyDebug(
 
-                                    json_encode($tmp), 
+                                    json_encode($tmp),
                                     "FEEDATY configurable Product: "
 
                                 );
@@ -261,12 +263,10 @@ class InterceptOrder implements ObserverInterface
 
                         $culture = $cultures[0];
 
-                        if( $culture != 'it' || $culture != 'en'|| $culture != 'es'|| $culture != 'fr'|| $culture != 'de' ) {
-
+                        $allowedLanguages = array("it", "en", "es", "fr","de");
+                        if (!in_array($culture, $allowedLanguages)) {
                             $culture = 'en';
-
                         }
-
 
                         $mageMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
 

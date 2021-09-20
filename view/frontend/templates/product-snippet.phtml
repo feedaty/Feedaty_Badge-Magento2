@@ -136,17 +136,13 @@ if ($product !== null) {
     /**
      * Rating Value
      */
-    $ratingValue = $toview['data_review']['AvgRating'];
+    $ratingValue = $toview['data_review']['Product']['AvgRating'];
 
-    /**
-     * Product rating
-     */
-    $avgProductsRating = $toview['data_review']['AvgProductsRating'];
 
     /**
      * Total product feedback
      */
-    $ratingsCount = $toview['data_review']['TotalFeedbacks'];
+    $ratingsCount = $toview['data_review']['Product']['RatingsCount'];
 
     /**
      * Get Aggregate Rating and Product info
@@ -170,6 +166,7 @@ if ($product !== null) {
             "ratingValue" => $ratingValue,
             "ratingCount" => $ratingsCount
         ],
+        "reviewCount" => $toview['data_review']['TotalFeedbacks'],
         "review" => $reviewsJson
     );
 
