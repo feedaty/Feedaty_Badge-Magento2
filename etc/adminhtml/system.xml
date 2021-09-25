@@ -79,6 +79,14 @@
                 </field>
             </group>
 
+            <group id="create_reviews" translate="label" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" >
+                <label>Create Reviews on Magento</label>
+                <field id="create_reviews_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable to Create Reviews in Magento</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+
         </section>
 
         <section id="feedaty_badge_options" translate="label" sortOrder="260" showInDefault="1" showInWebsite="1" showInStore="1">

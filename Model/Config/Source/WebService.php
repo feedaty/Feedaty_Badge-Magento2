@@ -159,7 +159,6 @@ class WebService
         ];
 
         $this->_curl->post($url,$fields);
-
         $response = $this->_curl->getBody();
 
         return $response;
@@ -228,11 +227,29 @@ class WebService
     /**
      * @param $productId
      * @return mixed|string|null
-     * @todo : complete function and use to save data in db
      */
-    public function getProductReviews($productId){
+    /*public function getProductReviews($productId){
         return $this->getAllReviews('?retrieve=onlyproductreviews&sku='.$productId);
+    }*/
+
+   /* public function getAllProductReviews(){
+        return $this->getAllReviews('?retrieve=onlyproductreviews');
+    }*/
+
+    public function getProductReviewsPagination($row = 0, $count = 50){
+        $allReviews =  $this->getAllReviews('?retrieve=onlyproductreviews&row='.$row.'&count='.$count);
+        return $allReviews['Reviews'];
     }
+
+    public function getTotalProductReviewsCount()
+    {
+        $allProductReviews = $this->getAllReviews('?retrieve=onlyproductreviews&row=0&count=1');
+
+        $totalResults = $allProductReviews['TotalProductReviews'];
+
+        return $totalResults;
+    }
+
 
     /**
      * @param string $params
@@ -241,8 +258,10 @@ class WebService
      */
     public function getAllReviews($params = '')
     {
-        $merchant = $this->_configRules->getFeedatyCode();
-        $secret = $this->_configRules->getFeedatySecret();
+        // $merchant = $this->_configRules->getFeedatyCode();
+         $merchant = '10213422';
+        // $secret = $this->_configRules->getFeedatySecret();
+         $secret = '5b1e6e29ff4f45138f07fe2c0d0b6860';
         $url = 'http://api.feedaty.com/Reviews/Get'.$params;
 
         $token = '';
@@ -271,7 +290,7 @@ class WebService
 
                 $data = $this->unserializeJson($result);
 
-                $reviews = $data['Data']['Reviews'];
+                $reviews = $data['Data'];
 
                 return $reviews;
             }
@@ -369,7 +388,6 @@ class WebService
         $string = "FeedatyData" . $feedaty_code . $resolver->getLocale();
 
         $content = $cache->load( $string );
-
         if ( !$content || strlen($content) == 0 || $content === "null" )
         {
             $ch = curl_init();
@@ -392,6 +410,9 @@ class WebService
 
         $data = json_decode($content, true);
 
+        if(!$data){
+            $data = [];
+        }
         return $data;
 
     }
