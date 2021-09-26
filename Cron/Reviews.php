@@ -2,6 +2,9 @@
 
 namespace Feedaty\Badge\Cron;
 
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Api\StoreRepositoryInterface;
+
 
 class Reviews
 {
@@ -26,7 +29,19 @@ class Reviews
      */
     protected $_storeManager;
 
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     */
     protected $date;
+
+
+    /**
+     * @var StoreRepositoryInterface
+     */
+    private $_storeRepository;
+
+
+    protected $_orderRepository;
 
     /**
      * @param \Psr\Log\LoggerInterface $logger
@@ -41,7 +56,9 @@ class Reviews
         \Magento\Review\Model\ReviewFactory $reviewFactory,
         \Magento\Review\Model\RatingFactory $ratingFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Stdlib\DateTime\DateTime $date
+        \Magento\Framework\Stdlib\DateTime\DateTime $date,
+        StoreRepositoryInterface $storeRepository,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
     )
     {
         $this->logger = $logger;
@@ -50,7 +67,49 @@ class Reviews
         $this->_ratingFactory = $ratingFactory;
         $this->_storeManager = $storeManager;
         $this->date = $date;
+        $this->_storeRepository = $storeRepository;
+        $this->_orderRepository = $orderRepository;
     }
+
+
+    public function getStoreViewIdByOrder($orderId)
+    {
+        $this->logger->addInfo("FEEDATY START GET STORE: ".$orderId );
+        $order = null;
+        try {
+            $order = $this->_orderRepository->get($orderId);
+
+        } catch (\Exception $e) {
+            $this->logger->critical("FEEDATY ERROR :  ".$e->getMessage());
+            $this->logger->critical("FEEDATY ERROR : order id does not exist ".$orderId);
+
+        }
+
+
+        if(!is_null($order)){
+            $websiteId = $order->getStore()->getWebsiteId();
+            $this->logger->addInfo("FEEDATY ORDER websiteId: " .$websiteId);
+            return $websiteId;
+        }
+
+        return null;
+
+    }
+
+    function getAllStoreList()
+    {
+        $storeList = $this->_storeRepository->getList();
+
+        $storeIds = array();
+        foreach ($storeList as $store) {
+            $storeIds = $store->getStoreId(); // store id
+        }
+
+       $this->logger->addInfo("STORES LIST: " .print_r($storeList,true) );
+
+        return $storeIds;
+    }
+
 
     /**
      * @param $productId
@@ -138,6 +197,7 @@ class Reviews
         $totalFeedatyReviews = $this->getTotalProductReviews();
         $totalReviewCreatedCount = $this->getAllFeedatyReviewCount();
         $this->logger->addInfo("START - Cronjob Feedaty | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount );
+       // $this->logger->addInfo("START - Cronjob Feedaty | STORES  | date: " . $this->getAllStoreList() );
 
         //Get Last Review Created on Magento (on first run vill be null)
         $lastReviewCreated = $this->getLastFeedatyReviewCreated();
@@ -149,46 +209,53 @@ class Reviews
 
         //Get Feedaty Product Reviews
         $feedatyProductReviews = $this->getProductReviewsPagination($row,$count);
+        if(!empty($feedatyProductReviews)){
+            //Foreach Review
+            foreach ($feedatyProductReviews as $review){
+                //feedaty_source_id
+                $feedatyId = $review['ID'];
 
-        //Foreach Review
-        foreach ($feedatyProductReviews as $review){
-            //feedaty_source_id
-            $feedatyId = $review['ID'];
+                $orderId = $review['OrderID'];
 
-            $replaceFromDate = ["/Date(", ")/"];
-            $replaceToDate = ["", ""];
-            //Review Date
-            $createdAt = date('Y-m-d h:i:s', floor((int)str_replace($replaceFromDate,$replaceToDate,$review['Released'])/ 1000));
-            //$reviewReleased =date('Y-m-d h:i:s', floor((int)str_replace($replaceFromDate,$replaceToDate,$review['Released'])/ 1000));
+                $storeView = $this->getStoreViewIdByOrder($orderId);
 
-            $today = $this->date->gmtDate();
-            foreach ($review['ProductsReviews'] as $item){
+                $replaceFromDate = ["/Date(", ")/"];
+                $replaceToDate = ["", ""];
+                //Review Date
+                $createdAt = date('Y-m-d h:i:s', floor((int)str_replace($replaceFromDate,$replaceToDate,$review['Released'])/ 1000));
+                //$reviewReleased =date('Y-m-d h:i:s', floor((int)str_replace($replaceFromDate,$replaceToDate,$review['Released'])/ 1000));
 
-                $productId = $item['SKU'];
-                //Get Feedaty Product Reviews
-                $magentoProductReviews = $this->getReviewCollection($productId, $feedatyId);
+                $today = $this->date->gmtDate();
+                foreach ($review['ProductsReviews'] as $item){
 
-                //AP Rating node
-                $rating = $item['Rating'];
+                    $productId = $item['SKU'];
 
-                //API Review Node
-                $detail = $item['Review'];
+                    //Get Feedaty Product Reviews
+                    $magentoProductReviews = $this->getReviewCollection($productId, $feedatyId);
 
-                //TODO VERIFICARE  website view
+                    //AP Rating node
+                    $rating = $item['Rating'];
 
-                if (empty($magentoProductReviews)) {
-                 //   $this->createProductReview($productId, $feedatyId, $rating, $detail, $createdAt,$today,$row);
+                    //API Review Node
+                    $detail = $item['Review'];
 
-                    // Product Review
-                    $this->logger->addInfo("EXEC - Cronjob Feedaty create Product Review | date execution: ". date('Y-m-d H:i:s') ." | Product Id : ". $productId . " | Feedaty ID" .$feedatyId );
+                    //TODO VERIFICARE  website view
 
+                    if (empty($magentoProductReviews)) {
+                       $this->createProductReview($productId, $feedatyId, $rating, $detail, $createdAt,$today,$row,$storeView);
+
+                        // Product Review
+                        $this->logger->addInfo("EXEC - Cronjob Feedaty create Product Review | date execution: ". date('Y-m-d H:i:s') ." | Product Id : ". $productId . " | Feedaty ID" .$feedatyId );
+
+                    }
                 }
             }
+            // General Cron Report on system.log
+            $this->logger->addInfo("END - Cronjob Feedaty is executed | Get Feedaty Reviews  | date execution: ". date('Y-m-d H:i:s') ." -- Last Review Created " . print_r($lastReviewCreated,true) ." -- Review Date CreatedAt " . print_r($createdAt,true) ." -- Pagination " . $row);
         }
 
-        // General Cron Report on system.log
-        $this->logger->addInfo("END - Cronjob Feedaty is executed | Get Feedaty Reviews  | date execution: ". date('Y-m-d H:i:s') ." -- Last Review Created " . print_r($lastReviewCreated,true) ." -- Review Date CreatedAt " . print_r($createdAt,true) ." -- Pagination " . $row );
-       // $this->logger->addInfo("END - Cronjob Feedaty is executed | Get Feedaty Reviews  | date: ". date('Y-m-d H:i:s') );
+
+      // $this->logger->addInfo("END - Cronjob Feedaty is executed | Get Feedaty Reviews  | date: ". date('Y-m-d H:i:s') );
     }
 
     public function getProductReviewsPagination($row, $count)
@@ -197,11 +264,12 @@ class Reviews
     }
 
 
-    protected function createProductReview($productId, $feedatyId, $rating, $detail, $createdAt,$today,$row){
+    protected function createProductReview($productId, $feedatyId, $rating, $detail, $createdAt,$today,$row,$storeView){
 
         $reviewFinalData['ratings'][1] = $rating;
         $reviewFinalData['ratings'][2] = $rating;
         $reviewFinalData['ratings'][3] = $rating;
+        
         $reviewFinalData['nickname'] = "Feedaty";
         $reviewFinalData['title'] = "Acquirente Verificato";
         $reviewFinalData['detail'] = $detail;
@@ -219,7 +287,8 @@ class Reviews
             ->setEntityPkValue($productId)
             ->setStatusId(\Magento\Review\Model\Review::STATUS_APPROVED)
             ->setStoreId($this->_storeManager->getStore()->getId())
-            ->setStores([$this->_storeManager->getStore()->getId()])
+            //->setStores(!is_null($storeView) ?  [$storeView] : $this->_storeManager->getStore()->getId())
+            ->setStores(!is_null($storeView) ?  [$storeView] : [0,1,2])
             ->save();
 
         //Since the created_at is set only when the $object does not have an id, i save the object again.

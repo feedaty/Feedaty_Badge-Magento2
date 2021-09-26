@@ -112,12 +112,13 @@ class WebService
     */
     private function getReqToken(){
 
+
         $url = "http://api.feedaty.com/OAuth/RequestToken";
         $this->_curl->addHeader('Content-Type','application/x-www-form-urlencoded');
         $this->_curl->get($url);
 
         $response = json_decode($this->_curl->getBody());
-
+        $this->_logger->critical('Feedaty response token //////////////////: '. print_r($response,true));
         return $response;
     }
 
@@ -258,13 +259,12 @@ class WebService
      */
     public function getAllReviews($params = '')
     {
-        // $merchant = $this->_configRules->getFeedatyCode();
-         $merchant = '10213422';
-        // $secret = $this->_configRules->getFeedatySecret();
-         $secret = '5b1e6e29ff4f45138f07fe2c0d0b6860';
-        $url = 'http://api.feedaty.com/Reviews/Get'.$params;
+         $merchant = $this->_configRules->getFeedatyCode();
+         $secret = $this->_configRules->getFeedatySecret();
+         $url = 'http://api.feedaty.com/Reviews/Get'.$params;
 
         $token = '';
+
 
         try {
             $token = $this->getReqToken();
@@ -282,7 +282,7 @@ class WebService
                 try {
                     $this->_curl->get($url);
                 } catch (\Exception $e) {
-                    $this->_logger->critical('Feedaty log: '. $e->getMessage());
+                    $this->_logger->critical('Feedaty log CURL: '. $e->getMessage());
                 }
 
                 // output of curl request
@@ -295,7 +295,7 @@ class WebService
                 return $reviews;
             }
         } catch (\Exception $e) {
-            $this->_logger->critical('Feedaty log: '. $e->getMessage());
+            $this->_logger->critical('Feedaty log TOKEN: '. $e->getMessage());
         }
 
         return null;
