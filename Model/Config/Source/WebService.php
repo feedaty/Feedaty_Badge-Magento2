@@ -118,7 +118,7 @@ class WebService
         $this->_curl->get($url);
 
         $response = json_decode($this->_curl->getBody());
-        $this->_logger->critical('Feedaty response token //////////////////: '. print_r($response,true));
+        $this->_logger->info('Feedaty response token //////////////////: '. print_r($response,true));
         return $response;
     }
 
@@ -242,6 +242,16 @@ class WebService
         return $allReviews['Reviews'];
     }
 
+
+    public function getRemovedReviews($row = 0, $count = 50){
+        $allReviews =  $this->getAllRemovedReviews('?row='.$row.'&count='.$count);
+
+        $this->_logger->info('ALL REMOVED REVIEW FEEDATY REMOVED: '. print_r($allReviews['Reviews'],true));
+
+        return $allReviews['Reviews'];
+
+    }
+
     public function getTotalProductReviewsCount()
     {
         $allProductReviews = $this->getAllReviews('?retrieve=onlyproductreviews&row=0&count=1');
@@ -251,7 +261,28 @@ class WebService
         return $totalResults;
     }
 
+    public function getTotalProductRemovedReviewsCount()
+    {
+        $allProductReviews = $this->getAllRemovedReviews('?row=0&count=1');
+        $this->_logger->info('Feedaty REMOVED: '. print_r($allProductReviews,true));
+        $totalResults = $allProductReviews['TotalResults'];
 
+        return $totalResults;
+    }
+
+
+    public function getAllRemovedReviews($params = '')
+    {
+        $url = 'http://api.feedaty.com/Reviews/Removed'.$params;
+        return $this->getReviewsData($url);
+    }
+
+    public function getAllMediatedReviews($params = '')
+    {
+        $url = 'http://api.feedaty.com/Reviews/Mediated'.$params;
+        $mediated = $this->getReviewsData($url);
+        return $mediated;
+    }
     /**
      * @param string $params
      * @return mixed|string|null
@@ -259,9 +290,16 @@ class WebService
      */
     public function getAllReviews($params = '')
     {
-         $merchant = $this->_configRules->getFeedatyCode();
-         $secret = $this->_configRules->getFeedatySecret();
-         $url = 'http://api.feedaty.com/Reviews/Get'.$params;
+        $url = 'http://api.feedaty.com/Reviews/Get'.$params;
+         return $this->getReviewsData($url);
+    }
+
+
+
+    public function getReviewsData($url)
+    {
+        $merchant = $this->_configRules->getFeedatyCode();
+        $secret = $this->_configRules->getFeedatySecret();
 
         $token = '';
 
