@@ -51,14 +51,14 @@ class Reviews
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      */
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
+        \Psr\Log\LoggerInterface                      $logger,
         \Feedaty\Badge\Model\Config\Source\WebService $webService,
-        \Magento\Review\Model\ReviewFactory $reviewFactory,
-        \Magento\Review\Model\RatingFactory $ratingFactory,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Stdlib\DateTime\DateTime $date,
-        StoreRepositoryInterface $storeRepository,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+        \Magento\Review\Model\ReviewFactory           $reviewFactory,
+        \Magento\Review\Model\RatingFactory           $ratingFactory,
+        \Magento\Store\Model\StoreManagerInterface    $storeManager,
+        \Magento\Framework\Stdlib\DateTime\DateTime   $date,
+        StoreRepositoryInterface                      $storeRepository,
+        \Magento\Sales\Api\OrderRepositoryInterface   $orderRepository
     )
     {
         $this->logger = $logger;
@@ -72,30 +72,41 @@ class Reviews
     }
 
 
-    public function disableReview($reviewData){
+    public function disableReview($reviewData)
+    {
 
-        $review = $this->_reviewFactory->create()->load($reviewData[0]['review_id']);
-        $review->setStatusId(\Magento\Review\Model\Review::STATUS_NOT_APPROVED)->save();;
+        $this->logger->addInfo("FEEDATY DISABLE REVIEW REVIEW DATA: ID REW " . $reviewData['review_id']);
+        $review = null;
+        try {
+            $review = $this->_reviewFactory->create()->load($reviewData['review_id']);
+        } catch (\Exception $e) {
+            $this->logger->info("FEEDATY ERROR LINE 86 :  " . $e->getMessage());
+        }
+
+        if (!is_null($review)) {
+            $this->logger->addInfo("FEEDATY DISABLE REVIEW OBJECT: ");
+            $review->setStatusId(\Magento\Review\Model\Review::STATUS_NOT_APPROVED)->save();
+        }
 
     }
 
     public function getStoreViewIdByOrder($orderId)
     {
-        $this->logger->addInfo("FEEDATY START GET STORE: ".$orderId );
+        $this->logger->addInfo("FEEDATY START GET STORE: " . $orderId);
         $order = null;
         try {
             $order = $this->_orderRepository->get($orderId);
 
         } catch (\Exception $e) {
-            $this->logger->info("FEEDATY ERROR :  ".$e->getMessage());
-            $this->logger->info("FEEDATY ERROR : order id does not exist ".$orderId);
+            $this->logger->info("FEEDATY ERROR :  " . $e->getMessage());
+            $this->logger->info("FEEDATY ERROR : order id does not exist " . $orderId);
 
         }
 
 
-        if(!is_null($order)){
+        if (!is_null($order)) {
             $websiteId = $order->getStore()->getWebsiteId();
-            $this->logger->addInfo("FEEDATY ORDER websiteId: " .$websiteId);
+            $this->logger->addInfo("FEEDATY ORDER websiteId: " . $websiteId);
             return $websiteId;
         }
 
@@ -112,7 +123,7 @@ class Reviews
             $storeIds = $store->getStoreId(); // store id
         }
 
-       $this->logger->addInfo("STORES LIST: " .print_r($storeList,true) );
+        $this->logger->addInfo("STORES LIST: " . print_r($storeList, true));
 
         return $storeIds;
     }
@@ -123,7 +134,8 @@ class Reviews
      * @param $feedatyId
      * @return mixed
      */
-    public function getReviewCollection($productId, $feedatyId){
+    public function getReviewCollection($productId, $feedatyId)
+    {
         $collection = $this->_reviewFactory->create()->getCollection()
             ->addEntityFilter(
                 'product',
@@ -141,7 +153,8 @@ class Reviews
     /*
      * Get last Review Created
      */
-    public function getAllFeedatyReviewCount(){
+    public function getAllFeedatyReviewCount()
+    {
         $collection = $this->_reviewFactory->create()->getCollection()
             ->addFieldToFilter(
                 'feedaty_source',
@@ -153,11 +166,12 @@ class Reviews
             )
             ->setDateOrder();
 
-      //  $collection->getSelect()->group('feedaty_source_id');
+        //  $collection->getSelect()->group('feedaty_source_id');
         return count($collection->getData());
     }
 
-    public function getAllFeedatyRemovedReviewCount(){
+    public function getAllFeedatyRemovedReviewCount()
+    {
         $collection = $this->_reviewFactory->create()->getCollection()
             ->addStatusFilter(
                 \Magento\Review\Model\Review::STATUS_NOT_APPROVED)
@@ -178,7 +192,8 @@ class Reviews
     /*
      * Get last Review Created
      */
-    public function getLastFeedatyReviewCreated(){
+    public function getLastFeedatyReviewCreated()
+    {
         $collection = $this->_reviewFactory->create()->getCollection()
             ->addFieldToFilter(
                 'feedaty_source',
@@ -195,7 +210,8 @@ class Reviews
         return $collection->getData();
     }
 
-    public function getReviewByFeedatyId($feedatyid){
+    public function getReviewByFeedatyId($feedatyid)
+    {
         $collection = $this->_reviewFactory->create()->getCollection()
             ->addFieldToFilter(
                 'feedaty_source_id',
@@ -212,6 +228,21 @@ class Reviews
         return $collection->getData();
     }
 
+    public function getAllReviewsByFeedatyId($feedatyid)
+    {
+        $collection = $this->_reviewFactory->create()->getCollection()
+            ->addFieldToFilter(
+                'feedaty_source_id',
+                $feedatyid
+            )
+            ->setOrder(
+                'review_id',
+                'desc'
+            )
+            ->setDateOrder();
+
+        return $collection->getData();
+    }
 
 
     /**
@@ -228,6 +259,7 @@ class Reviews
         }
         return $review;
     }
+
     /**
      * @throws \Magento\Framework\Exception\LocalizedException
      */
@@ -238,8 +270,8 @@ class Reviews
         $totalFeedatyRemovedReviews = $this->_webService->getTotalProductRemovedReviewsCount();
         $totalReviewCreatedCount = $this->getAllFeedatyReviewCount();
         $totalRemovedReviewCreatedCount = $this->getAllFeedatyRemovedReviewCount();
-        $this->logger->addInfo("START - Cronjob Feedaty | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount );
-       // $this->logger->addInfo("START - Cronjob Feedaty | STORES  | date: " . $this->getAllStoreList() );
+        $this->logger->addInfo("START - Cronjob Feedaty | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount);
+        // $this->logger->addInfo("START - Cronjob Feedaty | STORES  | date: " . $this->getAllStoreList() );
 
         //Get Last Review Created on Magento (on first run vill be null)
         $lastReviewCreated = $this->getLastFeedatyReviewCreated();
@@ -251,10 +283,10 @@ class Reviews
 
         ///// CREATE NEW REVIEWS
         //Get Feedaty Product Reviews
-        $feedatyProductReviews = $this->getProductReviewsPagination($row,$count);
-        if(!empty($feedatyProductReviews)){
+        $feedatyProductReviews = $this->getProductReviewsPagination($row, $count);
+        if (!empty($feedatyProductReviews)) {
             //Foreach Review
-            foreach ($feedatyProductReviews as $review){
+            foreach ($feedatyProductReviews as $review) {
                 //feedaty_source_id
                 $feedatyId = $review['ID'];
 
@@ -265,11 +297,11 @@ class Reviews
                 $replaceFromDate = ["/Date(", ")/"];
                 $replaceToDate = ["", ""];
                 //Review Date
-                $createdAt = date('Y-m-d h:i:s', floor((int)str_replace($replaceFromDate,$replaceToDate,$review['Released'])/ 1000));
+                $createdAt = date('Y-m-d h:i:s', floor((int)str_replace($replaceFromDate, $replaceToDate, $review['Released']) / 1000));
                 //$reviewReleased =date('Y-m-d h:i:s', floor((int)str_replace($replaceFromDate,$replaceToDate,$review['Released'])/ 1000));
 
                 $today = $this->date->gmtDate();
-                foreach ($review['ProductsReviews'] as $item){
+                foreach ($review['ProductsReviews'] as $item) {
 
                     $productId = $item['SKU'];
 
@@ -285,46 +317,53 @@ class Reviews
                     //TODO VERIFICARE  website view
 
                     if (empty($magentoProductReviews)) {
-                       $this->createProductReview($productId, $feedatyId, $rating, $detail, $createdAt,$today,$row,$storeView);
+                        $this->createProductReview($productId, $feedatyId, $rating, $detail, $createdAt, $today, $row, $storeView);
 
                         // Product Review
-                        $this->logger->addInfo("EXEC - Cronjob Feedaty create Product Review | date execution: ". date('Y-m-d H:i:s') ." | Product Id : ". $productId . " | Feedaty ID" .$feedatyId );
+                        $this->logger->addInfo("EXEC - Cronjob Feedaty create Product Review | date execution: " . date('Y-m-d H:i:s') . " | Product Id : " . $productId . " | Feedaty ID" . $feedatyId);
 
                     }
                 }
             }
             // General Cron Report on system.log
-            $this->logger->addInfo("END - Cronjob Feedaty is executed | Get Feedaty Reviews  | date execution: ". date('Y-m-d H:i:s') ." -- Last Review Created " . print_r($lastReviewCreated,true) ." -- Review Date CreatedAt " . print_r($createdAt,true) ." -- Pagination " . $row);
+            $this->logger->addInfo("END - Cronjob Feedaty is executed | Get Feedaty Reviews  | date execution: " . date('Y-m-d H:i:s') . " -- Last Review Created " . print_r($lastReviewCreated, true) . " -- Review Date CreatedAt " . print_r($createdAt, true) . " -- Pagination " . $row);
         }
 
         ///// DISABLE REMOVED REVIEWS
         ///
         $rowRemoved = $totalFeedatyRemovedReviews - $totalRemovedReviewCreatedCount - $count;
 
-        $this->logger->addInfo("REMOVED ITEMS ROWS  ".$rowRemoved);
-        $this->logger->addInfo("REMOVED ITEMS totalFeedatyRemovedReviews  ".$totalFeedatyRemovedReviews);
-        $this->logger->addInfo("REMOVED ITEMS ROWS totalRemovedReviewCreatedCount ".$totalRemovedReviewCreatedCount);
+        $this->logger->addInfo("REMOVED ITEMS ROWS  " . $rowRemoved);
+        $this->logger->addInfo("REMOVED ITEMS totalFeedatyRemovedReviews  " . $totalFeedatyRemovedReviews);
+        $this->logger->addInfo("REMOVED ITEMS ROWS totalRemovedReviewCreatedCount " . $totalRemovedReviewCreatedCount);
 
-        $feedatyProductReviewsRemoved = $this->getRemovedReviews($rowRemoved,$count);
-        if(!empty($feedatyProductReviewsRemoved)){
+        $feedatyProductReviewsRemoved = $this->getRemovedReviews($rowRemoved, $count);
+        if (!empty($feedatyProductReviewsRemoved)) {
 
-            $this->logger->addInfo("START REMOVED - Cronjob Feedaty is executed | Disabled Feedaty Reviews ID | date execution: ". date('Y-m-d H:i:s') );
+            $this->logger->addInfo("START REMOVED - Cronjob Feedaty is executed | Disabled Feedaty Reviews ID | date execution: " . print_r($feedatyProductReviewsRemoved,true));
 
             //Foreach Review
-            foreach ($feedatyProductReviewsRemoved as $removedReview){
+            foreach ($feedatyProductReviewsRemoved as $removedReview) {
 
                 $feedatyId = $removedReview['MerchantFeedbackReviewID'];
 
-                $reviewToDisable = $this->getReviewByFeedatyId($feedatyId);
-                $this->logger->addInfo("REVIEW TO DISABLE OBJ - Cronjob Feedaty is executed | Disabled Feedaty Reviews ID | date execution: ". date('Y-m-d H:i:s') ." -- REVIEWS TO DISABLE " . print_r($reviewToDisable,true));
+                $reviewToDisable = $this->getAllReviewsByFeedatyId($feedatyId);
+                $this->logger->addInfo("REVIEW TO DISABLE OBJ - Cronjob Feedaty is executed | Disabled Feedaty Reviews ID | date execution: " . date('Y-m-d H:i:s') . " -- REVIEWS TO DISABLE " . print_r($reviewToDisable, true));
 
-                if(!empty($reviewToDisable)){
+                if (!empty($reviewToDisable)) {
                     //if it is not just disabled
-                    if($reviewToDisable[0]['status_id'] != 3){
-                        $this->disableReview($reviewToDisable);
-                        $this->logger->addInfo("REMOVED ITEM ID - : ". date('Y-m-d H:i:s') ." -- FeedatySourceID " . $feedatyId);
-                    }
+                    foreach ($reviewToDisable as $item){
+                        $this->logger->addInfo("REVIEW TO DISABLE ITEM LIN 341 - Cronjob Feedaty is executed | Disabled Feedaty Reviews ID | date execution: " . print_r($item, true));
+                        $this->logger->addInfo("ITEM ID TO DISABLE 357 : " . $item['review_id']);
+                        $this->logger->addInfo("ITEM STATUS TO DISABLE 357 : " . $item['status_id']);
 
+                        if ($item['status_id'] !== 3) {
+                            $this->logger->addInfo("STATUS ENALBED");
+
+                            $this->disableReview($item);
+                            $this->logger->addInfo("REMOVED ITEM ID - : " . date('Y-m-d H:i:s') . " -- FeedatySourceID " . $feedatyId);
+                        }
+                    }
 
                 }
 
@@ -333,7 +372,7 @@ class Reviews
         }
 
 
-      // $this->logger->addInfo("END - Cronjob Feedaty is executed | Get Feedaty Reviews  | date: ". date('Y-m-d H:i:s') );
+        // $this->logger->addInfo("END - Cronjob Feedaty is executed | Get Feedaty Reviews  | date: ". date('Y-m-d H:i:s') );
     }
 
     public function getProductReviewsPagination($row, $count)
@@ -343,11 +382,12 @@ class Reviews
 
     public function getRemovedReviews($row, $count)
     {
-       return $this->_webService->getRemovedReviews($row, $count);
+        return $this->_webService->getRemovedReviews($row, $count);
     }
 
 
-    protected function createProductReview($productId, $feedatyId, $rating, $detail, $createdAt,$today,$row,$storeView){
+    protected function createProductReview($productId, $feedatyId, $rating, $detail, $createdAt, $today, $row, $storeView)
+    {
 
         $reviewFinalData['ratings'][1] = $rating;
         $reviewFinalData['ratings'][2] = $rating;
@@ -369,7 +409,7 @@ class Reviews
             ->setStatusId(\Magento\Review\Model\Review::STATUS_APPROVED)
             ->setStoreId($this->_storeManager->getStore()->getId())
             //->setStores(!is_null($storeView) ?  [$storeView] : $this->_storeManager->getStore()->getId())
-            ->setStores(!is_null($storeView) ?  [$storeView] : [0,1,2])
+            ->setStores(!is_null($storeView) ? [$storeView] : [0, 1, 2])
             ->save();
 
         //Since the created_at is set only when the $object does not have an id, i save the object again.
