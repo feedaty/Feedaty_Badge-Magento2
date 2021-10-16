@@ -68,7 +68,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
 
-
         if(version_compare($context->getVersion(), '2.7.1') < 0) {
 
             $feedatyTable = $setup->getTable('feedaty_badge_settings');
@@ -108,6 +107,53 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
+
+        if(version_compare($context->getVersion(), '2.7.2') < 0) {
+
+            $tableName = $setup->getTable('review_detail');
+
+            if ($setup->getConnection()->isTableExists($tableName) == true) {
+                $columns = [
+                    'feedaty_product_review_id' => [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                        'nullable' => false,
+                        'default' => 0,
+                        'comment' => 'Feedaty Product Review ID',
+                    ]
+                ];
+
+                $connection = $setup->getConnection();
+
+                foreach ($columns as $name => $definition) {
+                    $connection->addColumn($tableName, $name, $definition);
+                }
+            }
+
+        }
+
+
+        if(version_compare($context->getVersion(), '2.7.3') < 0) {
+
+            $tableName = $setup->getTable('review_detail');
+
+            if ($setup->getConnection()->isTableExists($tableName) == true) {
+                $columns = [
+                    'feedaty_product_mediated' => [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+                        'nullable' => false,
+                        'default' => 0,
+                        'comment' => 'Feedaty Product Mediated',
+                    ]
+                ];
+
+                $connection = $setup->getConnection();
+
+                foreach ($columns as $name => $definition) {
+                    $connection->addColumn($tableName, $name, $definition);
+                }
+            }
+
+        }
 
         $installer->endSetup();
     }

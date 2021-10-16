@@ -27,9 +27,11 @@ class Review extends \Magento\Review\Model\ResourceModel\Review
             'nickname' => $object->getNickname(),
             'feedaty_source' => $object->getFeedatySource(),
             'feedaty_source_id' => $object->getFeedatySourceId(),
+            'feedaty_product_review_id' => $object->getFeedatyProductReviewId(),
             'feedaty_pagination' => $object->getFeedatyPagination(),
             'feedaty_create' => $object->getFeedatyCreate(),
             'feedaty_update' => $object->getFeedatyUpdate(),
+            'feedaty_product_mediated' => $object->getFeedatyProductMediated(),
         ];
         $select = $connection->select()->from($this->_reviewDetailTable, 'detail_id')->where('review_id = :review_id');
         $detailId = $connection->fetchOne($select, [':review_id' => $object->getId()]);

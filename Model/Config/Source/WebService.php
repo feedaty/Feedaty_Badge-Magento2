@@ -252,6 +252,15 @@ class WebService
 
     }
 
+    public function getMediatedReviews($row = 0, $count = 50){
+        $allReviews =  $this->getAllMediatedReviews('?row='.$row.'&count='.$count);
+
+        $this->_logger->info('ALL REMOVED REVIEW FEEDATY REMOVED: '. print_r($allReviews['Reviews'],true));
+
+        return $allReviews['Reviews'];
+
+    }
+
     public function getTotalProductReviewsCount()
     {
         $allProductReviews = $this->getAllReviews('?retrieve=onlyproductreviews&row=0&count=1');
@@ -264,7 +273,16 @@ class WebService
     public function getTotalProductRemovedReviewsCount()
     {
         $allProductReviews = $this->getAllRemovedReviews('?row=0&count=1');
-        $this->_logger->info('Feedaty REMOVED: '. print_r($allProductReviews,true));
+     //   $this->_logger->info('Feedaty REMOVED: '. print_r($allProductReviews,true));
+        $totalResults = $allProductReviews['TotalResults'];
+
+        return $totalResults;
+    }
+
+    public function getTotalProductMediatedReviewsCount()
+    {
+        $allProductReviews = $this->getAllMediatedReviews('?row=0&count=1');
+        $this->_logger->info('Feedaty MEDIATED: '. print_r($allProductReviews,true));
         $totalResults = $allProductReviews['TotalResults'];
 
         return $totalResults;

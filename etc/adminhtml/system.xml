@@ -20,6 +20,11 @@
                     <label>Feedaty Secret</label>
                     <validate>validate-alphanum</validate>
                 </field>
+
+                  <field id="create_reviews_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable to Create Reviews in Magento</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
             </group>
 
             <group id="feedaty_sendorder" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
@@ -76,14 +81,6 @@
                 <field id="timeout" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Widgets timeout options</label>
                     <source_model>Feedaty\Badge\Model\Config\Source\FeedatyTimeout</source_model>
-                </field>
-            </group>
-
-            <group id="create_reviews" translate="label" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" >
-                <label>Create Reviews on Magento</label>
-                <field id="create_reviews_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enable to Create Reviews in Magento</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
 
