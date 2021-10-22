@@ -457,6 +457,10 @@ class Reviews
 
             $rowRemoved = $totalFeedatyRemovedReviews - $totalRemovedReviewCreatedCount - $count;
 
+            if($rowRemoved < 0 ){
+                $this->logger->addInfo("ROW REMOVED IS ZERO  " );
+                $rowRemoved = 0;
+            }
 //            $this->logger->addInfo("REMOVED ITEMS ROWS  " . $rowRemoved);
 //            $this->logger->addInfo("REMOVED ITEMS totalFeedatyRemovedReviews  " . $totalFeedatyRemovedReviews);
 //            $this->logger->addInfo("REMOVED ITEMS ROWS totalRemovedReviewCreatedCount " . $totalRemovedReviewCreatedCount);
@@ -533,7 +537,7 @@ class Reviews
             ->setStatusId(\Magento\Review\Model\Review::STATUS_APPROVED)
             ->setStoreId($this->_storeManager->getStore()->getId())
             //->setStores(!is_null($storeView) ?  [$storeView] : $this->_storeManager->getStore()->getId())
-            ->setStores(!is_null($storeView) ? [$storeView] : [0, 1, 2])
+            ->setStores(!is_null($storeView) ? [$storeView] : [0,1])
             ->save();
 
         //Since the created_at is set only when the $object does not have an id, i save the object again.
@@ -544,6 +548,7 @@ class Reviews
             $this->_ratingFactory->create()
                 ->setRatingId($ratingId)
                 ->setReviewId($review->getId())
+                ->setRatingSummary(4)
                 ->addOptionVote($optionId, $productId);
         }
 
