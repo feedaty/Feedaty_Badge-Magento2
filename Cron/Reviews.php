@@ -55,6 +55,10 @@ class Reviews
      * @param \Magento\Review\Model\ReviewFactory $reviewFactory
      * @param \Magento\Review\Model\RatingFactory $ratingFactory
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
+     * @param StoreRepositoryInterface $storeRepository
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     * @param ConfigRules $configRules
      */
     public function __construct(
         \Psr\Log\LoggerInterface                      $logger,
@@ -273,6 +277,15 @@ class Reviews
     }
 
 
+    public function getRatingCollection(){
+
+        $this->logger->addInfo("COLLECT RATING");
+
+        $ratingCollection = $this->_ratingFactory->create()->getResourceCollection()->addEntityFilter('product')->load();
+
+        return $ratingCollection->getData();
+
+    }
 
     /**
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -514,10 +527,15 @@ class Reviews
     protected function createProductReview($productId, $feedatyId, $feedatyProductReviewId, $rating, $detail, $createdAt, $today, $row, $storeView)
     {
 
-        $reviewFinalData['ratings'][1] = $rating;
-        $reviewFinalData['ratings'][2] = $rating;
-        $reviewFinalData['ratings'][3] = $rating;
-        $reviewFinalData['ratings'][4] = $rating;
+        $ratingCollection = $this->getRatingCollection();
+
+        foreach ($ratingCollection as $ratingItem){
+            $this->logger->addInfo("RATING ID  " . $ratingItem['rating_id']);
+            $reviewFinalData['ratings'][$ratingItem['rating_id']] = $rating;
+        }
+
+        $this->logger->addInfo("RATING COLLECTION " . print_r($ratingCollection,true));
+
 
         $reviewFinalData['nickname'] = "Feedaty";
         $reviewFinalData['title'] = "Acquirente Verificato";
@@ -536,23 +554,20 @@ class Reviews
             ->setEntityPkValue($productId)
             ->setStatusId(\Magento\Review\Model\Review::STATUS_APPROVED)
             ->setStoreId($this->_storeManager->getStore()->getId())
-            //->setStores(!is_null($storeView) ?  [$storeView] : $this->_storeManager->getStore()->getId())
-            ->setStores(!is_null($storeView) ? [$storeView] : [0,1])
+            ->setStores(!is_null($storeView) ? [$storeView] : [$this->_storeManager->getStore()->getId()])
+          //  ->setStores([$this->_storeManager->getStore()->getId()])
             ->save();
-
-        //Since the created_at is set only when the $object does not have an id, i save the object again.
-        $review->setCreatedAt($createdAt)->save();
-        //$review->setCreatedAt('2018-07-31 11:30:05')->save();
 
         foreach ($reviewFinalData['ratings'] as $ratingId => $optionId) {
             $this->_ratingFactory->create()
                 ->setRatingId($ratingId)
                 ->setReviewId($review->getId())
-                ->setRatingSummary(4)
                 ->addOptionVote($optionId, $productId);
         }
 
         $review->aggregate();
+
+        $review->setCreatedAt($createdAt)->save();
     }
 }
 
