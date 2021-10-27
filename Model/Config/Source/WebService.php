@@ -118,7 +118,7 @@ class WebService
         $this->_curl->get($url);
 
         $response = json_decode($this->_curl->getBody());
-        $this->_logger->info('Feedaty response token //////////////////: '. print_r($response,true));
+
         return $response;
     }
 
