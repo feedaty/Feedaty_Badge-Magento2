@@ -64,47 +64,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     $connection->addColumn($tableName, $name, $definition);
                 }
             }
-
-        }
-
-
-        if(version_compare($context->getVersion(), '2.7.1') < 0) {
-
-            $feedatyTable = $setup->getTable('feedaty_badge_settings');
-
-            if ($setup->getConnection()->isTableExists($feedatyTable) != true) {
-                $table = $setup->getConnection()
-                    ->newTable($feedatyTable)
-                    ->addColumn(
-                        'id',
-                        Table::TYPE_INTEGER,
-                        null,
-                        [
-                            'identity' => true,
-                            'unsigned' => true,
-                            'nullable' => false,
-                            'primary' => true
-                        ],
-                        'ID'
-                    )
-                    ->addColumn(
-                        'create_pagination',
-                        Table::TYPE_INTEGER,
-                        null,
-                        [
-                            'nullable' => true
-                        ],
-                        'Create Review Cron Pagination '
-                    )
-                    ->addColumn(
-                        'auth_code',
-                        Table::TYPE_TEXT,
-                        250,
-                        'Auth Code '
-                    )
-                    ->setComment('Feedaty Badge');
-                $setup->getConnection()->createTable($table);
-            }
         }
 
 
