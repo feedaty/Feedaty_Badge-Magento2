@@ -20,6 +20,11 @@
                     <label>Feedaty Secret</label>
                     <validate>validate-alphanum</validate>
                 </field>
+
+                  <field id="create_reviews_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable to Create Reviews in Magento</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
             </group>
 
             <group id="feedaty_sendorder" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >

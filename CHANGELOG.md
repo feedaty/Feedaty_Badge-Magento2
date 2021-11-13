@@ -2,12 +2,19 @@
 
 #### RELASE NOTES
 
-### V2.6.0 14/04/2020
+### V2.7.0
+
+- Add Feedaty Review Columns to review_detail table
+
+### V2.6.7 05/09/2021
+- Fix Culture Code - Reviews are now requested in the correct store view language
+
+### V2.6.0 14/04/2021
 
 - 	New Product Badge Widget
 - 	New Store Badge Widget
 
-### V2.5.7-dev- 14/04/2020 
+### V2.5.7-dev- 14/04/2021 
 
  - 	Snippet prodotto
 

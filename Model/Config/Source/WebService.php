@@ -112,6 +112,7 @@ class WebService
     */
     private function getReqToken(){
 
+
         $url = "http://api.feedaty.com/OAuth/RequestToken";
         $this->_curl->addHeader('Content-Type','application/x-www-form-urlencoded');
         $this->_curl->get($url);
@@ -159,7 +160,6 @@ class WebService
         ];
 
         $this->_curl->post($url,$fields);
-
         $response = $this->_curl->getBody();
 
         return $response;
@@ -228,12 +228,79 @@ class WebService
     /**
      * @param $productId
      * @return mixed|string|null
-     * @todo : complete function and use to save data in db
      */
-    public function getProductReviews($productId){
+    /*public function getProductReviews($productId){
         return $this->getAllReviews('?retrieve=onlyproductreviews&sku='.$productId);
+    }*/
+
+   /* public function getAllProductReviews(){
+        return $this->getAllReviews('?retrieve=onlyproductreviews');
+    }*/
+
+    public function getProductReviewsPagination($row = 0, $count = 50){
+        $allReviews =  $this->getAllReviews('?retrieve=onlyproductreviews&row='.$row.'&count='.$count);
+        return $allReviews['Reviews'];
     }
 
+
+    public function getRemovedReviews($row = 0, $count = 50){
+        $allReviews =  $this->getAllRemovedReviews('?row='.$row.'&count='.$count);
+
+        $this->_logger->info('ALL REMOVED REVIEW FEEDATY REMOVED: '. print_r($allReviews['Reviews'],true));
+
+        return $allReviews['Reviews'];
+
+    }
+
+    public function getMediatedReviews($row = 0, $count = 50){
+        $allReviews =  $this->getAllMediatedReviews('?row='.$row.'&count='.$count);
+
+        $this->_logger->info('ALL REMOVED REVIEW FEEDATY REMOVED: '. print_r($allReviews['Reviews'],true));
+
+        return $allReviews['Reviews'];
+
+    }
+
+    public function getTotalProductReviewsCount()
+    {
+        $allProductReviews = $this->getAllReviews('?retrieve=onlyproductreviews&row=0&count=1');
+
+        $totalResults = $allProductReviews['TotalProductReviews'];
+
+        return $totalResults;
+    }
+
+    public function getTotalProductRemovedReviewsCount()
+    {
+        $allProductReviews = $this->getAllRemovedReviews('?row=0&count=1');
+     //   $this->_logger->info('Feedaty REMOVED: '. print_r($allProductReviews,true));
+        $totalResults = $allProductReviews['TotalResults'];
+
+        return $totalResults;
+    }
+
+    public function getTotalProductMediatedReviewsCount()
+    {
+        $allProductReviews = $this->getAllMediatedReviews('?row=0&count=1');
+        $this->_logger->info('Feedaty MEDIATED: '. print_r($allProductReviews,true));
+        $totalResults = $allProductReviews['TotalResults'];
+
+        return $totalResults;
+    }
+
+
+    public function getAllRemovedReviews($params = '')
+    {
+        $url = 'http://api.feedaty.com/Reviews/Removed'.$params;
+        return $this->getReviewsData($url);
+    }
+
+    public function getAllMediatedReviews($params = '')
+    {
+        $url = 'http://api.feedaty.com/Reviews/Mediated'.$params;
+        $mediated = $this->getReviewsData($url);
+        return $mediated;
+    }
     /**
      * @param string $params
      * @return mixed|string|null
@@ -241,11 +308,19 @@ class WebService
      */
     public function getAllReviews($params = '')
     {
+        $url = 'http://api.feedaty.com/Reviews/Get'.$params;
+         return $this->getReviewsData($url);
+    }
+
+
+
+    public function getReviewsData($url)
+    {
         $merchant = $this->_configRules->getFeedatyCode();
         $secret = $this->_configRules->getFeedatySecret();
-        $url = 'http://api.feedaty.com/Reviews/Get'.$params;
 
         $token = '';
+
 
         try {
             $token = $this->getReqToken();
@@ -263,7 +338,7 @@ class WebService
                 try {
                     $this->_curl->get($url);
                 } catch (\Exception $e) {
-                    $this->_logger->critical('Feedaty log: '. $e->getMessage());
+                    $this->_logger->critical('Feedaty log CURL: '. $e->getMessage());
                 }
 
                 // output of curl request
@@ -271,12 +346,12 @@ class WebService
 
                 $data = $this->unserializeJson($result);
 
-                $reviews = $data['Data']['Reviews'];
+                $reviews = $data['Data'];
 
                 return $reviews;
             }
         } catch (\Exception $e) {
-            $this->_logger->critical('Feedaty log: '. $e->getMessage());
+            $this->_logger->critical('Feedaty log TOKEN: '. $e->getMessage());
         }
 
         return null;
@@ -369,7 +444,6 @@ class WebService
         $string = "FeedatyData" . $feedaty_code . $resolver->getLocale();
 
         $content = $cache->load( $string );
-
         if ( !$content || strlen($content) == 0 || $content === "null" )
         {
             $ch = curl_init();
@@ -392,6 +466,9 @@ class WebService
 
         $data = json_decode($content, true);
 
+        if(!$data){
+            $data = [];
+        }
         return $data;
 
     }

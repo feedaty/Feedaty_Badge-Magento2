@@ -62,4 +62,10 @@ class ConfigRules extends AbstractHelper
         return $feedaty_code;
     }
 
+    public function getCreateReviewEnabled() {
+        $feedaty_code = $this->getPreferencesConfig('create_reviews_enabled');
+
+        return $feedaty_code;
+    }
+
 }

@@ -37,7 +37,7 @@
 
     "version": "2.6.7-stable",
 
-    
+
 	"type": "magento2-module",
 
 	"autoload": {
