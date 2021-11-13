@@ -446,19 +446,30 @@ class WebService
         $content = $cache->load( $string );
         if ( !$content || strlen($content) == 0 || $content === "null" )
         {
-            $ch = curl_init();
+//            $ch = curl_init();
+//
+//            $url = 'http://widget.zoorate.com/go.php?function=feed_v6&action=widget_list&merchant_code='.$feedaty_code;
+//
+//            curl_setopt($ch, CURLOPT_URL, $url);
+//
+//            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+//
+//            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+//
+//            $content = trim(curl_exec($ch));
+//
+//            curl_close($ch);
 
-            $url = 'http://widget.zoorate.com/go.php?function=feed_v6&action=widget_list&merchant_code='.$feedaty_code;
+            $url = 'https://widget.feedaty.com/?action=widget_list&style_ver=2021&merchant='.$feedaty_code;
 
-            curl_setopt($ch, CURLOPT_URL, $url);
+            $arrContextOptions=array(
+                "ssl"=>array(
+                    "verify_peer"=>false,
+                    "verify_peer_name"=>false,
+                ),
+            );
 
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-
-            $content = trim(curl_exec($ch));
-
-            curl_close($ch);
+            $content = file_get_contents( $url, false, stream_context_create($arrContextOptions));
 
             $cache->save($content, $string, array("feedaty_cache"), 24*60*60); // 24 hours of cache
 

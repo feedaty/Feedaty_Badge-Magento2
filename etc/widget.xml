@@ -7,15 +7,6 @@
             <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleStore" required="true" sort_order="20">
                 <label translate="true">Style</label>
             </parameter>
-            <parameter name="variant" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Variants" required="true" sort_order="30">
-                <label translate="true">Variants</label>
-            </parameter>
-            <parameter name="rvlang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="40">
-                <label translate="true">Language Filter</label>
-            </parameter>
-            <parameter name="guilang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="50">
-                <label translate="true">Widget Language</label>
-            </parameter>
         </parameters>
     </widget>
     <widget class="Feedaty\Badge\Block\Widget\ProductBadge" id="product_badge_widget">
@@ -24,15 +15,6 @@
         <parameters>
             <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProduct" required="true" sort_order="20">
                 <label translate="true">Style</label>
-            </parameter>
-            <parameter name="variant" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\ProdVariants" required="true" sort_order="30">
-                <label translate="true">Variants</label>
-            </parameter>
-            <parameter name="rvlang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="40">
-                <label translate="true">Language Filter</label>
-            </parameter>
-            <parameter name="guilang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="50">
-                <label translate="true">Widget Language</label>
             </parameter>
         </parameters>
     </widget>

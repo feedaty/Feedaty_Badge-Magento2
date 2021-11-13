@@ -65,21 +65,20 @@ class StyleStore implements ArrayInterface
 
         }
 
-        $data = $this->_fdservice->getFeedatyData($merchant_code);
+        $dataObject = $this->_fdservice->getFeedatyData($merchant_code);
 
-
+        $data = $dataObject['merchant']['variants'];
 
         if($data) {
-
 
             // get Badges
             foreach ($data as $k => $v) {
 
                // if ($v['type'] == "merchant" && $v['name'] != "dynamic" ) {
-                if ($v['type'] == "merchant"  ) {
+              //  if ($v['type'] == "merchant"  ) {
                     $return[] = ['value' => $k,'label' => $v['name_shown_it-IT']];
 
-                }
+             //   }
 
             }
 
