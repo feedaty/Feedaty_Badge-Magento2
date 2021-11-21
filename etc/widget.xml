@@ -4,8 +4,20 @@
         <label>Feedaty Store Badge</label>
         <description>Show Feedaty Store Badge</description>
         <parameters>
-            <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleStore" required="true" sort_order="20">
-                <label translate="true">Style</label>
+            <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StoreBadgeStyle" required="true" sort_order="20">
+                <label translate="true">Widget Style</label>
+            </parameter>
+            <parameter name="variant_merchant" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleStore" required="true" sort_order="50">
+                <label translate="true">Merchant Widget Variant</label>
+                <depends>
+                    <parameter name="style" value="merchant" />
+                </depends>
+            </parameter>
+            <parameter name="variant_carousel" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleStoreCarousel" required="true" sort_order="50">
+                <label translate="true">Carousel Widget Variant</label>
+                <depends>
+                    <parameter name="style" value="carousel" />
+                </depends>
             </parameter>
         </parameters>
     </widget>
@@ -13,8 +25,11 @@
         <label>Feedaty Product Badge</label>
         <description>Show Feedaty Product Badge</description>
         <parameters>
-            <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProduct" required="true" sort_order="20">
-                <label translate="true">Style</label>
+            <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\ProductBadgeStyle" required="true" sort_order="20">
+                <label translate="true">Widget Style</label>
+            </parameter>
+            <parameter name="variant" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProduct" required="true" sort_order="50">
+                <label translate="true">Widget Variant</label>
             </parameter>
         </parameters>
     </widget>
