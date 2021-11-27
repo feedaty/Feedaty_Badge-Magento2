@@ -1,6 +1,5 @@
 <?php
 /* @var $block Feedaty\Badge\Block\Widget\StoreBadge */
-
 ?>
 
 <?php
@@ -9,64 +8,37 @@ $zoorate_env = "widget.zoorate.com";
 /*
  * Merchant Code
  */
-$merchant =  $block->getFeedatyCode();
+$merchant = $block->getFeedatyCode();
 
 $dataObject = $block->getFeedatyData($merchant);
 
-//$badge_style = 'vcarosello_1';
+
 $badge_style = $block->getData('style');
-if($badge_style == 'merchant'){
+if ($badge_style == 'merchant') {
     $variant = $block->getData('variant_merchant');
-}
-else{
+} else {
     $variant = $block->getData('variant_carousel');
 }
 
-$rvlang = $block->getData('rvlang');
-$guilang = $block->getData('guilang');
-
-//$rvlang = $rvlang ? $rvlang : "all";
 $rvlang = "all";
-
-//$guilang = $guilang ? $guilang : "it-IT";
 $guilang = "all";
-
 
 $data = $dataObject[$badge_style]['variants'];
 
-//die(var_dump($data));
-
 if (count($data) > 0) {
     $ver = $block->getExtensionVersion();
-
-
-   // echo '<script src="https://widget.feedaty.com/public/js/feedaty.js?merchant=10203010&style_ver=2021" async ></script><div class="feedaty_widget" data-ver="2021" data-id="618f21e495403" data-type="merchant" data-variant="150x100-3" data-lang="all" data-gui="all"></div>';
     if (array_key_exists($variant, $data)) {
         $widget = $data[$variant];
 
         $name = $widget["name"];
-       // die(var_dump($data));
-       // die(var_dump($name));
-        // Se non trova variante setta la blue white
 
+        $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
 
+        $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
 
-           // $widget['html'] = str_replace("ZOORATE_SERVER", $zoorate_env, $widget['html']);
+        $element = htmlspecialchars_decode($widget["html"]);
 
-          //  $widget['html'] = str_replace("VARIANT", $variant, $widget['html']);
-
-            $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
-
-            $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
-
-            $element = htmlspecialchars_decode($widget["html"]);
-       // die(var_dump($element));
-            // $html = $observer->getTransport()->getOutput();
-
-            // $html.= "<!-- PlPMa ".$ver[0]." -->".$element;
-            echo  $element;
-
-            //  $observer->getTransport()->setOutput( $html );
+        echo $element;
 
     }
 }

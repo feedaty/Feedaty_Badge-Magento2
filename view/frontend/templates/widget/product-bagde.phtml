@@ -9,18 +9,25 @@ $zoorate_env = "widget.zoorate.com";
 /*
  * Merchant Code
  */
-$merchant =  $block->getFeedatyCode();
+$merchant = $block->getFeedatyCode();
 
-$data = $block->getFeedatyData($merchant);
+$dataObject = $block->getFeedatyData($merchant);
 
 $badge_style = $block->getData('style');
-$variant = $block->getData('variant');
-$rvlang = $block->getData('rvlang');
-$guilang = $block->getData('guilang');
 
-$rvlang = $rvlang ? $rvlang : "all";
+if ($badge_style == 'product') {
+    $variant = $block->getData('variant_product');
+} elseif ($badge_style == 'carouselproduct') {
+    $variant = $block->getData('variant_carouselproduct');
+} else {
+    $variant = $block->getData('variant_product_tab');
+}
 
-$guilang = $guilang ? $guilang : "it-IT";
+$rvlang = "all";
+
+$guilang = "all";
+
+$data = $dataObject[$badge_style]['variants'];
 
 $product = $block->getCurrentProduct();
 
@@ -31,29 +38,18 @@ if (!empty($product)) {
     if (count($data) > 0) {
         $ver = $block->getExtensionVersion();
 
-        if (array_key_exists($badge_style, $data)) {
-            $widget = $data[$badge_style];
+        if (array_key_exists($variant, $data)) {
+            $widget = $data[$variant];
+            $name = $widget["name"];
 
-            if (array_key_exists($variant, $widget["variants"])) {
+            $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
+            $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
+            $widget['html'] = str_replace("INSERT_SKU", $productId, $widget['html']);
 
-                $name = $widget["name"];
+            $element = htmlspecialchars_decode($widget["html"]);
 
-                $variant = $widget["variants"][$variant];
+            echo $element;
 
-                $rvlang = $rvlang ? $rvlang : "all";
-
-                $guilang = $guilang ? $guilang : "it-IT";
-
-                $widget['html'] = str_replace("ZOORATE_SERVER", $zoorate_env, $widget['html']);
-                $widget['html'] = str_replace("VARIANT", $variant, $widget['html']);
-                $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
-                $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
-                $widget['html'] = str_replace("SKU", $productId, $widget['html']);
-
-                $element = htmlspecialchars_decode($widget["html"]);
-
-                echo "<!-- PlPMa " . $ver[0] . " -->" . $element;
-            }
         }
     }
 }

@@ -9,7 +9,7 @@ use \Magento\Store\Model\StoreManagerInterface;
 use Feedaty\Badge\Helper\Data as DataHelp;
 use \Magento\Framework\App\Request\Http;
 
-class StyleProduct implements ArrayInterface
+class StyleProductCarousel implements ArrayInterface
 {
     /**
     * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -69,7 +69,7 @@ class StyleProduct implements ArrayInterface
 
         $dataObject = $this->_fdservice->getFeedatyData($merchant_code);
 
-        $data = $dataObject['product']['variants'];
+        $data = $dataObject['carouselproduct']['variants'];
 
         if($data) {
 

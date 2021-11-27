@@ -9,8 +9,8 @@ class ProductBadgeStyle implements ArrayInterface
     {
         $return = [
         	["value" => "product","label" => __("Product Bagde Style")],
-            ["value" => "carouselproduct","label" => __("Carousel Bagde Style")],
-            ["value" => "product_tab","label" => __("Tab Bagde Style")],
+            ["value" => "carouselproduct","label" => __("Product Carousel Bagde Style")],
+            ["value" => "product_tab","label" => __("Product Tab Bagde Style")],
         ];
 
         return $return;

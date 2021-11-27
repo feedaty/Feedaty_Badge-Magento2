@@ -28,8 +28,23 @@
             <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\ProductBadgeStyle" required="true" sort_order="20">
                 <label translate="true">Widget Style</label>
             </parameter>
-            <parameter name="variant" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProduct" required="true" sort_order="50">
-                <label translate="true">Widget Variant</label>
+            <parameter name="variant_product" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProduct" required="true" sort_order="50">
+                <label translate="true">Product Widget Variant</label>
+                <depends>
+                    <parameter name="style" value="product" />
+                </depends>
+            </parameter>
+            <parameter name="variant_carouselproduct" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProductCarousel" required="true" sort_order="50">
+                <label translate="true">Product Carousel Bagde Style</label>
+                <depends>
+                    <parameter name="style" value="carouselproduct" />
+                </depends>
+            </parameter>
+            <parameter name="variant_product_tab" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProductTab" required="true" sort_order="50">
+                <label translate="true">Product Tab Bagde Style</label>
+                <depends>
+                    <parameter name="style" value="product_tab" />
+                </depends>
             </parameter>
         </parameters>
     </widget>
