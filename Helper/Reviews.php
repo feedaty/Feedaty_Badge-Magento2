@@ -2,9 +2,9 @@
 
 namespace Feedaty\Badge\Helper;
 
+use Feedaty\Badge\Helper\ConfigRules;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Store\Api\StoreRepositoryInterface;
-
 
 class Reviews extends AbstractHelper
 {
@@ -33,6 +33,10 @@ class Reviews extends AbstractHelper
      */
     protected $_orderRepository;
 
+    /**
+     * @var \Feedaty\Badge\Helper\ConfigSetting
+     */
+    protected $_helperConfigRules;
 
     /**
      * @param \Psr\Log\LoggerInterface $logger
@@ -46,7 +50,9 @@ class Reviews extends AbstractHelper
         \Magento\Review\Model\ReviewFactory           $reviewFactory,
         \Magento\Review\Model\RatingFactory           $ratingFactory,
         StoreRepositoryInterface                      $storeRepository,
-        \Magento\Sales\Api\OrderRepositoryInterface   $orderRepository
+        \Magento\Sales\Api\OrderRepositoryInterface   $orderRepository,
+        ConfigRules $helperConfigRules
+
     )
     {
         $this->_logger = $logger;
@@ -54,6 +60,7 @@ class Reviews extends AbstractHelper
         $this->_ratingFactory = $ratingFactory;
         $this->_storeRepository = $storeRepository;
         $this->_orderRepository = $orderRepository;
+        $this->_helperConfigRules = $helperConfigRules;
     }
 
     /**
@@ -100,21 +107,29 @@ class Reviews extends AbstractHelper
      */
     public function getStoreViewIdByOrder($orderId)
     {
+        $forceDefaultStore = $this->_helperConfigRules->getReviewForceDefaultStore();
 
-        $order = null;
-        try {
-            $order = $this->_orderRepository->get($orderId);
+        if($forceDefaultStore === "1"){
+            $defaultStore = $this->_helperConfigRules->getReviewDefaultStore();
+            return $defaultStore;
         }
-        catch (\Exception $e) {
-            $this->_logger->info("Feedaty Error : order id does not exist " . $orderId . " Error message". $e->getMessage());
+        else{
+            $order = null;
+            try {
+                $order = $this->_orderRepository->get($orderId);
+            }
+            catch (\Exception $e) {
+                $this->_logger->info("Feedaty Error : order id does not exist " . $orderId . " Error message". $e->getMessage());
+            }
+
+            if (!is_null($order)) {
+                $websiteId = $order->getStore()->getWebsiteId();
+                return $websiteId;
+            }
+
+            return null;
         }
 
-        if (!is_null($order)) {
-            $websiteId = $order->getStore()->getWebsiteId();
-            return $websiteId;
-        }
-
-        return null;
 
     }
 
