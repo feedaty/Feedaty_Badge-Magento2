@@ -83,4 +83,11 @@ class ConfigRules extends AbstractHelper
         return $default_store;
     }
 
+    //TODO CHECK IF NEED
+    public function getTimeout()
+    {
+        $default_store = $this->getPreferencesConfig('create_reviews_default_store');
+        return $default_store;
+    }
+
 }

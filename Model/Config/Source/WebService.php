@@ -3,12 +3,15 @@ namespace Feedaty\Badge\Model\Config\Source;
 
 use \Magento\Framework\HTTP\Client\Curl;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\HTTP\Client\CurlFactory;
 use \Magento\Store\Model\StoreManagerInterface;
 use Feedaty\Badge\Helper\Data as FeedatyHelper;
 use Feedaty\Badge\Helper\ConfigRules;
 use \Magento\Framework\ObjectManagerInterface;
 use \Magento\Framework\Serialize\Serializer\Json;
 use \Psr\Log\LoggerInterface;
+
+
 
 class WebService
 {
@@ -48,6 +51,12 @@ class WebService
      */
     private $_logger;
 
+
+    /**
+     * @var CurlFactory
+     */
+    private $curlFactory;
+
     /**
      * WebService constructor.
      * @param ScopeConfigInterface $scopeConfig
@@ -67,7 +76,8 @@ class WebService
         ObjectManagerInterface $objectmanager,
         Json $json,
         ConfigRules $configRules,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CurlFactory $curlFactory
         )
     {
         $this->_scopeConfig = $scopeConfig;
@@ -75,9 +85,6 @@ class WebService
         $this->_feedatyHelper = $feedatyHelper;
         $this->_curl = $curl;
         $this->_objectManager = $objectmanager;
-        $this->_curl->setOption(CURLOPT_FOLLOWLOCATION, 1);
-        $this->_curl->setOption(CURLOPT_RETURNTRANSFER, 1);
-        $this->_curl->setOption(CURLOPT_VERBOSE, false);
         $this->_json = $json;
         $this->_configRules = $configRules;
         $this->_logger = $logger;
@@ -89,8 +96,9 @@ class WebService
 
         $timeout = $timeout == null ? "1000" : $timeout;
 
-        $this->_curl->setOption(CURLOPT_CONNECTTIMEOUT_MS, $timeout);
-        $this->_curl->setOption(CURLOPT_TIMEOUT_MS, $timeout);
+
+
+        $this->curlFactory = $curlFactory;
     }
 
 
@@ -104,38 +112,39 @@ class WebService
 
         return $jsonDecode;
     }
+
     /**
-    * Function getReqToken - get the request token
-    *
-    * @return $response
-    *
-    */
-    private function getReqToken(){
-
-
-        $url = "http://api.feedaty.com/OAuth/RequestToken";
-        $this->_curl->addHeader('Content-Type','application/x-www-form-urlencoded');
-        $this->_curl->get($url);
-
-        $response = json_decode($this->_curl->getBody());
-
-        return $response;
+     * Get request headers
+     *
+     * @return array
+     */
+    private function getHeaders()
+    {
+        return [
+            'Content-Type' => 'application/x-www-form-urlencoded'
+        ];
     }
 
     /**
-    * Function serializeData - serialize data to send
-    *
-    * @param $fields
-    *
-    * @return $dati
-    */
-    private function serializeData($fields){
-        $data = '';
-        foreach($fields as $k => $v){
-            $data .= $k . '=' . urlencode($v) . '&';
+     * @return array
+     */
+    private function getReqToken()
+    {
+        $this->_logger->info('FEEDATY TOKEN LOG REQ: START');
+        $url = "http://api.feedaty.com/OAuth/RequestToken";
+        try {
+            $curl = $this->curlFactory->create();
+            $curl->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+            $curl->setTimeout(3000);
+            $curl->get($url);
+            $response = json_decode($curl->getBody());
+
+        } catch (\Exception $exception) {
+            $response = [];
+            $this->_logger->critical('FEEDATY TOKEN LOG ERROR: '.$exception);
         }
-        $data = rtrim($data, '&');
-        return $data;
+
+        return $response;
     }
 
     /**
@@ -301,10 +310,10 @@ class WebService
         $mediated = $this->getReviewsData($url);
         return $mediated;
     }
+
     /**
      * @param string $params
      * @return mixed|string|null
-     * @todo : complete function and use to save data in db
      */
     public function getAllReviews($params = '')
     {
@@ -446,20 +455,6 @@ class WebService
         $content = $cache->load( $string );
         if ( !$content || strlen($content) == 0 || $content === "null" )
         {
-//            $ch = curl_init();
-//
-//            $url = 'http://widget.zoorate.com/go.php?function=feed_v6&action=widget_list&merchant_code='.$feedaty_code;
-//
-//            curl_setopt($ch, CURLOPT_URL, $url);
-//
-//            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-//
-//            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-//
-//            $content = trim(curl_exec($ch));
-//
-//            curl_close($ch);
-
             $url = 'https://widget.feedaty.com/?action=widget_list&style_ver=2021&merchant='.$feedaty_code;
 
             $arrContextOptions=array(
@@ -483,85 +478,4 @@ class WebService
         return $data;
 
     }
-
-
-    public function getRatings( $merchant, $sku = "null" , $scope = "product" ) {
-
-        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-
-        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
-
-        $timeout = $this->_scopeConfig->getValue('feedaty_global/timeout_microdata/timeout', $store_scope );
-
-        $cache_interface = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
-
-        $cache_key = "feedaty_ratings_". $merchant . "_" . $sku;
-
-        $content = json_decode( $cache_interface->load( $cache_key ), true);
-
-        if ( !$content['data'] || $content['data'] == null )
-        {
-
-            $url = 'https://widget.zoorate.com/go.php?function=feed_v6&action=ratings'.
-            '&scope=' . $scope .
-            '&sku=' . $sku .
-            '&merchant=' . $merchant .
-            '&lang=null' ;
-
-            $header = [ 'Content-Type: text/html','User-Agent: Mage2' ];
-
-            $ch = curl_init();
-
-            curl_setopt($ch, CURLOPT_URL, $url);
-
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
-
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, $timeout);
-
-            curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout);
-
-            $content = json_decode( curl_exec($ch), true );
-
-            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            curl_close($ch);
-
-            if ($content != null && $http_resp == "200")
-            {
-                // 6 hours of cache
-                $cache_interface->save(
-
-                    json_encode($content ,true),
-                    $cache_key,
-                    array("feedaty_cache"),
-                    24*60*60
-
-                );
-            }
-            //debug call
-
-            if($fdDebugEnabled != 0) {
-
-                $message = "Rating API response:  ".$http_resp." http code";
-                $this->_feedatyHelper->feedatyDebug($message, "API RATINGS RESPONSE INFO");
-
-            }
-        }
-
-        return $content['data'];
-
-    }
-
 }
-/* TODO:
-
--Implement magento curl client
--Implement new API for product page reviews list
--Implement Carousel Section
--Implement Popup Section
-
-*/
