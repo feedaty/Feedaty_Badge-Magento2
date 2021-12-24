@@ -123,7 +123,7 @@ class InterceptOrder implements ObserverInterface
 
             $orderopt = $store->getConfig('feedaty_global/feedaty_sendorder/sendorder');
 
-            if( $order !== null && $order->getStatus() == $orderopt ) {
+            if( $order !== null  ) {
 
                 $order_id = $order->getId();
 
@@ -288,6 +288,15 @@ class InterceptOrder implements ObserverInterface
                         $fd_data[] = $tmp_order;
 
                         // send to feedaty
+
+                        echo "<pre>";
+                        var_dump($fd_data);
+                        echo "</pre>";
+
+
+                        print_r($merchant);
+                        print_r($secret);
+                        die('FEEDATY ORDER DATA: DATA');
 
                         $this->_fdservice->send_order( $merchant, $secret, $fd_data );
 

@@ -365,6 +365,81 @@ class WebService
 
         return null;
     }
+
+
+
+
+    /**
+     * Function send_order
+     *
+     * @param object $data
+     *
+     */
+    public function sendOrder($merchant, $secret, $data) {
+
+        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+
+        $timeout = $this->_scopeConfig->getValue(
+            'feedaty_global/timeout_orders/timeout',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        $ch = curl_init();
+
+        $url = 'http://api.feedaty.com/Orders/Insert';
+
+        $token = $this->getReqToken();
+
+        $accessToken =json_decode($this->getAccessToken($token, $merchant, $secret));
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+
+        curl_setopt($ch, CURLOPT_POST, 1);
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER,['Content-Type: application/json', 'Authorization: Oauth '.$accessToken->AccessToken]);
+
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+
+        $content = trim( curl_exec($ch) );
+
+        $fdDebugEnabled = $this->_scopeConfig->getValue( 'feedaty_global/debug/debug_enabled', $store_scope );
+
+        if($fdDebugEnabled != 0) {
+
+            $message = $data;
+            $this->_feedatyHelper->feedatyDebug($message, "FEEDATY DATA");
+
+            $message = $content;
+            $this->_feedatyHelper->feedatyDebug($message, "FEEDATY RESPONSE");
+
+            $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
+            $this->_feedatyHelper->feedatyDebug($message, "CURL HEADER INFO");
+
+            $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
+            $this->_feedatyHelper->feedatyDebug($message, "CURL INFO");
+
+            if(curl_errno($ch))
+                $this->_feedatyHelper->feedatyDebug(curl_error($ch), "CURL ERROR");
+
+        }
+
+        curl_close($ch);
+
+        return 1 ;
+
+    }
+
+
+
+
     /**
     * Function send_order
     *
