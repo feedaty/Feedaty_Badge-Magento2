@@ -40,6 +40,10 @@ class ConfigRules extends AbstractHelper
         return $this->helperConfigSetting->getPreferencesConfig($data);
     }
 
+    public function getSendOrderConfig($data){
+        return $this->helperConfigSetting->getSendOrderConfig($data);
+    }
+
     /**
      * Get Feedaty Merch Code
      *
@@ -83,11 +87,11 @@ class ConfigRules extends AbstractHelper
         return $default_store;
     }
 
-    //TODO CHECK IF NEED
-    public function getTimeout()
+
+    public function getSendOrderStatus()
     {
-        $default_store = $this->getPreferencesConfig('create_reviews_default_store');
-        return $default_store;
+        $orderStatus = $this->getSendOrderConfig('sendorder');
+        return $orderStatus;
     }
 
 }

@@ -11,7 +11,7 @@ use Magento\Widget\Block\BlockInterface;
 
 class StoreBadge extends Template implements BlockInterface
 {
-    protected $_template = "widget/store-bagde.phtml";
+    protected $_template = "widget/store-badge.phtml";
 
     /**
      * @var WebService

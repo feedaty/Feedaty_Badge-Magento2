@@ -2,165 +2,118 @@
 
 namespace Feedaty\Badge\Cron;
 
-use Feedaty\Badge\Helper\ConfigRules;
-use Feedaty\Badge\Helper\Reviews as ReviewsHelper;
-use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Store\Api\Data\StoreInterface;
-use Magento\Store\Api\StoreRepositoryInterface;
-use Magento\Store\Model\Store;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Feedaty\Badge\Helper\Orders as OrdersHelper;
+use Feedaty\Badge\Model\Config\Source\WebService;
+use Psr\Log\LoggerInterface;
 
 class Orders
 {
 
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    protected $_logger;
-    /**
-     * @var \Feedaty\Badge\Model\Config\Source\WebService
-     */
-    protected $_webService;
-    /**
-     * @var \Magento\Review\Model\ReviewFactory
-     */
-    protected $_reviewFactory;
-    /**
-     * @var \Magento\Review\Model\RatingFactory
-     */
-    protected $_ratingFactory;
-    /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
-    protected $_storeManager;
-
-    /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
-     */
-    protected $_date;
-
-    /**
-     * @var ConfigRules
-     */
-    protected $_configRules;
-
-    /**
-     * @var ReviewsHelper
+     * @var OrdersHelper
      */
     protected $ordersHelper;
-
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     * @var WebService
      */
-    protected $_orderRepository;
-
+    private $webService;
 
     /**
-     * @var ProductRepositoryInterface
-     */
-    protected $productRepository;
-    /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param \Feedaty\Badge\Model\Config\Source\WebService $webService
-     * @param \Magento\Review\Model\ReviewFactory $reviewFactory
-     * @param \Magento\Review\Model\RatingFactory $ratingFactory
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
-     * @param ConfigRules $configRules
-     * @param \Feedaty\Badge\Helper\Orders $ordersHelper
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param LoggerInterface $logger
+     * @param OrdersHelper $ordersHelper
      */
     public function __construct(
-        \Psr\Log\LoggerInterface                      $logger,
-        \Feedaty\Badge\Model\Config\Source\WebService $webService,
-        \Magento\Review\Model\ReviewFactory           $reviewFactory,
-        \Magento\Review\Model\RatingFactory           $ratingFactory,
-        \Magento\Store\Model\StoreManagerInterface    $storeManager,
-        \Magento\Framework\Stdlib\DateTime\DateTime   $date,
-        ConfigRules $configRules,
-        \Feedaty\Badge\Helper\Orders $ordersHelper,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        ProductRepositoryInterface $productRepository
+        LoggerInterface         $logger,
+        OrdersHelper            $ordersHelper,
+        WebService $webService
     )
     {
-        $this->_logger = $logger;
-        $this->_webService = $webService;
-        $this->_reviewFactory = $reviewFactory;
-        $this->_ratingFactory = $ratingFactory;
-        $this->_storeManager = $storeManager;
-        $this->_date = $date;
-        $this->_configRules = $configRules;
-        $this->_orderRepository = $orderRepository;
+        $this->logger = $logger;
         $this->ordersHelper = $ordersHelper;
-        $this->productRepository = $productRepository;
+        $this->webService = $webService;
     }
 
-
     /**
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * Send Orders to Feedaty Orders API
      */
     public function execute()
     {
+        /**
+         * Send Module Information Data
+         */
+        $this->webService->fdSendInstallationInfo();
 
 
         //Starter Log
-        $this->_logger->addInfo("START - Cronjob Feedaty | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
-        //$orderStatus = explode(',', 'complete,processing');
-        //$orderStatus = explode(',', $this->_dataHelper->getOrderStatusFilter());
-        // $value = ;
+        $this->logger->addInfo("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
 
         $orders = $this->ordersHelper->getOrders();
 
 
          $data = array();
 
-        /* pass data array to write in csv file */
+        /* Order Increment */
         $i = 0;
-        foreach ($orders as $order){
 
-            $items = $order->getItems();
+        if(count($orders) > 0){
+            foreach ($orders as $order){
 
-            $storeId =  $order->getStoreId();
-            /**
-             * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-             */
-            $localeCode = $this->ordersHelper->getCulture($storeId);
+                /* Get all visible order products */
+                $items = $order->getAllVisibleItems();
 
-            $data[$i] = [
+                $storeId =  $order->getStoreId();
+                /**
+                 * Get Locale
+                 */
+                $localeCode = $this->ordersHelper->getCulture($storeId);
 
-                'ID' => $order->getIncrementId(),
-                'Date' => $order->getCreatedAt(),
-                'CustomerEmail' => $order->getCustomerEmail(),
-                'CustomerID' => $order->getCustomerEmail(),
-                'Culture' => $localeCode,
-                'Platform' => $this->ordersHelper->getPlatform(),
-                'Products' => []
+                $data[$i] = [
+                    'ID' => $order->getEntityId(),
+                    'Date' => $order->getCreatedAt(),
+                    'CustomerEmail' => $order->getCustomerEmail(),
+                    'CustomerID' => $order->getCustomerEmail(),
+                    'Culture' => $localeCode,
+                    'Platform' => $this->ordersHelper->getPlatform(),
+                    'Products' => []
 
-            ];
+                ];
 
-            foreach ($items as $item){
-                $itemType = $item->getProductType();
+                foreach ($items as $item){
 
-                $sku = $item->getSku();
-                $productId = $item->getProductId();
-                $productUrl = $item->getProduct()->getProductUrl();
+                    $productId = $item->getProductId();
+
+                    $productThumbnailUrl = $this->ordersHelper->getProductThumbnailUrl($item);
 
                     array_push($data[$i]['Products'],
                         [
-                            'SKU' => $productId,
-                            'URL' => $productUrl,
+                            'SKU' => $productId ,
+                            'URL' => $item->getProduct()->getProductUrl(),
+                            'ThumbnailURL' => $productThumbnailUrl,
+                            'Name' => $item->getName()
                         ]
                     );
 
+                }
 
+                $i++;
             }
 
-            $i++;
+            $response = (array) $this->webService->sendOrder($data);
+
+            if(!empty($response)){
+                foreach ($response['Data'] as $data){
+                    //if order Success or Duplicated set Feedaty Customer Notification true
+                    if($data['Status'] == '1' || $data['Status'] == '201'){
+                        $this->ordersHelper->setFeedatyCustomerNotified((int)$data['OrderID']);
+                    }
+                }
+            }
         }
-        $this->_logger->addInfo("Order List - Cronjob Feedaty | Set Feedaty Orders  | date 1.0.1: " . print_r($data,true) );
 
     }
 

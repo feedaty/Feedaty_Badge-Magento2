@@ -5,6 +5,9 @@ namespace Feedaty\Badge\Helper;
 use Feedaty\Badge\Helper\ConfigRules;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Store\Api\StoreRepositoryInterface;
+use Magento\Review\Model\ResourceModel\Review\CollectionFactory;
+use Magento\Review\Model\ResourceModel\Rating\CollectionFactory as RatingCollectionFactory;
+
 
 class Reviews extends AbstractHelper
 {
@@ -37,6 +40,14 @@ class Reviews extends AbstractHelper
      * @var \Feedaty\Badge\Helper\ConfigSetting
      */
     protected $_helperConfigRules;
+    /**
+     * @var CollectionFactory
+     */
+    private $reviewCollection;
+    /**
+     * @var RatingCollectionFactory
+     */
+    private $ratingCollectionFactory;
 
     /**
      * @param \Psr\Log\LoggerInterface $logger
@@ -51,7 +62,9 @@ class Reviews extends AbstractHelper
         \Magento\Review\Model\RatingFactory           $ratingFactory,
         StoreRepositoryInterface                      $storeRepository,
         \Magento\Sales\Api\OrderRepositoryInterface   $orderRepository,
-        ConfigRules $helperConfigRules
+        ConfigRules $helperConfigRules,
+        CollectionFactory       $reviewCollection,
+        RatingCollectionFactory $ratingCollectionFactory
 
     )
     {
@@ -61,6 +74,8 @@ class Reviews extends AbstractHelper
         $this->_storeRepository = $storeRepository;
         $this->_orderRepository = $orderRepository;
         $this->_helperConfigRules = $helperConfigRules;
+        $this->reviewCollection = $reviewCollection;
+        $this->ratingCollectionFactory = $ratingCollectionFactory;
     }
 
     /**
@@ -73,7 +88,7 @@ class Reviews extends AbstractHelper
         try {
             $review = $this->_reviewFactory->create()->load($reviewData['review_id']);
         } catch (\Exception $e) {
-            $this->_logger->info("Feedaty error disableReview :  " . $e->getMessage());
+            $this->_logger->info("Feedaty | Error can not disable Review :  " . $e->getMessage());
         }
 
         if (!is_null($review)) {
@@ -91,7 +106,7 @@ class Reviews extends AbstractHelper
         try {
             $review = $this->_reviewFactory->create()->load($reviewData['review_id']);
         } catch (\Exception $e) {
-            $this->_logger->info("Feedaty Error mediateReview :  " . $e->getMessage());
+            $this->_logger->info("Feedaty | Error cannot mediate Review :  " . $e->getMessage());
         }
 
         if (!is_null($review)) {
@@ -119,7 +134,7 @@ class Reviews extends AbstractHelper
                 $order = $this->_orderRepository->get($orderId);
             }
             catch (\Exception $e) {
-                $this->_logger->info("Feedaty Error : order id does not exist " . $orderId . " Error message". $e->getMessage());
+                $this->_logger->info("Feedaty | Error : order id does not exist " . $orderId . " Error message". $e->getMessage());
             }
 
             if (!is_null($order)) {
@@ -156,7 +171,8 @@ class Reviews extends AbstractHelper
      */
     public function getReviewCollection($productId, $feedatyId)
     {
-        $collection = $this->_reviewFactory->create()->getCollection()
+
+        $collection = $this->reviewCollection->create()
             ->addEntityFilter(
                 'product',
                 $productId
@@ -168,6 +184,7 @@ class Reviews extends AbstractHelper
             ->setDateOrder();
 
         return $collection->getData();
+
     }
 
     /*
@@ -175,7 +192,7 @@ class Reviews extends AbstractHelper
      */
     public function getAllFeedatyReviewCount()
     {
-        $collection = $this->_reviewFactory->create()->getCollection()
+        $collection = $this->reviewCollection->create()
             ->addFieldToFilter(
                 'feedaty_source',
                 1
@@ -194,7 +211,7 @@ class Reviews extends AbstractHelper
      */
     public function getAllFeedatyRemovedReviewCount()
     {
-        $collection = $this->_reviewFactory->create()->getCollection()
+        $collection = $this->reviewCollection->create()
             ->addStatusFilter(
                 \Magento\Review\Model\Review::STATUS_NOT_APPROVED)
             ->addFieldToFilter(
@@ -215,7 +232,7 @@ class Reviews extends AbstractHelper
      */
     public function getAllFeedatyMediatedReviewCount()
     {
-        $collection = $this->_reviewFactory->create()->getCollection()
+        $collection = $this->reviewCollection->create()
             ->addFieldToFilter(
                 'feedaty_product_mediated',
                 1
@@ -234,7 +251,7 @@ class Reviews extends AbstractHelper
      */
     public function getLastFeedatyReviewCreated()
     {
-        $collection = $this->_reviewFactory->create()->getCollection()
+        $collection = $this->reviewCollection->create()
             ->addFieldToFilter(
                 'feedaty_source',
                 1
@@ -252,15 +269,15 @@ class Reviews extends AbstractHelper
 
 
     /**
-     * @param $feedatyid
+     * @param $feedatyId
      * @return mixed
      */
-    public function getAllReviewsByFeedatyId($feedatyid)
+    public function getAllReviewsByFeedatyId($feedatyId)
     {
-        $collection = $this->_reviewFactory->create()->getCollection()
+        $collection = $this->reviewCollection->create()
             ->addFieldToFilter(
                 'feedaty_product_review_id',
-                $feedatyid
+                $feedatyId
             )
             ->setOrder(
                 'review_id',
@@ -272,11 +289,14 @@ class Reviews extends AbstractHelper
     }
 
     /**
-     * @return mixed
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return array|null
      */
-    public function getRatingCollection(){
-        $ratingCollection = $this->_ratingFactory->create()->getResourceCollection()->addEntityFilter('product')->load();
+    public function getRatingCollection()
+    {
+        $ratingCollection = $this->ratingCollectionFactory->create()
+            ->addEntityFilter('product')
+            ->load();
+
         return $ratingCollection->getData();
     }
 

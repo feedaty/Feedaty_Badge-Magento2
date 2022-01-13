@@ -8,8 +8,8 @@ class StoreBadgeStyle implements ArrayInterface
     public function toOptionArray()
     {
         $return = [
-        	["value" => "merchant","label" => __("Merchant Bagde Style")],
-            ["value" => "carousel","label" => __("Carousel Bagde Style")]
+        	["value" => "merchant","label" => __("Merchant Badge Style")],
+            ["value" => "carousel","label" => __("Carousel Badge Style")]
         ];
 
         return $return;

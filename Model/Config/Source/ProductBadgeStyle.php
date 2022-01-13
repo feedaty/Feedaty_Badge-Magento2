@@ -8,9 +8,9 @@ class ProductBadgeStyle implements ArrayInterface
     public function toOptionArray()
     {
         $return = [
-        	["value" => "product","label" => __("Product Bagde Style")],
-            ["value" => "carouselproduct","label" => __("Product Carousel Bagde Style")],
-            ["value" => "product_tab","label" => __("Product Tab Bagde Style")],
+        	["value" => "product","label" => __("Product Badge Style")],
+            ["value" => "carouselproduct","label" => __("Product Carousel Badge Style")],
+            ["value" => "product_tab","label" => __("Product Tab Badge Style")],
         ];
 
         return $return;
