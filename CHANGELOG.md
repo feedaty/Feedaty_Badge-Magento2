@@ -2,12 +2,35 @@
 
 #### RELASE NOTES
 
-### V2.6.0 14/04/2020
+
+### V2.7.0
+
+* Features:
+  * New Feedaty Badges integrated
+  * New Rich snippets for all reviews integrated
+  * New export orders function. Orders are now exported to Feedaty with cronjob
+  * Old Product Snippet has been removed
+  * New Product Badge Widget
+  * New Store Badge Widget
+  * Curl Factory Pattern
+  * Removed custom timeout
+  * Platform Information API
+  * Ability to import reviews into Magento native reviews
+
+* Fixed Bugs
+  * Fixed json serialize vulnerability
+  * Minor bug fix
+
+
+### V2.6.7 05/09/2021
+- Fix Culture Code - Reviews are now requested in the correct store view language
+
+### V2.6.0 14/04/2021
 
 - 	New Product Badge Widget
 - 	New Store Badge Widget
 
-### V2.5.7-dev- 14/04/2020 
+### V2.5.7-dev- 14/04/2021 
 
  - 	Snippet prodotto
 

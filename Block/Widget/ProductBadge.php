@@ -11,7 +11,7 @@ use Magento\Widget\Block\BlockInterface;
 
 class ProductBadge extends Template implements BlockInterface
 {
-    protected $_template = "widget/product-bagde.phtml";
+    protected $_template = "widget/product-badge.phtml";
 
     /**
      * @var WebService
@@ -48,18 +48,24 @@ class ProductBadge extends Template implements BlockInterface
     }
 
     /**
-     * @return void
+     * @return array
      */
     public function getFeedatyCode()
     {
         return $this->_configRules->getFeedatyCode();
     }
 
+    /*
+     * Get Feedaty Data
+     */
     public function getFeedatyData($merchantCode)
     {
         return $this->_webservice->getFeedatyData($merchantCode);
     }
 
+    /*
+     * Get Module Version
+     */
     public function getExtensionVersion()
     {
         return json_decode(json_encode($this->_dataHelper->getExtensionVersion()), true);

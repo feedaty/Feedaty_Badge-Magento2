@@ -1,42 +1,19 @@
 <?php
 namespace Feedaty\Badge\Model\Config\Source;
 
-use \Magento\Framework\HTTP\Client\Curl;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
-use \Magento\Store\Model\StoreManagerInterface;
-use Feedaty\Badge\Helper\Data as FeedatyHelper;
+use Magento\Backend\Block\System\Store\Edit\Form\Store;
+use Magento\Framework\HTTP\Client\CurlFactory;
 use Feedaty\Badge\Helper\ConfigRules;
-use \Magento\Framework\ObjectManagerInterface;
-use \Magento\Framework\Serialize\Serializer\Json;
-use \Psr\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
+use Magento\Framework\App\CacheInterface;
+use Magento\Framework\Locale\Resolver;
+use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\Module\ModuleListInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 class WebService
 {
-
-    /**
-    * @var \Magento\Framework\App\Config\ScopeConfigInterface
-    */
-    protected $scopeConfig;
-
-    /**
-    * @var \Magento\Store\Model\StoreManagerInterface
-    */
-    protected $storeManager;
-
-    /**
-    * @var Feedaty\Badge\Helper\Data
-    */
-    protected $feedatyHelper;
-
-    /**
-    * @var \Magento\Framework\ObjectManagerInterface
-    */
-    protected $objectManager;
-
-    /**
-     * @var Json
-     */
-    protected $_json;
 
     /**
      * @var ConfigRules
@@ -49,93 +26,134 @@ class WebService
     private $_logger;
 
     /**
-     * WebService constructor.
-     * @param ScopeConfigInterface $scopeConfig
-     * @param StoreManagerInterface $storeManager
-     * @param FeedatyHelper $feedatyHelper
-     * @param Curl $curl
-     * @param ObjectManagerInterface $objectmanager
-     * @param Json $json
+     * @var CurlFactory
+     */
+    private $curlFactory;
+
+    /**
+     * @var CacheInterface
+     */
+    private $cache;
+
+    /**
+     * @var Resolver
+     */
+    private $resolver;
+
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+    /**
+     * @var ProductMetadataInterface
+     */
+    private $productMetadata;
+    /**
+     * @var ModuleListInterface
+     */
+    private $moduleList;
+    /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * @param ConfigRules $configRules
      * @param LoggerInterface $logger
+     * @param CurlFactory $curlFactory
+     * @param CacheInterface $cache
+     * @param Resolver $resolver
+     * @param SerializerInterface $serializer
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        StoreManagerInterface $storeManager,
-        FeedatyHelper $feedatyHelper,
-        Curl $curl,
-        ObjectManagerInterface $objectmanager,
-        Json $json,
         ConfigRules $configRules,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CurlFactory $curlFactory,
+        CacheInterface $cache,
+        Resolver $resolver,
+        SerializerInterface $serializer,
+        ProductMetadataInterface $productMetadata,
+        ModuleListInterface $moduleList,
+        StoreManagerInterface $storeManager
         )
     {
-        $this->_scopeConfig = $scopeConfig;
-        $this->_storeManager = $storeManager;
-        $this->_feedatyHelper = $feedatyHelper;
-        $this->_curl = $curl;
-        $this->_objectManager = $objectmanager;
-        $this->_curl->setOption(CURLOPT_FOLLOWLOCATION, 1);
-        $this->_curl->setOption(CURLOPT_RETURNTRANSFER, 1);
-        $this->_curl->setOption(CURLOPT_VERBOSE, false);
-        $this->_json = $json;
         $this->_configRules = $configRules;
         $this->_logger = $logger;
-
-        $timeout = $this->_scopeConfig->getValue(
-            'feedaty_global/timeout_connection/timeout',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
-        $timeout = $timeout == null ? "1000" : $timeout;
-
-        $this->_curl->setOption(CURLOPT_CONNECTTIMEOUT_MS, $timeout);
-        $this->_curl->setOption(CURLOPT_TIMEOUT_MS, $timeout);
+        $this->curlFactory = $curlFactory;
+        $this->cache = $cache;
+        $this->resolver = $resolver;
+        $this->serializer = $serializer;
+        $this->productMetadata = $productMetadata;
+        $this->moduleList = $moduleList;
+        $this->storeManager = $storeManager;
     }
 
 
-    /**
-     * @param $result
-     * @return array|bool|float|int|mixed|string|null
+    /*
+     * JSON encode
      */
-    public function unserializeJson($result)
+    public function jsonEncode($data)
     {
-        $jsonDecode = $this->_json->unserialize($result);
-
-        return $jsonDecode;
+        return $this->serializer->serialize($data);
     }
+
+    /*
+     * JSON decode
+     */
+    public function jsonDecode($string)
+    {
+        return $this->serializer->unserialize($string);
+    }
+
     /**
-    * Function getReqToken - get the request token
-    *
-    * @return $response
-    *
-    */
-    private function getReqToken(){
-
+     * @return array
+     */
+    private function getReqToken()
+    {
         $url = "http://api.feedaty.com/OAuth/RequestToken";
-        $this->_curl->addHeader('Content-Type','application/x-www-form-urlencoded');
-        $this->_curl->get($url);
-
-        $response = json_decode($this->_curl->getBody());
+        try {
+            $curl = $this->curlFactory->create();
+            $curl->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+            $curl->setTimeout(1000);
+            $curl->get($url);
+            $response = $this->jsonDecode($curl->getBody());
+        } catch (\Exception $exception) {
+            $response = [];
+            $this->_logger->critical('Feedaty | Error cannot get Request Token: '.$exception);
+        }
 
         return $response;
     }
 
+
     /**
-    * Function serializeData - serialize data to send
-    *
-    * @param $fields
-    *
-    * @return $dati
-    */
-    private function serializeData($fields){
-        $data = '';
-        foreach($fields as $k => $v){
-            $data .= $k . '=' . urlencode($v) . '&';
+     * Send Order
+     * @param $data
+     * @return array|bool|float|int|string|null
+     */
+    public function sendOrder($data) {
+
+        $url = 'http://api.feedaty.com/Orders/Insert';
+
+        $token = $this->getReqToken();
+        $accessToken = $this->getAccessToken($token);
+        $this->_logger->info('Feedaty | START Cronjob SendOrder');
+        try {
+            $curl = $this->curlFactory->create();
+            $curl->addHeader('Content-Type', 'application/json');
+            $curl->addHeader( 'Authorization', 'Oauth '. $accessToken['AccessToken']);
+            $curl->setTimeout(1000);
+            $curl->post($url,$this->jsonEncode($data));
+            $response = $this->jsonDecode($curl->getBody());
+        } catch (\Exception $exception) {
+            $response = [];
+            $this->_logger->critical('Feedaty | Error cannot send order to Feedaty API: '.$exception);
         }
-        $data = rtrim($data, '&');
-        return $data;
+
+        return $response;
+
     }
+
 
     /**
     * Function getAccessToken - get the access token
@@ -144,23 +162,33 @@ class WebService
     *
     * @return $response - the access token
     */
-    private function getAccessToken($token,$merchant,$secret) {
+    private function getAccessToken($token) {
+
+        $merchant = $this->_configRules->getFeedatyCode();
+        $secret = $this->_configRules->getFeedatySecret();
 
         $encripted_code = $this->encryptToken($token,$merchant,$secret);
 
         $url = "http://api.feedaty.com/OAuth/AccessToken";
-        $this->_curl->addHeader("Content-Type","application/x-www-form-urlencoded");
-        $this->_curl->addHeader("Authorization", "Basic " . $encripted_code);
-        $this->_curl->addHeader("User-Agent","Mage2");
+        try {
+            $curl = $this->curlFactory->create();
+            $curl->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+            $curl->addHeader( 'Authorization', 'Basic ' . $encripted_code);
+            $curl->addHeader( 'User-Agent', 'Mage2');
 
-        $fields = [
-            'oauth_token' => $token->RequestToken,
-            'grant_type'=>'authorization'
-        ];
+            $data = [
+                'oauth_token' => $token['RequestToken'],
+                'grant_type'=>'authorization'
+            ];
+            $curl->post($url,$data);
 
-        $this->_curl->post($url,$fields);
 
-        $response = $this->_curl->getBody();
+            $response = $this->jsonDecode($curl->getBody());
+
+        } catch (\Exception $exception) {
+            $response = [];
+            $this->_logger->critical('Feedaty | Error cannot get Access Token: '.$exception);
+        }
 
         return $response;
     }
@@ -175,305 +203,249 @@ class WebService
     * @return $base64_sha_token - the encrypted token
     */
     private function encryptToken($token, $merchant, $secret){
-        $sha_token = sha1($token->RequestToken.$secret);
+        $sha_token = sha1($token['RequestToken'].$secret);
         $base64_sha_token = base64_encode($merchant.":".$sha_token);
         return $base64_sha_token;
     }
 
-    /**
-    * Function retriveInformationsProduct
-    *
-    * @param int $id
-    *
-    */
-    public function retriveInformationsProduct($feedaty_code, $id) {
-
-        $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
-
-        $timeout = $this->_scopeConfig->getValue(
-            'feedaty_global/timeout_widgets/timeout',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
-        $cache_key = "feedaty_product_tab_".$feedaty_code . "PID=" .$id;
-
-        $content = $cache->load($cache_key);
-
-        if (!$content || strlen($content) == 0 || $content === "null")
-        {
-            $ch = curl_init();
-
-            $resolver = $this->_objectManager->get('Magento\Framework\Locale\Resolver');
-
-            $url = 'http://widget.zoorate.com/go.php?function=feed&action=ws&task=product&merchant_code='.$feedaty_code.'&ProductID='.$id.'&language='.$resolver->getLocale();
-
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-            $content = trim(curl_exec($ch));
-            curl_close($ch);
-
-            if (strlen($content) > 0)
-            {
-                // 24 hours of cache
-                $cache->save($content, $cache_key, array("feedaty_cache"), 24*60*60);
-            }
-        }
-
-        $data = json_decode($content, true);
-
-        return $data;
-    }
 
     /**
-     * @param $productId
-     * @return mixed|string|null
-     * @todo : complete function and use to save data in db
+     * @param int $row
+     * @param int $count
+     * @return mixed|string
      */
-    public function getProductReviews($productId){
-        return $this->getAllReviews('?retrieve=onlyproductreviews&sku='.$productId);
+    public function getProductReviewsPagination($row = 0, $count = 50){
+        $allReviews =  $this->getAllReviews('?retrieve=onlyproductreviews&row='.$row.'&count='.$count);
+        return $allReviews['Reviews'];
+    }
+
+
+    /**
+     * @param int $row
+     * @param int $count
+     * @return mixed
+     */
+    public function getRemovedReviews($row = 0, $count = 50){
+        $allReviews =  $this->getAllRemovedReviews('?row='.$row.'&count='.$count);
+        return $allReviews['Reviews'];
     }
 
     /**
+     * @param int $row
+     * @param int $count
+     * @return mixed
+     */
+    public function getMediatedReviews($row = 0, $count = 50){
+        $allReviews =  $this->getAllMediatedReviews('?row='.$row.'&count='.$count);
+        return $allReviews['Reviews'];
+
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function getTotalProductReviewsCount()
+    {
+        $allProductReviews = $this->getAllReviews('?retrieve=onlyproductreviews&row=0&count=1');
+        $totalResults = $allProductReviews['TotalProductReviews'];
+
+        return $totalResults;
+    }
+
+    /**
+     * Get Removed Reviews Count
+     * @return mixed
+     */
+    public function getTotalProductRemovedReviewsCount()
+    {
+        $allProductReviews = $this->getAllRemovedReviews('?row=0&count=1');
+        $totalResults = $allProductReviews['TotalResults'];
+
+        return $totalResults;
+    }
+
+    /**
+     * Get Mediated Reviews Count
+     * @return mixed
+     */
+    public function getTotalProductMediatedReviewsCount()
+    {
+        $allProductReviews = $this->getAllMediatedReviews('?row=0&count=1');
+        $totalResults = $allProductReviews['TotalResults'];
+
+        return $totalResults;
+    }
+
+    /**
+     * Get All Removed Reviews
      * @param string $params
-     * @return mixed|string|null
-     * @todo : complete function and use to save data in db
+     * @return mixed|null
+     */
+    public function getAllRemovedReviews($params = '')
+    {
+        $url = 'http://api.feedaty.com/Reviews/Removed'.$params;
+        return $this->getReviewsData($url);
+    }
+
+    /**
+     * Get All Mediated Reviews
+     * @param string $params
+     * @return mixed|null
+     */
+    public function getAllMediatedReviews($params = '')
+    {
+        $url = 'http://api.feedaty.com/Reviews/Mediated'.$params;
+        $mediated = $this->getReviewsData($url);
+        return $mediated;
+    }
+
+    /**
+     * Get all reviews
+     * @param string $params
+     * @return mixed|null
      */
     public function getAllReviews($params = '')
     {
-        $merchant = $this->_configRules->getFeedatyCode();
-        $secret = $this->_configRules->getFeedatySecret();
         $url = 'http://api.feedaty.com/Reviews/Get'.$params;
+         return $this->getReviewsData($url);
+    }
 
+
+    /**
+     * Get Reviews Data
+     * @param $url
+     * @return array|mixed|null
+     */
+    public function getReviewsData($url)
+    {
         $token = '';
+        $token = $this->getReqToken();
+        if ($token != '') {
+            $accessToken = $this->getAccessToken($token);
+            $reviews = [];
+            try {
+                $curl = $this->curlFactory->create();
+                $curl->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+                $curl->addHeader( 'Authorization', 'Oauth '. $accessToken['AccessToken']);
+                $curl->setTimeout(1000);
+                $curl->get($url);
+                $result = $curl->getBody();
 
-        try {
-            $token = $this->getReqToken();
-            if ($token != '') {
-                $accessToken =json_decode($this->getAccessToken($token, $merchant, $secret));
+                $data = $this->jsonDecode($result);
+                $reviews = $data['Data'];
 
-                $timeout = $this->_scopeConfig->getValue(
-                    'feedaty_global/timeout_connection/timeout',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                );
 
-                $this->_curl->addHeader("Content-Type", "application/x-www-form-urlencoded");
-                $this->_curl->addHeader("Authorization", 'Oauth '.$accessToken->AccessToken);
-                $this->_curl->setTimeout($timeout);
-                try {
-                    $this->_curl->get($url);
-                } catch (\Exception $e) {
-                    $this->_logger->critical('Feedaty log: '. $e->getMessage());
-                }
-
-                // output of curl request
-                $result = $this->_curl->getBody();
-
-                $data = $this->unserializeJson($result);
-
-                $reviews = $data['Data']['Reviews'];
-
-                return $reviews;
+            } catch (\Exception $e) {
+                $this->_logger->critical('Feedaty | Error getting Reviews Data: '. $e->getMessage());
             }
-        } catch (\Exception $e) {
-            $this->_logger->critical('Feedaty log: '. $e->getMessage());
+
+            return $reviews;
         }
 
         return null;
     }
-    /**
-    * Function send_order
-    *
-    * @param object $data
-    *
-    */
-    public function send_order($merchant, $secret, $data) {
-
-        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-
-        $timeout = $this->_scopeConfig->getValue(
-            'feedaty_global/timeout_orders/timeout',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
-        $ch = curl_init();
-
-        $url = 'http://api.feedaty.com/Orders/Insert';
-
-        $token = $this->getReqToken();
-
-        $accessToken =json_decode($this->getAccessToken($token, $merchant, $secret));
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-
-        curl_setopt($ch, CURLOPT_POST, 1);
-
-        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
-
-        curl_setopt($ch, CURLOPT_HTTPHEADER,['Content-Type: application/json', 'Authorization: Oauth '.$accessToken->AccessToken]);
-
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-
-        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-
-        $content = trim( curl_exec($ch) );
-
-        $fdDebugEnabled = $this->_scopeConfig->getValue( 'feedaty_global/debug/debug_enabled', $store_scope );
-
-        if($fdDebugEnabled != 0) {
-
-            $message = $data;
-            $this->_feedatyHelper->feedatyDebug($message, "FEEDATY DATA");
-
-            $message = $content;
-            $this->_feedatyHelper->feedatyDebug($message, "FEEDATY RESPONSE");
-
-            $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
-            $this->_feedatyHelper->feedatyDebug($message, "CURL HEADER INFO");
-
-            $message  = curl_getinfo($ch,CURLINFO_HEADER_OUT);
-            $this->_feedatyHelper->feedatyDebug($message, "CURL INFO");
-
-            if(curl_errno($ch))
-                $this->_feedatyHelper->feedatyDebug(curl_error($ch), "CURL ERROR");
-
-        }
-
-        curl_close($ch);
-
-        return 1 ;
-
-    }
 
 
     /**
-    * Function _get_FeedatyData
-    *
-    * @return $data
-    */
-    public function getFeedatyData($feedaty_code) {
+     * Get Feedaty data
+     * @param $feedaty_code
+     * @return array|bool|float|int|string|null
+     */
+    public function getFeedatyData($feedaty_code)
+    {
 
-        $cache = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
+        $string = "FeedatyData" . $feedaty_code . $this->resolver->getLocale();
 
-        $resolver = $this->_objectManager->get('Magento\Framework\Locale\Resolver');
+        $content = $this->cache->load( $string );
 
-        $timeout = $this->_scopeConfig->getValue(
-            'feedaty_global/timeout_widgets/timeout',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
-        $string = "FeedatyData" . $feedaty_code . $resolver->getLocale();
-
-        $content = $cache->load( $string );
+        $data = [];
 
         if ( !$content || strlen($content) == 0 || $content === "null" )
         {
-            $ch = curl_init();
+            $url = 'https://widget.feedaty.com/?action=widget_list&style_ver=2021&merchant='.$feedaty_code;
 
-            $url = 'http://widget.zoorate.com/go.php?function=feed_v6&action=widget_list&merchant_code='.$feedaty_code;
+            $arrContextOptions=array(
+                "ssl"=>array(
+                    "verify_peer"=>false,
+                    "verify_peer_name"=>false,
+                ),
+            );
 
-            curl_setopt($ch, CURLOPT_URL, $url);
+            $content = file_get_contents( $url, false, stream_context_create($arrContextOptions));
 
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-
-            $content = trim(curl_exec($ch));
-
-            curl_close($ch);
-
-            $cache->save($content, $string, array("feedaty_cache"), 24*60*60); // 24 hours of cache
+            $this->cache->save($content, $string, array("feedaty_cache"), 24*60*60); // 24 hours of cache
 
         }
-
-        $data = json_decode($content, true);
+        $data = $this->jsonDecode($content);
 
         return $data;
 
     }
 
 
-    public function getRatings( $merchant, $sku = "null" , $scope = "product" ) {
+    /**
+     * @return string
+     * Get Magento Edition and Version
+     */
+    public function getPlatform()
+    {
+        $platform = $this->productMetadata->getName() . ' ' .  $this->productMetadata->getEdition() . ' ' .  $this->productMetadata->getVersion();
+        return $platform;
+    }
 
-        $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
 
-        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $store_scope);
+    public function getModuleVersion()
+    {
+        return $this->moduleList->getOne('Feedaty_Badge')['setup_version'];
+    }
 
-        $timeout = $this->_scopeConfig->getValue('feedaty_global/timeout_microdata/timeout', $store_scope );
 
-        $cache_interface = $this->_objectManager->get('Magento\Framework\App\CacheInterface');
+    public function getBaseUrl()
+    {
+        return $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+    }
 
-        $cache_key = "feedaty_ratings_". $merchant . "_" . $sku;
+    public function getStoreName()
+    {
+        return $this->storeManager->getStore()->getName();
+    }
 
-        $content = json_decode( $cache_interface->load( $cache_key ), true);
+    public function fdSendInstallationInfo()
+    {
 
-        if ( !$content['data'] || $content['data'] == null )
-        {
+        /* Platform (obviously Magento) and version */
+        $fdata['keyValuePairs'][] = array('Key' => 'Platform', 'Value' => $this->getPlatform());
 
-            $url = 'https://widget.zoorate.com/go.php?function=feed_v6&action=ratings'.
-            '&scope=' . $scope .
-            '&sku=' . $sku .
-            '&merchant=' . $merchant .
-            '&lang=null' ;
+        /* Plugin version */
+        $fdata['keyValuePairs'][] = array('Key' => 'Version', 'Value' => $this->getModuleVersion());
 
-            $header = [ 'Content-Type: text/html','User-Agent: Mage2' ];
+        /* Base store url */
+        $fdata['keyValuePairs'][] = array('Key' => 'Url', 'Value' => $this->getBaseUrl());
 
-            $ch = curl_init();
+        /* Php version */
+        $fdata['keyValuePairs'][] = array('Key' => 'Php Version', 'Value' => phpversion());
 
-            curl_setopt($ch, CURLOPT_URL, $url);
+        /* Store name */
+        $fdata['keyValuePairs'][] = array('Key' => 'Name', 'Value' => $this->getStoreName());
 
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        /* Current server date */
+        $fdata['keyValuePairs'][] = array('Key' => 'Date', 'Value' => date('c'));
 
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        /* Feedaty Merchant code */
+        $fdata['merchantCode'] = $this->_configRules->getFeedatyCode();
 
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
-
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, $timeout);
-
-            curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout);
-
-            $content = json_decode( curl_exec($ch), true );
-
-            $http_resp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            curl_close($ch);
-
-            if ($content != null && $http_resp == "200")
-            {
-                // 6 hours of cache
-                $cache_interface->save(
-
-                    json_encode($content ,true),
-                    $cache_key,
-                    array("feedaty_cache"),
-                    24*60*60
-
-                );
-            }
-            //debug call
-
-            if($fdDebugEnabled != 0) {
-
-                $message = "Rating API response:  ".$http_resp." http code";
-                $this->_feedatyHelper->feedatyDebug($message, "API RATINGS RESPONSE INFO");
-
-            }
+        try {
+            $url = 'http://www.zoorate.com/ws/feedatyapi.svc/SetPluginKeyValue';
+            $curl = $this->curlFactory->create();
+            $curl->addHeader('Content-Type', 'application/json');
+            $curl->setTimeout(1000);
+            $curl->post($url, $this->jsonEncode($fdata));
+        } catch (\Exception $e) {
+            $this->_logger->critical('Feedaty | Error sending Module Information Data: '. $e->getMessage());
         }
-
-        return $content['data'];
 
     }
 
+
+
 }
-/* TODO:
-
--Implement magento curl client
--Implement new API for product page reviews list
--Implement Carousel Section
--Implement Popup Section
-
-*/

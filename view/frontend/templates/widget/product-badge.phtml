@@ -1,0 +1,58 @@
+<?php
+/* @var $block Feedaty\Badge\Block\Widget\ProductBadge */
+
+?>
+
+<?php
+
+$zoorate_env = "widget.zoorate.com";
+/*
+ * Merchant Code
+ */
+$merchant = $block->getFeedatyCode();
+
+$dataObject = $block->getFeedatyData($merchant);
+
+$badge_style = $block->getData('style');
+
+if ($badge_style == 'product') {
+    $variant = $block->getData('variant_product');
+} elseif ($badge_style == 'carouselproduct') {
+    $variant = $block->getData('variant_carouselproduct');
+} else {
+    $variant = $block->getData('variant_product_tab');
+}
+
+$rvlang = "all";
+
+$guilang = "all";
+
+$data = $dataObject[$badge_style]['variants'];
+
+$product = $block->getCurrentProduct();
+
+if (!empty($product)) {
+
+    $productId = $product->getId();
+
+    if (count($data) > 0) {
+        $ver = $block->getExtensionVersion();
+
+        if (array_key_exists($variant, $data)) {
+            $widget = $data[$variant];
+            $name = $widget["name"];
+
+            $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
+            $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
+            $widget['html'] = str_replace("INSERT_SKU", $productId, $widget['html']);
+
+            $element = htmlspecialchars_decode($widget["html"]);
+
+            echo $element;
+
+        }
+    }
+}
+
+
+?>

@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+	<group id="default">
+		<job instance="Feedaty\Badge\Cron\Reviews" method="execute" name="feedaty_badge_cron_reviews" >
+			<schedule>*/5 * * * *</schedule>
+		</job>
+        <job instance="Feedaty\Badge\Cron\Orders" method="execute" name="feedaty_badge_cron_orders" >
+            <schedule>*/30 * * * *</schedule>
+        </job>
+	</group>
+</config>

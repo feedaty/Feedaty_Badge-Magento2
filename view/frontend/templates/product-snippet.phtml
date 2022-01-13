@@ -28,25 +28,20 @@ $mediaUrl = $this->getMediaUrl();
  */
 if ($product !== null) {
 
-    $product_id = $product->getId();
-
-    /**
-     * Retrive Product Infomation
-     */
-    $toview['data_review'] = $block->retriveInformationsProduct($merchant, $product_id);
-
-}
-?>
-
-<?php if (!empty($toview['data_review']['Feedbacks'])) : ?>
-
-
-    <?php
+    $productId = $product->getId();
 
     /**
      * Product Reviews data
      */
-    $reviews = $toview['data_review']['Feedbacks'];
+    $reviews = $block->getProductReviews($productId);
+
+}
+?>
+
+<?php if (!empty($reviews->getData())) : ?>
+
+
+    <?php
 
     /**
      * Product name
@@ -59,10 +54,9 @@ if ($product !== null) {
     $productUrl = $block->getProductUrl();
 
     /**
-     * Product URL
+     * Product Stock
      */
     $productIsSalable = $block->getProductIsSalable() === true ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
-
 
     /**
      * Product Currency Code
@@ -79,53 +73,68 @@ if ($product !== null) {
      */
     $productSku = $block->getProductSku();
 
+
     /**
      * Product Desc
      */
-    $productDescription = $block->getProductDescription();
+    $productDescription = strip_tags($block->getProductDescription());
 
     /**
      * Merchant Code
      */
-    $merchantName = $toview['data_review']['MerchantName'];
+    $merchantName = $block->getStoreName();
+
 
     $reviewsJson = array();
 
 
     /**
-     * Get all product reviews
+     * Get all reviews
      */
     foreach ($reviews as $item) {
 
         /**
          * Product rating
          */
-        $ratingValue = $item['ProductRating'];
+        $countRatings = count($item->getRatingVotes()) > 0 ? count($item->getRatingVotes()) : 1;
+        $allRatings = 0;
+        foreach ($item->getRatingVotes() as $vote) {
+            $allRatings = $allRatings + $vote->getPercent();
+        }
+        $allRatingsAvg = $allRatings / $countRatings;
+
+
+        $itemRatingValue =  $allRatingsAvg.'%';
+
         /**
          * Review Desc Details
          */
-        $productReview = $item['ProductReview'];
+        $itemReview = $item->getDetail();
 
         /**
          * Review Date
          */
-        $productReviewDate = $item['Recorded'];
+        $itemReviewDate = date("Y-m-d", strtotime($item->getCreatedAt()));
 
+        /**
+         * Review Customer Name
+         */
+        $itemNickname = $item->getNickname();
 
         $reviewsJson[] =
             array(
                 "@type" => "Review",
                 "reviewRating" => [
                     "@type" => "Rating",
-                    "ratingValue" => "$ratingValue"
+                    "ratingValue" => "$itemRatingValue"
                 ],
                 "name" => "$productName",
-                "datePublished" => "$productReviewDate",
+                "datePublished" => "$itemReviewDate",
                 "author" => [
                     "@type" => "Organization",
-                    "name" => "Feedaty"
+                    "name" => "$itemNickname"
                 ],
-                "reviewBody" => "$productReview",
+                "reviewBody" => "$itemReview",
                 "publisher" => [
                     "@type" => "Organization",
                     "name" => "$merchantName"
@@ -136,13 +145,16 @@ if ($product !== null) {
     /**
      * Rating Value
      */
-    $ratingValue = $toview['data_review']['Product']['AvgRating'];
+    $ratingValue = $block->getRatingSummary($product).'%';
 
 
     /**
      * Total product feedback
      */
-    $ratingsCount = $toview['data_review']['Product']['RatingsCount'];
+    $ratingsCount = $reviews->count();
+
+    $reviewCount = $reviews->count();
+
 
     /**
      * Get Aggregate Rating and Product info
@@ -166,7 +178,7 @@ if ($product !== null) {
             "ratingValue" => $ratingValue,
             "ratingCount" => $ratingsCount
         ],
-        "reviewCount" => $toview['data_review']['TotalFeedbacks'],
+        "reviewCount" => $reviewCount,
         "review" => $reviewsJson
     );
 

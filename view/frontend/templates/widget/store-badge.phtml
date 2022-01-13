@@ -1,0 +1,46 @@
+<?php
+/* @var $block Feedaty\Badge\Block\Widget\StoreBadge */
+?>
+
+<?php
+
+$zoorate_env = "widget.zoorate.com";
+/*
+ * Merchant Code
+ */
+$merchant = $block->getFeedatyCode();
+
+$dataObject = $block->getFeedatyData($merchant);
+
+
+$badge_style = $block->getData('style');
+if ($badge_style == 'merchant') {
+    $variant = $block->getData('variant_merchant');
+} else {
+    $variant = $block->getData('variant_carousel');
+}
+
+$rvlang = "all";
+$guilang = "all";
+
+$data = $dataObject[$badge_style]['variants'];
+
+if (count($data) > 0) {
+    $ver = $block->getExtensionVersion();
+    if (array_key_exists($variant, $data)) {
+        $widget = $data[$variant];
+
+        $name = $widget["name"];
+
+        $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
+
+        $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
+
+        $element = htmlspecialchars_decode($widget["html"]);
+
+        echo $element;
+
+    }
+}
+
+?>

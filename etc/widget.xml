@@ -4,17 +4,20 @@
         <label>Feedaty Store Badge</label>
         <description>Show Feedaty Store Badge</description>
         <parameters>
-            <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleStore" required="true" sort_order="20">
-                <label translate="true">Style</label>
+            <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StoreBadgeStyle" required="true" sort_order="20">
+                <label translate="true">Widget Style</label>
             </parameter>
-            <parameter name="variant" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Variants" required="true" sort_order="30">
-                <label translate="true">Variants</label>
+            <parameter name="variant_merchant" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleStore" required="true" sort_order="50">
+                <label translate="true">Merchant Widget Variant</label>
+                <depends>
+                    <parameter name="style" value="merchant" />
+                </depends>
             </parameter>
-            <parameter name="rvlang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="40">
-                <label translate="true">Language Filter</label>
-            </parameter>
-            <parameter name="guilang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="50">
-                <label translate="true">Widget Language</label>
+            <parameter name="variant_carousel" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleStoreCarousel" required="true" sort_order="50">
+                <label translate="true">Carousel Widget Variant</label>
+                <depends>
+                    <parameter name="style" value="carousel" />
+                </depends>
             </parameter>
         </parameters>
     </widget>
@@ -22,17 +25,26 @@
         <label>Feedaty Product Badge</label>
         <description>Show Feedaty Product Badge</description>
         <parameters>
-            <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProduct" required="true" sort_order="20">
-                <label translate="true">Style</label>
+            <parameter name="style" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\ProductBadgeStyle" required="true" sort_order="20">
+                <label translate="true">Widget Style</label>
             </parameter>
-            <parameter name="variant" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\ProdVariants" required="true" sort_order="30">
-                <label translate="true">Variants</label>
+            <parameter name="variant_product" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProduct" required="true" sort_order="50">
+                <label translate="true">Product Widget Variant</label>
+                <depends>
+                    <parameter name="style" value="product" />
+                </depends>
             </parameter>
-            <parameter name="rvlang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="40">
-                <label translate="true">Language Filter</label>
+            <parameter name="variant_carouselproduct" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProductCarousel" required="true" sort_order="50">
+                <label translate="true">Product Carousel Badge Style</label>
+                <depends>
+                    <parameter name="style" value="carouselproduct" />
+                </depends>
             </parameter>
-            <parameter name="guilang" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\Languages" required="true" sort_order="50">
-                <label translate="true">Widget Language</label>
+            <parameter name="variant_product_tab" xsi:type="select" visible="true" source_model="Feedaty\Badge\Model\Config\Source\StyleProductTab" required="true" sort_order="50">
+                <label translate="true">Product Tab Badge Style</label>
+                <depends>
+                    <parameter name="style" value="product_tab" />
+                </depends>
             </parameter>
         </parameters>
     </widget>
