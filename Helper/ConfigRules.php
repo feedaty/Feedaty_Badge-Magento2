@@ -4,7 +4,7 @@ namespace Feedaty\Badge\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Store\Model\ScopeInterface;
-use \Feedaty\Badge\Helper\ConfigSetting;
+use Feedaty\Badge\Helper\ConfigSetting;
 
 class ConfigRules extends AbstractHelper
 {
@@ -40,6 +40,10 @@ class ConfigRules extends AbstractHelper
         return $this->helperConfigSetting->getPreferencesConfig($data);
     }
 
+    public function getSendOrderConfig($data){
+        return $this->helperConfigSetting->getSendOrderConfig($data);
+    }
+
     /**
      * Get Feedaty Merch Code
      *
@@ -62,10 +66,32 @@ class ConfigRules extends AbstractHelper
         return $feedaty_code;
     }
 
+    /**
+     * @return array
+     */
     public function getCreateReviewEnabled() {
         $feedaty_code = $this->getPreferencesConfig('create_reviews_enabled');
 
         return $feedaty_code;
+    }
+
+    public function getReviewForceDefaultStore()
+    {
+        $force_store = $this->getPreferencesConfig('create_reviews_force_default_store');
+        return $force_store;
+    }
+
+    public function getReviewDefaultStore()
+    {
+        $default_store = $this->getPreferencesConfig('create_reviews_default_store');
+        return $default_store;
+    }
+
+
+    public function getSendOrderStatus()
+    {
+        $orderStatus = $this->getSendOrderConfig('sendorder');
+        return $orderStatus;
     }
 
 }

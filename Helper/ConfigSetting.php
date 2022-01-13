@@ -26,10 +26,22 @@ class ConfigSetting extends AbstractHelper
      * @param $code
      * @param null $storeId
      * @return mixed
+     * Get Admin Preferences Configurations
      */
 	public function getPreferencesConfig($code, $storeId = null)
 	{
 		return $this->getConfigValue(self::XML_PATH_FEEDATY .'feedaty_preferences/'. $code, $storeId);
 	}
+
+    /**
+     * @param $code
+     * @param null $storeId
+     * @return mixed
+     * Get Admin Send Order Configurations
+     */
+    public function getSendOrderConfig($code, $storeId = null)
+    {
+        return $this->getConfigValue(self::XML_PATH_FEEDATY .'feedaty_sendorder/'. $code, $storeId);
+    }
 
 }

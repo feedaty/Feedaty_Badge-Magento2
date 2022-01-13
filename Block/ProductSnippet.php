@@ -7,7 +7,8 @@ use Magento\Catalog\Helper\Data;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Directory\Model\CurrencyFactory;
+use Magento\Review\Model\ResourceModel\Review\CollectionFactory;
+use Magento\Review\Model\ReviewFactory;
 
 class ProductSnippet extends Template
 {
@@ -32,14 +33,13 @@ class ProductSnippet extends Template
     private $storeConfig;
 
     /**
-     * @var CurrencyFactory
+     * @var ReviewFactory
      */
-    private $currencyCode;
-
+    private $_reviewCollection;
     /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
+     * @var ReviewFactory
      */
-    private $jsonResultFactory;
+    private $reviewFactory;
 
     /**
      * ProductSnippet constructor.
@@ -49,29 +49,64 @@ class ProductSnippet extends Template
      * @param Data $catalogData
      */
     public function __construct(
-        Context $context,
-        WebService $webservice,
-        ConfigRules $configRules,
-        Data $catalogData,
-        StoreManagerInterface $storeConfig,
-        CurrencyFactory $currencyFactory
+        Context                 $context,
+        WebService              $webservice,
+        ConfigRules             $configRules,
+        Data                    $catalogData,
+        StoreManagerInterface   $storeConfig,
+        CollectionFactory       $reviewCollection,
+        ReviewFactory       $reviewFactory
+
     ) {
         $this->_configRules = $configRules;
         $this->_webservice = $webservice;
         $this->_catalogData = $catalogData;
         $this->storeConfig = $storeConfig;
-        $this->currencyCode = $currencyFactory->create();
         parent::__construct($context);
+        $this->_reviewCollection = $reviewCollection;
+        $this->reviewFactory = $reviewFactory;
     }
 
     /**
-     * @param $feedaty_code
-     * @param $id
-     * @return mixed
+     * @param $productId
+     * @return \Magento\Review\Model\ResourceModel\Review\Collection
      */
-    public function retriveInformationsProduct($feedaty_code, $id)
+    public function getProductReviews($productId)
     {
-        return $this->_webservice->retriveInformationsProduct($feedaty_code, $id);
+        $collection = $this->_reviewCollection->create()
+            ->addStoreFilter($this->getStoreId())
+            ->addFieldToSelect('*')
+            ->addStatusFilter(
+                \Magento\Review\Model\Review::STATUS_APPROVED
+            )->addEntityFilter(
+                'product',
+                $productId
+            )->setDateOrder()
+            ->addRateVotes();
+
+        return $collection;
+    }
+
+
+
+    /**
+     * Get store identifier
+     *
+     * @return  int
+     */
+    public function getStoreId()
+    {
+        return $this->_storeManager->getStore()->getId();
+    }
+
+    public function getRatingSummary($product)
+    {
+
+        $this->reviewFactory->create()->getEntitySummary($product, $this->getStoreId());
+
+        $ratingSummary = $product->getRatingSummary()->getRatingSummary();
+
+        return $ratingSummary;
     }
 
     /**
@@ -139,6 +174,8 @@ class ProductSnippet extends Template
         return $this->getProduct()->getSku();
     }
 
+
+
     /**
      * @return string
      */
@@ -171,8 +208,16 @@ class ProductSnippet extends Template
     public function getCurrencyCode()
     {
         $currencyCode = $this->storeConfig->getStore()->getCurrentCurrencyCode();
-       // $currency = $this->currencyCode->load($currencyCode);
-        //return $currency->getCurrencySymbol();
         return $currencyCode;
+    }
+
+    /**
+     * Get Store name
+     *
+     * @return string
+     */
+    public function getStoreName()
+    {
+        return $this->_storeManager->getStore()->getName();
     }
 }

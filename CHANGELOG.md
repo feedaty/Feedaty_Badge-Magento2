@@ -2,9 +2,25 @@
 
 #### RELASE NOTES
 
+
 ### V2.7.0
 
-- Add Feedaty Review Columns to review_detail table
+* Features:
+  * New Feedaty Badges integrated
+  * New Rich snippets for all reviews integrated
+  * New export orders function. Orders are now exported to Feedaty with cronjob
+  * Old Product Snippet has been removed
+  * New Product Badge Widget
+  * New Store Badge Widget
+  * Curl Factory Pattern
+  * Removed custom timeout
+  * Platform Information API
+  * Ability to import reviews into Magento native reviews
+
+* Fixed Bugs
+  * Fixed json serialize vulnerability
+  * Minor bug fix
+
 
 ### V2.6.7 05/09/2021
 - Fix Culture Code - Reviews are now requested in the correct store view language

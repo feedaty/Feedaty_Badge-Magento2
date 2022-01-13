@@ -84,6 +84,7 @@ class Reviews
      */
     public function execute()
     {
+
         /**
          *  IF IMPORT IS ENABLED
          */
@@ -121,7 +122,7 @@ class Reviews
              */
             $totalMediatedReviewCreatedCount = $this->_reviewsHelper->getAllFeedatyMediatedReviewCount();
 
-            $this->_logger->addInfo("START - Cronjob Feedaty | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount);
+            $this->_logger->addInfo("Feedaty | Cronjob Run | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount);
 
             /**
              * Get Last Review Created on Magento (on first run vill be null)
@@ -182,7 +183,7 @@ class Reviews
                     }
                 }
                 // General Cron Report on system.log
-                $this->_logger->addInfo("END - Cronjob Feedaty is executed | Get Feedaty Reviews  | date execution: " . date('Y-m-d H:i:s') . " -- Last Review Created " . print_r($lastReviewCreated, true) . " -- Review Date CreatedAt " . print_r($createdAt, true) . " -- Pagination " . $row);
+                $this->_logger->addInfo("Feedaty | END Cronjob | Get Feedaty Reviews  | date execution: " . date('Y-m-d H:i:s') );
             }
 
             /**
@@ -204,7 +205,7 @@ class Reviews
 
             if (!empty($feedatyProductReviewsMediated)) {
 
-                $this->_logger->addInfo("START MEDIATED - Cronjob Feedaty is executed | Disabled Feedaty Reviews ID | date execution: " . print_r($feedatyProductReviewsMediated,true));
+                $this->_logger->addInfo("Feedaty | START Mediated Reviews");
 
                 //Foreach Review
                 foreach ($feedatyProductReviewsMediated as $mediatedReview) {
@@ -268,7 +269,7 @@ class Reviews
             }
         }
         else{
-            $this->_logger->addInfo("Feedaty Cronjob is not enabled | date: ". date('Y-m-d H:i:s') );
+            $this->_logger->addInfo("Feedaty | Cronjob is not enabled. Configure it from admin panel | date: ". date('Y-m-d H:i:s') );
         }
 
     }
@@ -280,7 +281,6 @@ class Reviews
         $ratingCollection = $this->_reviewsHelper->getRatingCollection();
 
         foreach ($ratingCollection as $ratingItem){
-            $this->_logger->addInfo("RATING ITEM " . print_r($ratingItem,true));
 
             $reviewFinalData['ratings'][$ratingItem['rating_id']] = $rating;
         }
@@ -307,8 +307,6 @@ class Reviews
             ->save();
 
         foreach ($reviewFinalData['ratings']  as $ratingId => $ratingValue) {
-            $this->_logger->addInfo("RATING ID  " . $ratingId);
-            $this->_logger->addInfo("RATING OPTION ID  " . $ratingValue);
 
             $this->_ratingFactory->create()
                 ->setRatingId($ratingId)

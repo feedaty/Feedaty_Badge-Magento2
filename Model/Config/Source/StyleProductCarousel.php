@@ -5,7 +5,7 @@ namespace Feedaty\Badge\Model\Config\Source;
 use \Magento\Framework\Option\ArrayInterface;
 use Feedaty\Badge\Helper\WidgetHelper;
 
-class StyleStore implements ArrayInterface
+class StyleProductCarousel implements ArrayInterface
 {
 
     /**
@@ -26,6 +26,6 @@ class StyleStore implements ArrayInterface
      */
     public function toOptionArray()
     {
-        return $this->_widgetHelper->badgeData('merchant');
+        return $this->_widgetHelper->badgeData('carouselproduct');
     }
 }
