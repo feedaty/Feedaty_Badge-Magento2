@@ -431,8 +431,18 @@ class WebService
         /* Current server date */
         $fdata['keyValuePairs'][] = array('Key' => 'Date', 'Value' => date('c'));
 
+        /* Order Status to Export */
+        $fdata['keyValuePairs'][] = array('Key' => 'Status', 'Value' => $this->_configRules->getSendOrderStatus());
+
+        /* Import Reviews is enable */
+        $fdata['keyValuePairs'][] = array('Key' => 'ImportReviews', 'Value' => $this->_configRules->getCreateReviewEnabled());
+
+
+        $fdata['keyValuePairs'][] = array('Key' => 'SnippetEnabled', 'Value' => $this->_configRules->getSnippetEnabled());
+
         /* Feedaty Merchant code */
         $fdata['merchantCode'] = $this->_configRules->getFeedatyCode();
+
 
         try {
             $url = 'http://www.zoorate.com/ws/feedatyapi.svc/SetPluginKeyValue';
@@ -440,6 +450,7 @@ class WebService
             $curl->addHeader('Content-Type', 'application/json');
             $curl->setTimeout(1000);
             $curl->post($url, $this->jsonEncode($fdata));
+           // $this->_logger->info('Feedaty | Sending Module Information Data: '. print_r($fdata,true));
         } catch (\Exception $e) {
             $this->_logger->critical('Feedaty | Error sending Module Information Data: '. $e->getMessage());
         }

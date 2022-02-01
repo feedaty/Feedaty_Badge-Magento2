@@ -44,4 +44,10 @@ class ConfigSetting extends AbstractHelper
         return $this->getConfigValue(self::XML_PATH_FEEDATY .'feedaty_sendorder/'. $code, $storeId);
     }
 
+
+    public function getSnippetConfig($code, $storeId = null)
+    {
+        return $this->getConfigValue('feedaty_microdata_options/snippet_products/'. $code, $storeId);
+    }
+
 }
