@@ -44,6 +44,10 @@ class ConfigRules extends AbstractHelper
         return $this->helperConfigSetting->getSendOrderConfig($data);
     }
 
+    public function getSnippetConfig($data){
+        return $this->helperConfigSetting->getSnippetConfig($data);
+    }
+
     /**
      * Get Feedaty Merch Code
      *
@@ -92,6 +96,12 @@ class ConfigRules extends AbstractHelper
     {
         $orderStatus = $this->getSendOrderConfig('sendorder');
         return $orderStatus;
+    }
+
+    public function getSnippetEnabled()
+    {
+        $snippetEnabled = $this->getSnippetConfig('snippet_prod_enabled');
+        return $snippetEnabled;
     }
 
 }
