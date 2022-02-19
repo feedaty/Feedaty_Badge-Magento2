@@ -50,7 +50,7 @@ class Orders
 
 
         //Starter Log
-        $this->logger->addInfo("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
+        $this->logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
 
         $orders = $this->ordersHelper->getOrders();
 

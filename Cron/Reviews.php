@@ -122,7 +122,7 @@ class Reviews
              */
             $totalMediatedReviewCreatedCount = $this->_reviewsHelper->getAllFeedatyMediatedReviewCount();
 
-            $this->_logger->addInfo("Feedaty | Cronjob Run | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount);
+            $this->_logger->info("Feedaty | Cronjob Run | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount);
 
             /**
              * Get Last Review Created on Magento (on first run vill be null)
@@ -183,7 +183,7 @@ class Reviews
                     }
                 }
                 // General Cron Report on system.log
-                $this->_logger->addInfo("Feedaty | END Cronjob | Get Feedaty Reviews  | date execution: " . date('Y-m-d H:i:s') );
+                $this->_logger->info("Feedaty | END Cronjob | Get Feedaty Reviews  | date execution: " . date('Y-m-d H:i:s') );
             }
 
             /**
@@ -205,7 +205,7 @@ class Reviews
 
             if (!empty($feedatyProductReviewsMediated)) {
 
-                $this->_logger->addInfo("Feedaty | START Mediated Reviews");
+                $this->_logger->info("Feedaty | START Mediated Reviews");
 
                 //Foreach Review
                 foreach ($feedatyProductReviewsMediated as $mediatedReview) {
@@ -269,7 +269,7 @@ class Reviews
             }
         }
         else{
-            $this->_logger->addInfo("Feedaty | Cronjob is not enabled. Configure it from admin panel | date: ". date('Y-m-d H:i:s') );
+            $this->_logger->info("Feedaty | Cronjob is not enabled. Configure it from admin panel | date: ". date('Y-m-d H:i:s') );
         }
 
     }
