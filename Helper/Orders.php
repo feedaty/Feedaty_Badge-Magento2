@@ -200,8 +200,13 @@ class Orders extends AbstractHelper
     {
         $productThumbnailUrl = '';
         try {
-            $productThumbnail = $item->getProduct()->getImage();
-            $productThumbnailUrl = $item->getProduct()->getMediaConfig()->getMediaUrl($productThumbnail);
+            if ($item->getParentItem()) {
+                $product = $item->getParentItem()->getProduct();
+            } else {
+                $product = $item->getProduct();
+            }
+            $productThumbnail = $product->getImage();
+            $productThumbnailUrl = $product->getMediaConfig()->getMediaUrl($productThumbnail);
         } catch (\Exception $e) {
             $this->logger->critical('Feedaty | Error - Cannot get product thumbnail URL - '. $e->getMessage());
         }
