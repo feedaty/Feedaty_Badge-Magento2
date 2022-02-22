@@ -89,15 +89,23 @@ class Orders
 
                     $productThumbnailUrl = $this->ordersHelper->getProductThumbnailUrl($item);
 
+                    if ($item->getParentItem()) {
+                        $product = $item->getParentItem()->getProduct();
+                    } else {
+                        $product = $item->getProduct();
+                    }
+                    $productUrl = '';
+                    if($product){
+                        $productUrl = $product->getProductUrl();
+                    }
                     array_push($data[$i]['Products'],
                         [
                             'SKU' => $productId ,
-                            'URL' => $item->getProduct()->getProductUrl(),
+                            'URL' => $productUrl,
                             'ThumbnailURL' => $productThumbnailUrl,
                             'Name' => $item->getName()
                         ]
                     );
-
                 }
 
                 $i++;
