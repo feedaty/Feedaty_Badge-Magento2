@@ -140,7 +140,7 @@ class Orders extends AbstractHelper
             $criteria = $this->searchCriteriaBuilder
                   ->addFilter('status',$status,'eq')
                 ->addFilter('entity_id', $ordersNotified, 'nin')
-                ->setPageSize(500)
+                ->setPageSize(50)
                 ->setCurrentPage(1)
                 ->create();
             $orderResult = $this->orderRepository->getList($criteria);
@@ -205,8 +205,11 @@ class Orders extends AbstractHelper
             } else {
                 $product = $item->getProduct();
             }
-            $productThumbnail = $product->getImage();
-            $productThumbnailUrl = $product->getMediaConfig()->getMediaUrl($productThumbnail);
+            if($product){
+                $productThumbnail = $product->getImage();
+                $productThumbnailUrl = $product->getMediaConfig()->getMediaUrl($productThumbnail);
+            }
+
         } catch (\Exception $e) {
             $this->logger->critical('Feedaty | Error - Cannot get product thumbnail URL - '. $e->getMessage());
         }
