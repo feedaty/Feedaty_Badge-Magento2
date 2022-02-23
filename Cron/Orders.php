@@ -80,7 +80,6 @@ class Orders
                     'Culture' => $localeCode,
                     'Platform' => $this->ordersHelper->getPlatform(),
                     'Products' => []
-
                 ];
 
                 foreach ($items as $item){
@@ -114,10 +113,12 @@ class Orders
             $response = (array) $this->webService->sendOrder($data);
 
             if(!empty($response)){
-                foreach ($response['Data'] as $data){
-                    //if order Success or Duplicated set Feedaty Customer Notification true
-                    if($data['Status'] == '1' || $data['Status'] == '201'){
-                        $this->ordersHelper->setFeedatyCustomerNotified((int)$data['OrderID']);
+                if(isset($response['Data'])){
+                    foreach ($response['Data'] as $data){
+                        //if order Success or Duplicated set Feedaty Customer Notification true
+                        if($data['Status'] == '1' || $data['Status'] == '201'){
+                            $this->ordersHelper->setFeedatyCustomerNotified((int)$data['OrderID']);
+                        }
                     }
                 }
             }
