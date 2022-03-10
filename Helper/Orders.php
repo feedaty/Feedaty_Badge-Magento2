@@ -137,12 +137,18 @@ class Orders extends AbstractHelper
             $ordersNotified[] = 0;
         }
         try {
+            $to = date("Y-m-d h:i:s"); // current date
+            $range = strtotime('-1 hours', strtotime($to));
+            $from = date('Y-m-d h:i:s', $range); // 24 hours before
+
             $criteria = $this->searchCriteriaBuilder
-                  ->addFilter('status',$status,'eq')
+                ->addFilter('status', $status,'eq')
                 ->addFilter('entity_id', $ordersNotified, 'nin')
+                ->addFilter('updated_at', $from, 'gteq')
                 ->setPageSize(50)
                 ->setCurrentPage(1)
                 ->create();
+
             $orderResult = $this->orderRepository->getList($criteria);
 
             $orders = $orderResult->getItems();
