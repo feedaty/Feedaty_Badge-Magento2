@@ -107,6 +107,7 @@ class Orders
                     );
                 }
 
+                $this->ordersHelper->setFeedatyCustomerNotified($order->getEntityId());
                 $i++;
             }
 
@@ -117,7 +118,10 @@ class Orders
                     foreach ($response['Data'] as $data){
                         //if order Success or Duplicated set Feedaty Customer Notification true
                         if($data['Status'] == '1' || $data['Status'] == '201'){
-                            $this->ordersHelper->setFeedatyCustomerNotified((int)$data['OrderID']);
+                            $this->logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') );
+                        }
+                        else {
+                            $this->logger->critical("Feedaty | Order not sent: order ID  " .$order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') );
                         }
                     }
                 }
