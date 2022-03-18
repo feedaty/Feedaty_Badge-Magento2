@@ -131,12 +131,12 @@ class WebService
      * @param $data
      * @return array|bool|float|int|string|null
      */
-    public function sendOrder($data) {
+    public function sendOrder($data, $storeId) {
 
         $url = 'http://api.feedaty.com/Orders/Insert';
 
         $token = $this->getReqToken();
-        $accessToken = $this->getAccessToken($token);
+        $accessToken = $this->getAccessToken($token, $storeId);
         $this->_logger->info('Feedaty | START Cronjob SendOrder');
         try {
             $curl = $this->curlFactory->create();
@@ -162,10 +162,10 @@ class WebService
     *
     * @return $response - the access token
     */
-    private function getAccessToken($token) {
+    private function getAccessToken($token, $storeId = null) {
 
-        $merchant = $this->_configRules->getFeedatyCode();
-        $secret = $this->_configRules->getFeedatySecret();
+        $merchant = $this->_configRules->getFeedatyCode($storeId);
+        $secret = $this->_configRules->getFeedatySecret($storeId);
 
         $encripted_code = $this->encryptToken($token,$merchant,$secret);
 

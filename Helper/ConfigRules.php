@@ -36,12 +36,12 @@ class ConfigRules extends AbstractHelper
      * @param array $data
      * @return array
      */
-    public function getPreferencesConfig($data){
-        return $this->helperConfigSetting->getPreferencesConfig($data);
+    public function getPreferencesConfig($data, $storeId = null){
+        return $this->helperConfigSetting->getPreferencesConfig($data, $storeId);
     }
 
-    public function getSendOrderConfig($data){
-        return $this->helperConfigSetting->getSendOrderConfig($data);
+    public function getSendOrderConfig($data, $storeId){
+        return $this->helperConfigSetting->getSendOrderConfig($data, $storeId);
     }
 
     public function getSnippetConfig($data){
@@ -53,8 +53,8 @@ class ConfigRules extends AbstractHelper
      *
      * @return array
      */
-    public function getFeedatyCode() {
-        $feedaty_code = $this->getPreferencesConfig('feedaty_code');
+    public function getFeedatyCode($storeId = null) {
+        $feedaty_code = $this->getPreferencesConfig('feedaty_code', $storeId);
 
         return $feedaty_code;
      }
@@ -64,8 +64,8 @@ class ConfigRules extends AbstractHelper
      *
      * @return array
      */
-    public function getFeedatySecret() {
-        $feedaty_code = $this->getPreferencesConfig('feedaty_secret');
+    public function getFeedatySecret($storeId = null) {
+        $feedaty_code = $this->getPreferencesConfig('feedaty_secret', $storeId);
 
         return $feedaty_code;
     }
@@ -74,7 +74,7 @@ class ConfigRules extends AbstractHelper
      * @return array
      */
     public function getCreateReviewEnabled() {
-        $feedaty_code = $this->getPreferencesConfig('create_reviews_enabled');
+        $feedaty_code = $this->getPreferencesConfig('create_reviews_enabled', $storeId = null);
 
         return $feedaty_code;
     }
@@ -92,9 +92,9 @@ class ConfigRules extends AbstractHelper
     }
 
 
-    public function getSendOrderStatus()
+    public function getSendOrderStatus( $storeId = null)
     {
-        $orderStatus = $this->getSendOrderConfig('sendorder');
+        $orderStatus = $this->getSendOrderConfig('sendorder', $storeId);
         return $orderStatus;
     }
 
