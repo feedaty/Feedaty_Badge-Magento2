@@ -59,9 +59,8 @@ class Orders
         $this->logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
 
         /**
-         * TODO : create store view ids foreach - Get Stores
+         * Get stores
          */
-
         $storesIds = $this->dataHelper->getAllStoresIds();
 
         foreach ($storesIds as $storeId) {

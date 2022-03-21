@@ -40,7 +40,7 @@ class ConfigRules extends AbstractHelper
         return $this->helperConfigSetting->getPreferencesConfig($data, $storeId);
     }
 
-    public function getSendOrderConfig($data, $storeId){
+    public function getSendOrderConfig($data, $storeId = null){
         return $this->helperConfigSetting->getSendOrderConfig($data, $storeId);
     }
 
@@ -73,21 +73,21 @@ class ConfigRules extends AbstractHelper
     /**
      * @return array
      */
-    public function getCreateReviewEnabled() {
-        $feedaty_code = $this->getPreferencesConfig('create_reviews_enabled', $storeId = null);
+    public function getCreateReviewEnabled($storeId = null) {
+        $feedaty_code = $this->getPreferencesConfig('create_reviews_enabled', $storeId);
 
         return $feedaty_code;
     }
 
-    public function getReviewForceDefaultStore()
+    public function getReviewForceDefaultStore($storeId = null)
     {
-        $force_store = $this->getPreferencesConfig('create_reviews_force_default_store');
+        $force_store = $this->getPreferencesConfig('create_reviews_force_default_store', $storeId);
         return $force_store;
     }
 
-    public function getReviewDefaultStore()
+    public function getReviewDefaultStore($storeId = null)
     {
-        $default_store = $this->getPreferencesConfig('create_reviews_default_store');
+        $default_store = $this->getPreferencesConfig('create_reviews_default_store', $storeId);
         return $default_store;
     }
 
@@ -98,9 +98,9 @@ class ConfigRules extends AbstractHelper
         return $orderStatus;
     }
 
-    public function getSnippetEnabled()
+    public function getSnippetEnabled($storeId = null)
     {
-        $snippetEnabled = $this->getSnippetConfig('snippet_prod_enabled');
+        $snippetEnabled = $this->getSnippetConfig('snippet_prod_enabled', $storeId);
         return $snippetEnabled;
     }
 
