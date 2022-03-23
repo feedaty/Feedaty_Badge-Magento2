@@ -116,7 +116,7 @@ class Reviews
                 $totalFeedatyRemovedReviews = $this->_webService->getTotalProductRemovedReviewsCount($storeId);
 
                 /**
-                 * Get Feedaty Removed Reviews TotalResults Count
+                 * Get Feedaty Mediated Reviews TotalResults Count
                  */
                 $totalFeedatyMediatedReviews = $this->_webService->getTotalProductMediatedReviewsCount($storeId);
 
