@@ -128,23 +128,24 @@ class Orders extends AbstractHelper
     /**
      * @return array|\Magento\Sales\Api\Data\OrderInterface[]
      */
-    public function getOrders()
+    public function getOrders($storeId)
     {
         $orders = [];
-        $status = $this->getOrderstatus();
+        $status = $this->getOrderstatus($storeId);
         $ordersNotified = $this->getFeedatyOrdersNotified();
         if(empty($ordersNotified)){
             $ordersNotified[] = 0;
         }
         try {
             $to = date("Y-m-d h:i:s"); // current date
-            $range = strtotime('-1 hours', strtotime($to));
+            $range = strtotime('-100 hours', strtotime($to));
             $from = date('Y-m-d h:i:s', $range); // 24 hours before
 
             $criteria = $this->searchCriteriaBuilder
-                ->addFilter('status', $status,'eq')
-                ->addFilter('entity_id', $ordersNotified, 'nin')
                 ->addFilter('updated_at', $from, 'gteq')
+                ->addFilter('entity_id', $ordersNotified, 'nin')
+                ->addFilter('store_id', $storeId,'eq')
+                ->addFilter('status', $status,'eq')
                 ->setPageSize(50)
                 ->setCurrentPage(1)
                 ->create();
@@ -164,11 +165,11 @@ class Orders extends AbstractHelper
      * @return string
      * Get Order Status from Feedaty Configurations or set a default value
      */
-    public function getOrderstatus() : string
+    public function getOrderstatus($storeId) : string
     {
         $status = 'processing';
         try {
-            $status = $this->helperConfigRules->getSendOrderStatus();
+            $status = $this->helperConfigRules->getSendOrderStatus($storeId);
         } catch (\Exception $e) {
             $this->logger->critical('Feedaty | Error - Cannot find send order status configuration. Set order status complete as default value - '. $e->getMessage());
         }

@@ -131,12 +131,12 @@ class WebService
      * @param $data
      * @return array|bool|float|int|string|null
      */
-    public function sendOrder($data) {
+    public function sendOrder($data, $storeId) {
 
         $url = 'http://api.feedaty.com/Orders/Insert';
 
         $token = $this->getReqToken();
-        $accessToken = $this->getAccessToken($token);
+        $accessToken = $this->getAccessToken($token, $storeId);
         $this->_logger->info('Feedaty | START Cronjob SendOrder');
         try {
             $curl = $this->curlFactory->create();
@@ -162,10 +162,10 @@ class WebService
     *
     * @return $response - the access token
     */
-    private function getAccessToken($token) {
+    private function getAccessToken($token, $storeId = null) {
 
-        $merchant = $this->_configRules->getFeedatyCode();
-        $secret = $this->_configRules->getFeedatySecret();
+        $merchant = $this->_configRules->getFeedatyCode($storeId);
+        $secret = $this->_configRules->getFeedatySecret($storeId);
 
         $encripted_code = $this->encryptToken($token,$merchant,$secret);
 
@@ -214,8 +214,8 @@ class WebService
      * @param int $count
      * @return mixed|string
      */
-    public function getProductReviewsPagination($row = 0, $count = 50){
-        $allReviews =  $this->getAllReviews('?retrieve=onlyproductreviews&row='.$row.'&count='.$count);
+    public function getProductReviewsPagination($row = 0, $count = 50, $storeId){
+        $allReviews =  $this->getAllReviews('?retrieve=onlyproductreviews&row='.$row.'&count='.$count, $storeId);
         return $allReviews['Reviews'];
     }
 
@@ -225,8 +225,8 @@ class WebService
      * @param int $count
      * @return mixed
      */
-    public function getRemovedReviews($row = 0, $count = 50){
-        $allReviews =  $this->getAllRemovedReviews('?row='.$row.'&count='.$count);
+    public function getRemovedReviews($row = 0, $count = 50, $storeId){
+        $allReviews =  $this->getAllRemovedReviews('?row='.$row.'&count='.$count, $storeId);
         return $allReviews['Reviews'];
     }
 
@@ -235,8 +235,8 @@ class WebService
      * @param int $count
      * @return mixed
      */
-    public function getMediatedReviews($row = 0, $count = 50){
-        $allReviews =  $this->getAllMediatedReviews('?row='.$row.'&count='.$count);
+    public function getMediatedReviews($row = 0, $count = 50, $storeId){
+        $allReviews =  $this->getAllMediatedReviews('?row='.$row.'&count='.$count, $storeId);
         return $allReviews['Reviews'];
 
     }
@@ -244,9 +244,9 @@ class WebService
     /**
      * @return mixed|string
      */
-    public function getTotalProductReviewsCount()
+    public function getTotalProductReviewsCount($storeId)
     {
-        $allProductReviews = $this->getAllReviews('?retrieve=onlyproductreviews&row=0&count=1');
+        $allProductReviews = $this->getAllReviews('?retrieve=onlyproductreviews&row=0&count=1', $storeId);
         $totalResults = $allProductReviews['TotalProductReviews'];
 
         return $totalResults;
@@ -256,9 +256,9 @@ class WebService
      * Get Removed Reviews Count
      * @return mixed
      */
-    public function getTotalProductRemovedReviewsCount()
+    public function getTotalProductRemovedReviewsCount($storeId)
     {
-        $allProductReviews = $this->getAllRemovedReviews('?row=0&count=1');
+        $allProductReviews = $this->getAllRemovedReviews('?row=0&count=1', $storeId);
         $totalResults = $allProductReviews['TotalResults'];
 
         return $totalResults;
@@ -268,9 +268,9 @@ class WebService
      * Get Mediated Reviews Count
      * @return mixed
      */
-    public function getTotalProductMediatedReviewsCount()
+    public function getTotalProductMediatedReviewsCount($storeId)
     {
-        $allProductReviews = $this->getAllMediatedReviews('?row=0&count=1');
+        $allProductReviews = $this->getAllMediatedReviews('?row=0&count=1', $storeId);
         $totalResults = $allProductReviews['TotalResults'];
 
         return $totalResults;
@@ -281,10 +281,10 @@ class WebService
      * @param string $params
      * @return mixed|null
      */
-    public function getAllRemovedReviews($params = '')
+    public function getAllRemovedReviews($params = '', $storeId)
     {
         $url = 'http://api.feedaty.com/Reviews/Removed'.$params;
-        return $this->getReviewsData($url);
+        return $this->getReviewsData($url, $storeId);
     }
 
     /**
@@ -292,10 +292,10 @@ class WebService
      * @param string $params
      * @return mixed|null
      */
-    public function getAllMediatedReviews($params = '')
+    public function getAllMediatedReviews($params = '', $storeId)
     {
         $url = 'http://api.feedaty.com/Reviews/Mediated'.$params;
-        $mediated = $this->getReviewsData($url);
+        $mediated = $this->getReviewsData($url, $storeId);
         return $mediated;
     }
 
@@ -304,10 +304,10 @@ class WebService
      * @param string $params
      * @return mixed|null
      */
-    public function getAllReviews($params = '')
+    public function getAllReviews($params = '', $storeId)
     {
         $url = 'http://api.feedaty.com/Reviews/Get'.$params;
-         return $this->getReviewsData($url);
+         return $this->getReviewsData($url, $storeId);
     }
 
 
@@ -316,12 +316,12 @@ class WebService
      * @param $url
      * @return array|mixed|null
      */
-    public function getReviewsData($url)
+    public function getReviewsData($url, $storeId)
     {
         $token = '';
         $token = $this->getReqToken();
         if ($token != '') {
-            $accessToken = $this->getAccessToken($token);
+            $accessToken = $this->getAccessToken($token, $storeId);
             $reviews = [];
             try {
                 $curl = $this->curlFactory->create();
@@ -333,7 +333,6 @@ class WebService
 
                 $data = $this->jsonDecode($result);
                 $reviews = $data['Data'];
-
 
             } catch (\Exception $e) {
                 $this->_logger->critical('Feedaty | Error getting Reviews Data: '. $e->getMessage());

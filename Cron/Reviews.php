@@ -3,6 +3,7 @@
 namespace Feedaty\Badge\Cron;
 
 use Feedaty\Badge\Helper\ConfigRules;
+use Feedaty\Badge\Helper\Data;
 use Feedaty\Badge\Helper\Reviews as ReviewsHelper;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
@@ -47,6 +48,9 @@ class Reviews
      */
     protected $_reviewsHelper;
 
+
+    protected $dataHelper;
+
     /**
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Feedaty\Badge\Model\Config\Source\WebService $webService
@@ -65,7 +69,8 @@ class Reviews
         \Magento\Store\Model\StoreManagerInterface    $storeManager,
         \Magento\Framework\Stdlib\DateTime\DateTime   $date,
         ConfigRules $configRules,
-        ReviewsHelper $reviewsHelper
+        ReviewsHelper $reviewsHelper,
+        Data $dataHelper
     )
     {
         $this->_logger = $logger;
@@ -76,6 +81,7 @@ class Reviews
         $this->_date = $date;
         $this->_configRules = $configRules;
         $this->_reviewsHelper = $reviewsHelper;
+        $this->dataHelper = $dataHelper;
     }
 
 
@@ -85,197 +91,206 @@ class Reviews
     public function execute()
     {
 
+
         /**
-         *  IF IMPORT IS ENABLED
+         * Get stores
          */
-        $enableImportReviews = $this->_configRules->getCreateReviewEnabled();
+        $storesIds = $this->dataHelper->getAllStoresIds();
 
-        if($enableImportReviews == 1){
-
+        foreach ($storesIds as $storeId) {
             /**
-             * Get Feedaty TotalProductReviews Count
+             *  IF IMPORT IS ENABLED
              */
-            $totalFeedatyReviews = $this->_webService->getTotalProductReviewsCount();
+            $enableImportReviews = $this->_configRules->getCreateReviewEnabled($storeId);
 
-            /**
-             * Get Feedaty Removed Reviews TotalResults Count
-             */
-            $totalFeedatyRemovedReviews = $this->_webService->getTotalProductRemovedReviewsCount();
+            if($enableImportReviews == 1){
 
-            /**
-             * Get Feedaty Removed Reviews TotalResults Count
-             */
-            $totalFeedatyMediatedReviews = $this->_webService->getTotalProductMediatedReviewsCount();
+                /**
+                 * Get Feedaty TotalProductReviews Count
+                 */
+                $totalFeedatyReviews = $this->_webService->getTotalProductReviewsCount($storeId);
 
-            /**
-             * Get Feedaty Reviews Created on Magento Total Count
-             */
-            $totalReviewCreatedCount = $this->_reviewsHelper->getAllFeedatyReviewCount();
+                /**
+                 * Get Feedaty Removed Reviews TotalResults Count
+                 */
+                $totalFeedatyRemovedReviews = $this->_webService->getTotalProductRemovedReviewsCount($storeId);
 
-            /**
-             * Get Feedaty Reviews Removed on Magento Total Count
-             */
-            $totalRemovedReviewCreatedCount = $this->_reviewsHelper->getAllFeedatyRemovedReviewCount();
+                /**
+                 * Get Feedaty Mediated Reviews TotalResults Count
+                 */
+                $totalFeedatyMediatedReviews = $this->_webService->getTotalProductMediatedReviewsCount($storeId);
 
-            /**
-             * Get Feedaty Reviews Removed on Magento Total Count
-             */
-            $totalMediatedReviewCreatedCount = $this->_reviewsHelper->getAllFeedatyMediatedReviewCount();
+                /**
+                 * Get Feedaty Reviews Created on Magento Total Count
+                 */
+                $totalReviewCreatedCount = $this->_reviewsHelper->getAllFeedatyReviewCount($storeId);
 
-            $this->_logger->info("Feedaty | Cronjob Run | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount);
+                /**
+                 * Get Feedaty Reviews Removed on Magento Total Count
+                 */
+                $totalRemovedReviewCreatedCount = $this->_reviewsHelper->getAllFeedatyRemovedReviewCount($storeId);
 
-            /**
-             * Get Last Review Created on Magento (on first run vill be null)
-             */
-            $lastReviewCreated = $this->_reviewsHelper->getLastFeedatyReviewCreated();
+                /**
+                 * Get Feedaty Reviews Removed on Magento Total Count
+                 */
+                $totalMediatedReviewCreatedCount = $this->_reviewsHelper->getAllFeedatyMediatedReviewCount($storeId);
 
-            /**
-             * Get n Reviews from Feedaty
-             */
-            $count = 100;
+                $this->_logger->info("Feedaty | Cronjob Run | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount);
 
-            /**
-             * Set Row Param from Feedaty
-             */
-            $row = $totalFeedatyReviews - $totalReviewCreatedCount - $count;
+                /**
+                 * Get Last Review Created on Magento (on first run vill be null)
+                 */
+                $lastReviewCreated = $this->_reviewsHelper->getLastFeedatyReviewCreated($storeId);
 
+                /**
+                 * Get n Reviews from Feedaty
+                 */
+                $count = 100;
 
-            /**
-             * CREATE NEW REVIEWS
-             */
-            //Get Feedaty Product Reviews Data
-            $feedatyProductReviews = $this->_webService->getProductReviewsPagination($row, $count);
-
-
-            if (!empty($feedatyProductReviews)) {
-                //Foreach Review
-                foreach ($feedatyProductReviews as $review) {
-                    //feedaty_source_id
-                    $feedatyId = $review['ID'];
-
-                    $orderId = $review['OrderID'];
-
-                    $storeView = $this->_reviewsHelper->getStoreViewIdByOrder($orderId);
-
-                    $replaceFromDate = ["/Date(", ")/"];
-                    $replaceToDate = ["", ""];
-                    //Review Date
-                    $createdAt = date('Y-m-d h:i:s', floor((int)str_replace($replaceFromDate, $replaceToDate, $review['Released']) / 1000));
-
-                    $today = $this->_date->gmtDate();
-                    foreach ($review['ProductsReviews'] as $item) {
-
-                        $productId = $item['SKU'];
-                        $feedatyProductReviewId = $item['ID'];
-
-                        //Get Feedaty Product Reviews
-                        $magentoProductReviews = $this->_reviewsHelper->getReviewCollection($productId, $feedatyId);
-
-                        //AP Rating node
-                        $rating = $item['Rating'];
-
-                        //API Review Node
-                        $detail = $item['Review'];
-
-                        if (empty($magentoProductReviews)) {
-                            $this->createProductReview($productId, $feedatyId, $feedatyProductReviewId, $rating, $detail, $createdAt, $today, $row, $storeView);
-                        }
-                    }
-                }
-                // General Cron Report on system.log
-                $this->_logger->info("Feedaty | END Cronjob | Get Feedaty Reviews  | date execution: " . date('Y-m-d H:i:s') );
-            }
-
-            /**
-             *  UPDATE MEDIATED REVIEWS
-             */
-
-            $rowMediated = $totalFeedatyMediatedReviews - $totalMediatedReviewCreatedCount - $count;
-
-            if($rowMediated < 0 ){
-
-                $rowMediated = 0;
-            }
-
-            /**
-             * Get Feedaty Mediated Reviews
-             */
-            $feedatyProductReviewsMediated = $this->_webService->getMediatedReviews($rowMediated, $count);
+                /**
+                 * Set Row Param from Feedaty
+                 */
+                $row = $totalFeedatyReviews - $totalReviewCreatedCount - $count;
 
 
-            if (!empty($feedatyProductReviewsMediated)) {
+                /**
+                 * CREATE NEW REVIEWS
+                 */
+                //Get Feedaty Product Reviews Data
+                $feedatyProductReviews = $this->_webService->getProductReviewsPagination($row, $count, $storeId);
 
-                $this->_logger->info("Feedaty | START Mediated Reviews");
 
-                //Foreach Review
-                foreach ($feedatyProductReviewsMediated as $mediatedReview) {
+                if (!empty($feedatyProductReviews)) {
+                    //Foreach Review
+                    foreach ($feedatyProductReviews as $review) {
+                        //feedaty_source_id
+                        $feedatyId = $review['ID'];
 
-                    $feedatyId = $mediatedReview['FeedbackReviewID'];
-                    $reviewDetail = $mediatedReview['MerchantReview'];
+                        $orderId = $review['OrderID'];
 
-                    $reviewToMediate = $this->_reviewsHelper->getAllReviewsByFeedatyId($feedatyId);
+                        $storeView = $this->_reviewsHelper->getStoreViewIdByOrder($orderId, $storeId);
 
-                    if (!empty($reviewToMediate)) {
-                        //if it is not just disabled
-                        foreach ($reviewToMediate as $item){
+                        $replaceFromDate = ["/Date(", ")/"];
+                        $replaceToDate = ["", ""];
+                        //Review Date
+                        $createdAt = date('Y-m-d h:i:s', floor((int)str_replace($replaceFromDate, $replaceToDate, $review['Released']) / 1000));
 
-                            if ($item['status_id'] !== 3) {
-                                $this->_reviewsHelper->mediateReview($item,$reviewDetail);
+                        $today = $this->_date->gmtDate();
+                        foreach ($review['ProductsReviews'] as $item) {
+
+                            $productId = $item['SKU'];
+                            $feedatyProductReviewId = $item['ID'];
+
+                            //Get Feedaty Product Reviews
+                            $magentoProductReviews = $this->_reviewsHelper->getReviewCollection($productId, $feedatyId, $storeId);
+
+                            //AP Rating node
+                            $rating = $item['Rating'];
+
+                            //API Review Node
+                            $detail = $item['Review'];
+
+                            if (empty($magentoProductReviews)) {
+                                $this->createProductReview($productId, $feedatyId, $feedatyProductReviewId, $rating, $detail, $createdAt, $today, $row, $storeView, $storeId);
                             }
                         }
-
                     }
-
+                    // General Cron Report on system.log
+                    $this->_logger->info("Feedaty | END Cronjob | Get Feedaty Reviews  | date execution: " . date('Y-m-d H:i:s') );
                 }
-            }
+
+                /**
+                 *  UPDATE MEDIATED REVIEWS
+                 */
+
+                $rowMediated = $totalFeedatyMediatedReviews - $totalMediatedReviewCreatedCount - $count;
+
+                if($rowMediated < 0 ){
+
+                    $rowMediated = 0;
+                }
+
+                /**
+                 * Get Feedaty Mediated Reviews
+                 */
+                $feedatyProductReviewsMediated = $this->_webService->getMediatedReviews($rowMediated, $count, $storeId);
 
 
-            /**
-             *  DISABLE REMOVED REVIEWS
-             */
-            $rowRemoved = $totalFeedatyRemovedReviews - $totalRemovedReviewCreatedCount - $count;
+                if (!empty($feedatyProductReviewsMediated)) {
 
-            if($rowRemoved < 0 ){
-                $rowRemoved = 0;
-            }
+                    $this->_logger->info("Feedaty | START Mediated Reviews");
 
-             /**
-             * Get Feedaty Removed Reviews
-             */
-            $feedatyProductReviewsRemoved = $this->_webService->getRemovedReviews($rowRemoved, $count);
+                    //Foreach Review
+                    foreach ($feedatyProductReviewsMediated as $mediatedReview) {
 
-            if (!empty($feedatyProductReviewsRemoved)) {
+                        $feedatyId = $mediatedReview['FeedbackReviewID'];
+                        $reviewDetail = $mediatedReview['MerchantReview'];
 
-                //Foreach Review
-                foreach ($feedatyProductReviewsRemoved as $removedReview) {
+                        $reviewToMediate = $this->_reviewsHelper->getAllReviewsByFeedatyId($feedatyId, $storeId);
 
-                    $feedatyId = $removedReview['FeedbackReviewID'];
+                        if (!empty($reviewToMediate)) {
+                            //if it is not just disabled
+                            foreach ($reviewToMediate as $item){
 
-                    $reviewToDisable = $this->_reviewsHelper->getAllReviewsByFeedatyId($feedatyId);
-
-                    if (!empty($reviewToDisable)) {
-                        //if it is not just disabled
-                        foreach ($reviewToDisable as $item){
-
-                            if ($item['status_id'] !== 3) {
-                                 $this->_reviewsHelper->disableReview($item);
+                                if ($item['status_id'] !== 3) {
+                                    $this->_reviewsHelper->mediateReview($item,$reviewDetail);
+                                }
                             }
+
                         }
 
                     }
-
                 }
-                // General Cron Report on system.log
+
+
+                /**
+                 *  DISABLE REMOVED REVIEWS
+                 */
+                $rowRemoved = $totalFeedatyRemovedReviews - $totalRemovedReviewCreatedCount - $count;
+
+                if($rowRemoved < 0 ){
+                    $rowRemoved = 0;
+                }
+
+                /**
+                 * Get Feedaty Removed Reviews
+                 */
+                $feedatyProductReviewsRemoved = $this->_webService->getRemovedReviews($rowRemoved, $count, $storeId);
+
+                if (!empty($feedatyProductReviewsRemoved)) {
+
+                    //Foreach Review
+                    foreach ($feedatyProductReviewsRemoved as $removedReview) {
+
+                        $feedatyId = $removedReview['FeedbackReviewID'];
+
+                        $reviewToDisable = $this->_reviewsHelper->getAllReviewsByFeedatyId($feedatyId, $storeId);
+
+                        if (!empty($reviewToDisable)) {
+                            //if it is not just disabled
+                            foreach ($reviewToDisable as $item){
+
+                                if ($item['status_id'] !== 3) {
+                                    $this->_reviewsHelper->disableReview($item);
+                                }
+                            }
+
+                        }
+
+                    }
+                    // General Cron Report on system.log
+                }
+            }
+            else{
+                $this->_logger->info("Feedaty | Cronjob is not enabled. Configure it from admin panel | date: ". date('Y-m-d H:i:s') );
             }
         }
-        else{
-            $this->_logger->info("Feedaty | Cronjob is not enabled. Configure it from admin panel | date: ". date('Y-m-d H:i:s') );
-        }
+
 
     }
 
 
-    protected function createProductReview($productId, $feedatyId, $feedatyProductReviewId, $rating, $detail, $createdAt, $today, $row, $storeView)
+    protected function createProductReview($productId, $feedatyId, $feedatyProductReviewId, $rating, $detail, $createdAt, $today, $row, $storeView, $storeId)
     {
 
         $ratingCollection = $this->_reviewsHelper->getRatingCollection();
@@ -301,7 +316,7 @@ class Reviews
         $review->setEntityId($review->getEntityIdByCode(\Magento\Review\Model\Review::ENTITY_PRODUCT_CODE))
             ->setEntityPkValue($productId)
             ->setStatusId(\Magento\Review\Model\Review::STATUS_APPROVED)
-            ->setStoreId(Store::DEFAULT_STORE_ID)
+            ->setStoreId($storeId)
             ->setStores(!is_null($storeView) ? [$storeView] : [$this->_storeManager->getStore()->getId()])
             ->setCustomerId(null)
             ->save();

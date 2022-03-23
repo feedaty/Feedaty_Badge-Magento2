@@ -31,10 +31,10 @@ class Index extends \Magento\Backend\App\Action
      * @var \Magento\Store\Model\StoreManagerInterface
      */
     protected $storeManager;
-    
+
     /**
     * @var \Magento\Framework\ObjectManagerInterface
-    */   
+    */
     protected $objectManager;
 
     /**
@@ -66,7 +66,7 @@ class Index extends \Magento\Backend\App\Action
 
     /*
     * Execute
-    * 
+    *
     */
     public function execute() {
 
@@ -74,7 +74,7 @@ class Index extends \Magento\Backend\App\Action
 
         $store_id = (int) $this->_request->getParam('store', 0);
 
-        if ($store_id === 0) 
+        if ($store_id === 0)
         {
             $store_id = $this->_storeManager->getStore()->getId();
         }
@@ -84,7 +84,7 @@ class Index extends \Magento\Backend\App\Action
         $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $scope_store);
         $last4months = date('Y-m-d', strtotime("-4 months"));
 
-        # END INIT FIELDS 
+        # END INIT FIELDS
 
         # DEBUG
 
@@ -95,7 +95,7 @@ class Index extends \Magento\Backend\App\Action
             $feedatyHelper->feedatyDebug($message, "FEEDATY CSV PARAMS");
         }
 
-        # END DEBUG    
+        # END DEBUG
 
         #  HANDLER
 
@@ -120,7 +120,7 @@ class Index extends \Magento\Backend\App\Action
 
         $this->_csv->setDelimiter($delimiter);
         $this->_csv->setEnclosure($enclosure);
-        
+
         #  END HANDLER
 
         #  FORMAT DATA
@@ -139,15 +139,15 @@ class Index extends \Magento\Backend\App\Action
 
                     $tmp['Id'] = $item->getProductId();
 
-                    $tmp['Url'] = $fd_oProduct->getUrlModel()->getUrl($fd_oProduct);
+                    $tmp['Url'] = $fd_oProduct->setStoreId($item->getStoreId())->getUrlInStore();
 
-                    if ($fd_oProduct->getImage() != "no_selection") 
-                    { 
+                    if ($fd_oProduct->getImage() != "no_selection")
+                    {
                         // TODO: Use store manager
-                        $store = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
+                        $store = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore($item->getStoreId());
                         $tmp['ImageUrl'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $fd_oProduct->getImage();
                     }
-                    else 
+                    else
                     {
                         $tmp['ImageUrl'] = "";
                     }
@@ -158,13 +158,13 @@ class Index extends \Magento\Backend\App\Action
 
                     $row = [
                         $order->getId(),
-                        $order->getBillingAddress()->getEmail(), 
-                        $order->getBillingAddress()->getEmail(), 
-                        $order->getCreatedAt(), 
-                        $item->getProductId(), 
-                        str_replace('"','""',$tmp['Name']), 
-                        $tmp['Url'], 
-                        $tmp['ImageUrl'], 
+                        $order->getBillingAddress()->getEmail(),
+                        $order->getBillingAddress()->getEmail(),
+                        $order->getCreatedAt(),
+                        $item->getProductId(),
+                        str_replace('"','""',$tmp['Name']),
+                        $tmp['Url'],
+                        $tmp['ImageUrl'],
                         "Magento".$productMetadata->getVersion()."CSV"
                     ];
 

@@ -2,6 +2,7 @@
 
 namespace Feedaty\Badge\Cron;
 
+use Feedaty\Badge\Helper\Data;
 use Feedaty\Badge\Helper\Orders as OrdersHelper;
 use Feedaty\Badge\Model\Config\Source\WebService;
 use Psr\Log\LoggerInterface;
@@ -23,19 +24,25 @@ class Orders
      */
     private $webService;
 
+    protected $dataHelper;
+
     /**
      * @param LoggerInterface $logger
      * @param OrdersHelper $ordersHelper
+     * @param WebService $webService
+     * @param Data $dataHelper
      */
     public function __construct(
         LoggerInterface         $logger,
         OrdersHelper            $ordersHelper,
-        WebService $webService
+        WebService $webService,
+        Data $dataHelper
     )
     {
         $this->logger = $logger;
         $this->ordersHelper = $ordersHelper;
         $this->webService = $webService;
+        $this->dataHelper = $dataHelper;
     }
 
     /**
@@ -48,87 +55,114 @@ class Orders
          */
         $this->webService->fdSendInstallationInfo();
 
-
         //Starter Log
         $this->logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
 
-        $orders = $this->ordersHelper->getOrders();
+        /**
+         * Get stores
+         */
+        $storesIds = $this->dataHelper->getAllStoresIds();
 
+        foreach ($storesIds as $storeId) {
 
-         $data = array();
+            /**
+             * Get Orders
+             */
+            $orders = $this->ordersHelper->getOrders($storeId);
 
-        /* Order Increment */
-        $i = 0;
+            $data = [];
 
-        if(count($orders) > 0){
-            foreach ($orders as $order){
+            /* Order Increment */
+            $i = 0;
 
-                /* Get all visible order products */
-                $items = $order->getAllVisibleItems();
+            if(count($orders) > 0){
+                foreach ($orders as $order){
 
-                $storeId =  $order->getStoreId();
-                /**
-                 * Get Locale
-                 */
-                $localeCode = $this->ordersHelper->getCulture($storeId);
+                    /* Get all visible order products */
+                    $items = $order->getAllVisibleItems();
 
-                $data[$i] = [
-                    'ID' => $order->getEntityId(),
-                    'Date' => $order->getCreatedAt(),
-                    'CustomerEmail' => $order->getCustomerEmail(),
-                    'CustomerID' => $order->getCustomerEmail(),
-                    'Culture' => $localeCode,
-                    'Platform' => $this->ordersHelper->getPlatform(),
-                    'Products' => []
-                ];
+                    /**
+                     * Get Locale
+                     */
+                    $localeCode = $this->ordersHelper->getCulture($storeId);
 
-                foreach ($items as $item){
+                    $data[$i] = [
+                        'ID' => $order->getEntityId(),
+                        'Date' => $order->getCreatedAt(),
+                        'CustomerEmail' => $order->getCustomerEmail(),
+                        'CustomerID' => $order->getCustomerEmail(),
+                        'Culture' => $localeCode,
+                        'Platform' => $this->ordersHelper->getPlatform(),
+                        'Products' => []
+                    ];
 
-                    $productId = $item->getProductId();
+                    foreach ($items as $item){
 
-                    $productThumbnailUrl = $this->ordersHelper->getProductThumbnailUrl($item);
+                        /**
+                         * Get Product Id
+                         */
+                        $productId = $item->getProductId();
 
-                    if ($item->getParentItem()) {
-                        $product = $item->getParentItem()->getProduct();
-                    } else {
-                        $product = $item->getProduct();
+                        /**
+                         * Get Product Thumbnail
+                         */
+                        $productThumbnailUrl = $this->ordersHelper->getProductThumbnailUrl($item);
+
+                        if ($item->getParentItem()) {
+                            $product = $item->getParentItem()->getProduct();
+                        } else {
+                            $product = $item->getProduct();
+                        }
+
+                        /*
+                         * Get Product Url
+                         */
+                        $productUrl = '';
+                        if($product){
+                            $productUrl = $product->getProductUrl();
+                        }
+
+                        array_push($data[$i]['Products'],
+                            [
+                                'SKU' => $productId ,
+                                'URL' => $productUrl,
+                                'ThumbnailURL' => $productThumbnailUrl,
+                                'Name' => $item->getName()
+                            ]
+                        );
                     }
-                    $productUrl = '';
-                    if($product){
-                        $productUrl = $product->getProductUrl();
-                    }
-                    array_push($data[$i]['Products'],
-                        [
-                            'SKU' => $productId ,
-                            'URL' => $productUrl,
-                            'ThumbnailURL' => $productThumbnailUrl,
-                            'Name' => $item->getName()
-                        ]
-                    );
+
+                    /**
+                     * Set Order As Sent
+                     */
+                    $this->ordersHelper->setFeedatyCustomerNotified($order->getEntityId());
+
+                    $i++;
                 }
 
-                $this->ordersHelper->setFeedatyCustomerNotified($order->getEntityId());
-                $i++;
-            }
+                $response = (array) $this->webService->sendOrder($data, $storeId);
 
-            $response = (array) $this->webService->sendOrder($data);
-
-            if(!empty($response)){
-                if(isset($response['Data'])){
-                    foreach ($response['Data'] as $data){
-                        //if order Success or Duplicated set Feedaty Customer Notification true
-                        if($data['Status'] == '1' || $data['Status'] == '201'){
-                            $this->logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') );
-                        }
-                        else {
-                            $this->logger->critical("Feedaty | Order not sent: order ID  " .$order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') );
+                if(!empty($response)){
+                    if(isset($response['Data'])){
+                        foreach ($response['Data'] as $dataResponse){
+                            //if order Success or Duplicated set Feedaty Customer Notification true
+                            if($dataResponse['Status'] == '1' || $dataResponse['Status'] == '201'){
+                                $this->logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') );
+                            }
+                            else {
+                                $this->logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') );
+                            }
                         }
                     }
+                    else {
+                        $this->logger->critical("Feedaty | No Data Response" . print_r($response,true));
+                    }
+                }
+                else {
+                    $this->logger->critical("Feedaty | Empty Response" );
                 }
             }
         }
-
     }
-
 }
 

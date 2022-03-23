@@ -120,12 +120,12 @@ class Reviews extends AbstractHelper
      * @param $orderId
      * @return int|string|null
      */
-    public function getStoreViewIdByOrder($orderId)
+    public function getStoreViewIdByOrder($orderId, $storeId)
     {
-        $forceDefaultStore = $this->_helperConfigRules->getReviewForceDefaultStore();
+        $forceDefaultStore = $this->_helperConfigRules->getReviewForceDefaultStore($storeId);
 
         if($forceDefaultStore === "1"){
-            $defaultStore = $this->_helperConfigRules->getReviewDefaultStore();
+            $defaultStore = $this->_helperConfigRules->getReviewDefaultStore($storeId);
             return $defaultStore;
         }
         else{
@@ -169,13 +169,17 @@ class Reviews extends AbstractHelper
      * @param $feedatyId
      * @return mixed
      */
-    public function getReviewCollection($productId, $feedatyId)
+    public function getReviewCollection($productId, $feedatyId, $storeId)
     {
 
         $collection = $this->reviewCollection->create()
             ->addEntityFilter(
                 'product',
                 $productId
+            )
+            ->addFieldToFilter(
+                'store_id',
+                $storeId
             )
             ->addFieldToFilter(
                 'feedaty_source_id',
@@ -190,12 +194,16 @@ class Reviews extends AbstractHelper
     /*
      * Get last Review Created
      */
-    public function getAllFeedatyReviewCount()
+    public function getAllFeedatyReviewCount($storeId)
     {
         $collection = $this->reviewCollection->create()
             ->addFieldToFilter(
                 'feedaty_source',
                 1
+            )
+            ->addFieldToFilter(
+                'store_id',
+                $storeId
             )
             ->setOrder(
                 'review_id',
@@ -209,7 +217,7 @@ class Reviews extends AbstractHelper
     /**
      * @return int|void
      */
-    public function getAllFeedatyRemovedReviewCount()
+    public function getAllFeedatyRemovedReviewCount($storeId)
     {
         $collection = $this->reviewCollection->create()
             ->addStatusFilter(
@@ -218,6 +226,10 @@ class Reviews extends AbstractHelper
                 'feedaty_source',
                 1
             )
+            ->addFieldToFilter(
+                'store_id',
+                $storeId
+            )
             ->setOrder(
                 'review_id',
                 'desc'
@@ -230,12 +242,16 @@ class Reviews extends AbstractHelper
     /**
      * @return int|void
      */
-    public function getAllFeedatyMediatedReviewCount()
+    public function getAllFeedatyMediatedReviewCount($storeId)
     {
         $collection = $this->reviewCollection->create()
             ->addFieldToFilter(
                 'feedaty_product_mediated',
                 1
+            )
+            ->addFieldToFilter(
+                'store_id',
+                $storeId
             )
             ->setOrder(
                 'review_id',
@@ -249,12 +265,16 @@ class Reviews extends AbstractHelper
     /*
      * Get last Review Created
      */
-    public function getLastFeedatyReviewCreated()
+    public function getLastFeedatyReviewCreated($storeId)
     {
         $collection = $this->reviewCollection->create()
             ->addFieldToFilter(
                 'feedaty_source',
                 1
+            )
+            ->addFieldToFilter(
+                'store_id',
+                $storeId
             )
             ->setOrder(
                 'review_id',
@@ -272,12 +292,16 @@ class Reviews extends AbstractHelper
      * @param $feedatyId
      * @return mixed
      */
-    public function getAllReviewsByFeedatyId($feedatyId)
+    public function getAllReviewsByFeedatyId($feedatyId, $storeId)
     {
         $collection = $this->reviewCollection->create()
             ->addFieldToFilter(
                 'feedaty_product_review_id',
                 $feedatyId
+            )
+            ->addFieldToFilter(
+                'store_id',
+                $storeId
             )
             ->setOrder(
                 'review_id',
