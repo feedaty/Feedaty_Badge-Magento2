@@ -95,16 +95,6 @@ class Orders extends AbstractHelper
         $this->orderFactory = $orderFactory;
     }
 
-    /**
-     * @return false|string
-     */
-    public function getOrderFromDate(){
-
-      //  $fromDate = date('Y-m-d H:i:s', strtotime('-3 hour'));
-        $fromDate = date('Y-m-d H:i:s', strtotime('-30 week'));
-
-        return $fromDate;
-    }
 
     /**
      * @param $storeId
@@ -125,6 +115,39 @@ class Orders extends AbstractHelper
         return $culture;
     }
 
+    /*
+     * get Product EAN
+     */
+    public function getProductEan($storeId, $item) : string
+    {
+
+        $ean = '';
+
+        $enableEan = $this->helperConfigRules->getSendOrderEnableEan($storeId);
+
+        if($enableEan === '1'){
+
+            $eanCode = $this->helperConfigRules->getSendOrderEan($storeId);
+
+            $childrenItems = $item->getChildrenItems();
+
+            if (!empty($childrenItems)) {
+                $count = 0;
+                foreach($childrenItems as $child){
+                    if($count === 0){
+                        $ean = $child->getProduct()->getData($eanCode) ? $child->getProduct()->getData($eanCode) :  '';
+                    }
+                    $count++;
+                }
+            }
+            else {
+                $ean = $item->getProduct()->getData($eanCode) ? $item->getProduct()->getData($eanCode) :  '';
+            }
+        }
+
+        return $ean;
+    }
+
     /**
      * @return array|\Magento\Sales\Api\Data\OrderInterface[]
      */
@@ -132,13 +155,14 @@ class Orders extends AbstractHelper
     {
         $orders = [];
         $status = $this->getOrderstatus($storeId);
+       
         $ordersNotified = $this->getFeedatyOrdersNotified();
         if(empty($ordersNotified)){
             $ordersNotified[] = 0;
         }
         try {
             $to = date("Y-m-d h:i:s"); // current date
-            $range = strtotime('-100 hours', strtotime($to));
+            $range = strtotime('-24 hours', strtotime($to));
             $from = date('Y-m-d h:i:s', $range); // 24 hours before
 
             $criteria = $this->searchCriteriaBuilder

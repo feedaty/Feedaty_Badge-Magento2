@@ -122,12 +122,14 @@ class Orders
                             $productUrl = $product->getProductUrl();
                         }
 
+                        $ean = $this->ordersHelper->getProductEan($storeId, $item);
                         array_push($data[$i]['Products'],
                             [
                                 'SKU' => $productId ,
                                 'URL' => $productUrl,
                                 'ThumbnailURL' => $productThumbnailUrl,
-                                'Name' => $item->getName()
+                                'Name' => $item->getName(),
+                                'EAN' => $ean
                             ]
                         );
                     }
@@ -164,5 +166,6 @@ class Orders
             }
         }
     }
+
 }
 

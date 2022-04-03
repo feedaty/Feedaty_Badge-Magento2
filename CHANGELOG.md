@@ -2,6 +2,15 @@
 
 #### RELASE NOTES
 
+### V2.9.0
+
+* Features:
+    * Add EAN to Orders
+
+### V2.8.0
+
+* Fixed Bugs
+    * Multimerchant support
 
 ### V2.7.0
 
