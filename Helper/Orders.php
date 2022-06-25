@@ -155,7 +155,7 @@ class Orders extends AbstractHelper
     {
         $orders = [];
         $status = $this->getOrderstatus($storeId);
-       
+
         $ordersNotified = $this->getFeedatyOrdersNotified();
         if(empty($ordersNotified)){
             $ordersNotified[] = 0;
