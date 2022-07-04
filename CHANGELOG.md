@@ -2,6 +2,12 @@
 
 #### RELASE NOTES
 
+
+### V2.9.1
+
+* Fixed Bugs
+    * Duplicated reviews
+  
 ### V2.9.0
 
 * Features:
