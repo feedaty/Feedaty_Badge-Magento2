@@ -46,6 +46,17 @@
                     <label>Status</label>
                     <source_model>Feedaty\Badge\Model\Config\Source\OrderStatuses</source_model>
                 </field>
+                <field id="sendorder_enable_ean" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable EAN</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="sendorder_ean" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Ean Attribute</label>
+                    <source_model>Feedaty\Badge\Model\Config\Source\ProductAttributes</source_model>
+                    <depends>
+                        <field id="feedaty_global/feedaty_sendorder/sendorder_enable_ean">1</field>
+                    </depends>
+                </field>
             </group>
 
             <group id="export" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" translate="label source_model">

@@ -98,6 +98,25 @@ class ConfigRules extends AbstractHelper
         return $orderStatus;
     }
 
+
+    /*
+     * Is Ean Enabled
+     */
+    public function getSendOrderEnableEan( $storeId = null)
+    {
+        $enableEan = $this->getSendOrderConfig('sendorder_enable_ean', $storeId);
+        return $enableEan;
+    }
+
+    /*
+     * Ean code
+     */
+    public function getSendOrderEan( $storeId = null)
+    {
+        $ean = $this->getSendOrderConfig('sendorder_ean', $storeId);
+        return $ean;
+    }
+
     public function getSnippetEnabled($storeId = null)
     {
         $snippetEnabled = $this->getSnippetConfig('snippet_prod_enabled', $storeId);

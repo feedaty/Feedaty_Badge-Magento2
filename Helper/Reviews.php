@@ -173,14 +173,6 @@ class Reviews extends AbstractHelper
     {
 
         $collection = $this->reviewCollection->create()
-            ->addEntityFilter(
-                'product',
-                $productId
-            )
-            ->addFieldToFilter(
-                'store_id',
-                $storeId
-            )
             ->addFieldToFilter(
                 'feedaty_source_id',
                 $feedatyId

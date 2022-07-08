@@ -214,7 +214,7 @@ class WebService
      * @param int $count
      * @return mixed|string
      */
-    public function getProductReviewsPagination($row = 0, $count = 50, $storeId){
+    public function getProductReviewsPagination($row, $count, $storeId){
         $allReviews =  $this->getAllReviews('?retrieve=onlyproductreviews&row='.$row.'&count='.$count, $storeId);
         return $allReviews['Reviews'];
     }
@@ -225,7 +225,7 @@ class WebService
      * @param int $count
      * @return mixed
      */
-    public function getRemovedReviews($row = 0, $count = 50, $storeId){
+    public function getRemovedReviews($row, $count, $storeId){
         $allReviews =  $this->getAllRemovedReviews('?row='.$row.'&count='.$count, $storeId);
         return $allReviews['Reviews'];
     }
@@ -235,7 +235,7 @@ class WebService
      * @param int $count
      * @return mixed
      */
-    public function getMediatedReviews($row = 0, $count = 50, $storeId){
+    public function getMediatedReviews($row, $count, $storeId){
         $allReviews =  $this->getAllMediatedReviews('?row='.$row.'&count='.$count, $storeId);
         return $allReviews['Reviews'];
 
@@ -281,7 +281,7 @@ class WebService
      * @param string $params
      * @return mixed|null
      */
-    public function getAllRemovedReviews($params = '', $storeId)
+    public function getAllRemovedReviews($params, $storeId)
     {
         $url = 'http://api.feedaty.com/Reviews/Removed'.$params;
         return $this->getReviewsData($url, $storeId);
@@ -292,7 +292,7 @@ class WebService
      * @param string $params
      * @return mixed|null
      */
-    public function getAllMediatedReviews($params = '', $storeId)
+    public function getAllMediatedReviews($params, $storeId)
     {
         $url = 'http://api.feedaty.com/Reviews/Mediated'.$params;
         $mediated = $this->getReviewsData($url, $storeId);
@@ -304,7 +304,7 @@ class WebService
      * @param string $params
      * @return mixed|null
      */
-    public function getAllReviews($params = '', $storeId)
+    public function getAllReviews($params, $storeId)
     {
         $url = 'http://api.feedaty.com/Reviews/Get'.$params;
          return $this->getReviewsData($url, $storeId);
@@ -455,7 +455,4 @@ class WebService
         }
 
     }
-
-
-
 }

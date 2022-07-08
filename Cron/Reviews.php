@@ -138,7 +138,7 @@ class Reviews
                 $this->_logger->info("Feedaty | Cronjob Run | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount);
 
                 /**
-                 * Get Last Review Created on Magento (on first run vill be null)
+                 * Get Last Review Created on Magento (on first run will be null)
                  */
                 $lastReviewCreated = $this->_reviewsHelper->getLastFeedatyReviewCreated($storeId);
 
