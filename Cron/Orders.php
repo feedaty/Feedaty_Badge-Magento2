@@ -60,10 +60,6 @@ class Orders
      */
     public function execute()
     {
-        /**
-         * Send Module Information Data
-         */
-        $this->webService->fdSendInstallationInfo();
 
         //Starter Log
         $this->_logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
@@ -74,6 +70,12 @@ class Orders
         $storesIds = $this->dataHelper->getAllStoresIds();
 
         foreach ($storesIds as $storeId) {
+
+            /**
+             * Send Module Information Data
+             */
+            $this->webService->fdSendInstallationInfo($storeId);
+
 
             /**
              * Get Orders
