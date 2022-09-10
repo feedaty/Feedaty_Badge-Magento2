@@ -165,6 +165,10 @@ class Orders
                 }
             }
         }
+
+        //SKIP Log
+        $this->logger->info("Feedaty | SKIP Cronjob | No orderrs to import  | date: " . date('Y-m-d H:i:s') );
+
     }
 
 }
