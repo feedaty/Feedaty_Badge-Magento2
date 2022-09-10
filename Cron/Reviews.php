@@ -293,6 +293,20 @@ class Reviews
     }
 
 
+    /**
+     * Create Reviews on Magento
+     * @param $productId
+     * @param $feedatyId
+     * @param $feedatyProductReviewId
+     * @param $rating
+     * @param $detail
+     * @param $createdAt
+     * @param $today
+     * @param $row
+     * @param $storeView
+     * @param $storeId
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     protected function createProductReview($productId, $feedatyId, $feedatyProductReviewId, $rating, $detail, $createdAt, $today, $row, $storeView, $storeId)
     {
 

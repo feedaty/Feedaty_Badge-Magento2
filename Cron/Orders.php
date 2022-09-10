@@ -6,6 +6,7 @@ use Feedaty\Badge\Helper\Data;
 use Feedaty\Badge\Helper\Orders as OrdersHelper;
 use Feedaty\Badge\Model\Config\Source\WebService;
 use Psr\Log\LoggerInterface;
+use Feedaty\Badge\Helper\ConfigRules;
 
 class Orders
 {
@@ -13,7 +14,7 @@ class Orders
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    protected $_logger;
 
     /**
      * @var OrdersHelper
@@ -24,8 +25,15 @@ class Orders
      */
     private $webService;
 
+    /**
+     * @var Data
+     */
     protected $dataHelper;
 
+    /**
+     * @var ConfigRules
+     */
+    protected $_configRules;
     /**
      * @param LoggerInterface $logger
      * @param OrdersHelper $ordersHelper
@@ -36,13 +44,15 @@ class Orders
         LoggerInterface         $logger,
         OrdersHelper            $ordersHelper,
         WebService $webService,
-        Data $dataHelper
+        Data $dataHelper,
+        ConfigRules $configRules
     )
     {
-        $this->logger = $logger;
+        $this->_logger = $logger;
         $this->ordersHelper = $ordersHelper;
         $this->webService = $webService;
         $this->dataHelper = $dataHelper;
+        $this->_configRules = $configRules;
     }
 
     /**
@@ -56,7 +66,7 @@ class Orders
         $this->webService->fdSendInstallationInfo();
 
         //Starter Log
-        $this->logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
+        $this->_logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
 
         /**
          * Get stores
@@ -74,6 +84,12 @@ class Orders
 
             /* Order Increment */
             $i = 0;
+
+            $debugMode = $this->_configRules->getDebugModeEnabled($storeId);
+
+            if($debugMode === "1") {
+                $this->_logger->info("Feedaty Debug Mode | Get Orders Data | " . print_r($orders,true) . " date: ".  date('Y-m-d H:i:s') );
+            }
 
             if(count($orders) > 0){
                 foreach ($orders as $order){
@@ -149,25 +165,25 @@ class Orders
                         foreach ($response['Data'] as $dataResponse){
                             //if order Success or Duplicated set Feedaty Customer Notification true
                             if($dataResponse['Status'] == '1' || $dataResponse['Status'] == '201'){
-                                $this->logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') );
+                                $this->_logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') );
                             }
                             else {
-                                $this->logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') );
+                                $this->_logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') );
                             }
                         }
                     }
                     else {
-                        $this->logger->critical("Feedaty | No Data Response" . print_r($response,true));
+                        $this->_logger->critical("Feedaty | No Data Response" . print_r($response,true));
                     }
                 }
                 else {
-                    $this->logger->critical("Feedaty | Empty Response" );
+                    $this->_logger->critical("Feedaty | Empty Response" );
                 }
             }
         }
 
         //SKIP Log
-        $this->logger->info("Feedaty | SKIP Cronjob | No orderrs to import  | date: " . date('Y-m-d H:i:s') );
+        $this->_logger->info("Feedaty | SKIP Cronjob | No orders to import  | date: " . date('Y-m-d H:i:s') );
 
     }
 
