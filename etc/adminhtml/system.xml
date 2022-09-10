@@ -38,6 +38,11 @@
                         <field id="feedaty_global/feedaty_preferences/create_reviews_force_default_store">1</field>
                     </depends>
                 </field>
+
+                <field id="debug_mode_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Debug Mode</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
             </group>
 
             <group id="feedaty_sendorder" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >

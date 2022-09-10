@@ -79,6 +79,14 @@ class ConfigRules extends AbstractHelper
         return $feedaty_code;
     }
 
+
+    public function getDebugModeEnabled($storeId = null) {
+        $debugMode = $this->getPreferencesConfig('debug_mode_enabled', $storeId);
+
+        return $debugMode;
+    }
+
+
     public function getReviewForceDefaultStore($storeId = null)
     {
         $force_store = $this->getPreferencesConfig('create_reviews_force_default_store', $storeId);

@@ -135,8 +135,6 @@ class Reviews
                  */
                 $totalMediatedReviewCreatedCount = $this->_reviewsHelper->getAllFeedatyMediatedReviewCount($storeId);
 
-                $this->_logger->info("Feedaty | Cronjob Run | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount);
-
                 /**
                  * Get Last Review Created on Magento (on first run will be null)
                  */
@@ -159,6 +157,11 @@ class Reviews
                 //Get Feedaty Product Reviews Data
                 $feedatyProductReviews = $this->_webService->getProductReviewsPagination($row, $count, $storeId);
 
+                $debugMode = $this->_configRules->getDebugModeEnabled($storeId);
+
+                if($debugMode === "1") {
+                    $this->_logger->info("Feedaty Debug Mode | Cronjob Run | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount . 'Feedaty Product Reviews Data'. print_r($feedatyProductReviews,true));
+                }
 
                 if (!empty($feedatyProductReviews)) {
                     //Foreach Review
