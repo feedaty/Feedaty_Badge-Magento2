@@ -452,8 +452,6 @@ class WebService
             $curl->addHeader('Content-Type', 'application/json');
             $curl->setTimeout(1000);
 
-            $this->_logger->critical('Feedaty Installation Info : '. print_r($fdata,true));
-
             $curl->post($url, $this->jsonEncode($fdata));
            // $this->_logger->info('Feedaty | Sending Module Information Data: '. print_r($fdata,true));
         } catch (\Exception $e) {

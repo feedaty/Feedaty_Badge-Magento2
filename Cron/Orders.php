@@ -5,6 +5,7 @@ namespace Feedaty\Badge\Cron;
 use Feedaty\Badge\Helper\Data;
 use Feedaty\Badge\Helper\Orders as OrdersHelper;
 use Feedaty\Badge\Model\Config\Source\WebService;
+use Magento\Framework\Url;
 use Psr\Log\LoggerInterface;
 use Feedaty\Badge\Helper\ConfigRules;
 
@@ -34,18 +35,26 @@ class Orders
      * @var ConfigRules
      */
     protected $_configRules;
+
+    /**
+     * @var Url
+     */
+    private $url;
+
     /**
      * @param LoggerInterface $logger
      * @param OrdersHelper $ordersHelper
      * @param WebService $webService
      * @param Data $dataHelper
+     * @param ConfigRules $configRules
      */
     public function __construct(
         LoggerInterface         $logger,
         OrdersHelper            $ordersHelper,
         WebService $webService,
         Data $dataHelper,
-        ConfigRules $configRules
+        ConfigRules $configRules,
+        Url $url
     )
     {
         $this->_logger = $logger;
@@ -53,6 +62,7 @@ class Orders
         $this->webService = $webService;
         $this->dataHelper = $dataHelper;
         $this->_configRules = $configRules;
+        $this->url = $url;
     }
 
     /**
@@ -90,7 +100,7 @@ class Orders
             $debugMode = $this->_configRules->getDebugModeEnabled($storeId);
 
             if($debugMode === "1") {
-                $this->_logger->info("Feedaty Debug Mode | Get Orders Data | " . print_r($orders,true) . " date: ".  date('Y-m-d H:i:s') );
+                $this->_logger->info("Feedaty Debug Mode | Get Orders Data | " . count($orders) . " date: ".  date('Y-m-d H:i:s') );
             }
 
             if(count($orders) > 0){
@@ -137,7 +147,7 @@ class Orders
                          */
                         $productUrl = '';
                         if($product){
-                            $productUrl = $product->getProductUrl();
+                            $productUrl =  $this->url->getUrl('catalog/product/view', ['id' => $productId, '_nosid' => true, '_query' => ['___store' => $storeId]]);
                         }
 
                         $ean = $this->ordersHelper->getProductEan($storeId, $item);
