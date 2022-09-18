@@ -15,12 +15,12 @@ class LinkCsv extends \Magento\Config\Block\System\Config\Form\Field
         $store_id = (int) $this->_request->getParam('store', 0);
 
         $this->setElement($element);
-        $url = $this->getUrl('feedatyexport') . "store/" . $store_id; 
+        $url = $this->getUrl('feedatyexport') . "store/" . $store_id;
 
         $html = $this->getLayout()->createBlock('Magento\Backend\Block\Widget\Button')
             ->setType('button')
             ->setClass('scalable')
-            ->setLabel('Salva ora')
+            ->setLabel('Esporta Ordini')
             ->setOnClick("document.location.href = '".$url."'")
             ->toHtml();
 

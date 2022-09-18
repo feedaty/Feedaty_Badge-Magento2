@@ -1,6 +1,7 @@
 <?php
 namespace Feedaty\Badge\Controller\Adminhtml\Index;
 
+use Feedaty\Badge\Helper\Orders as OrdersHelper;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -42,6 +43,12 @@ class Index extends \Magento\Backend\App\Action
      */
     protected $csvProcessor;
 
+
+    /**
+     * @var OrdersHelper
+     */
+    protected $ordersHelper;
+
     /*
     * Constructor
     *
@@ -53,7 +60,8 @@ class Index extends \Magento\Backend\App\Action
         PageFactory $resultPageFactory,
         ObjectManagerInterface $objectmanager,
         Csv $csv,
-        DirectoryList $directoryList
+        DirectoryList $directoryList,
+        OrdersHelper            $ordersHelper
     ) {
         parent::__construct($context);
         $this->_scopeConfig = $scopeConfig;
@@ -62,6 +70,7 @@ class Index extends \Magento\Backend\App\Action
         $this->_objectManager = $objectmanager;
         $this->_csv = $csv;
         $this->_directoryList = $directoryList;
+        $this->ordersHelper = $ordersHelper;
     }
 
     /*
@@ -82,7 +91,13 @@ class Index extends \Magento\Backend\App\Action
         $scope_store = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $orderStatus = $this->_scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', $scope_store);
         $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $scope_store);
+        $exportDateFrom = $this->_scopeConfig->getValue('feedaty_global/export/export_date_from', $scope_store);
+        $exportDateTo = $this->_scopeConfig->getValue('feedaty_global/export/export_date_to', $scope_store);
         $last4months = date('Y-m-d', strtotime("-4 months"));
+        $now = date('Y-m-d', strtotime("+1 days"));
+        $from = $exportDateFrom != '' ? $exportDateFrom : $last4months;
+        $to = $exportDateTo != '' ? $exportDateTo : $now;
+
 
         # END INIT FIELDS
 
@@ -109,14 +124,15 @@ class Index extends \Magento\Backend\App\Action
         $orders = $this->_objectManager->create('\Magento\Sales\Model\Order')->getCollection()
             ->addFieldToFilter('status',$orderStatus)
             ->addFieldToFilter('store_id', $store_id)
-            ->addAttributeToFilter('created_at', ['gteq'  => $last4months]);
+            ->addAttributeToFilter('created_at', ['gteq'  => $from])
+            ->addAttributeToFilter('created_at', ['lteq'  => $to]);
 
         $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
 
         $delimiter = ',';
         $enclosure = '"';
 
-        $heading = ["Order ID","UserID","E-mail","Date","Product ID","Extra","Product Url","Product Image","Platform"];
+        $heading = ["Order ID","UserID","E-mail","Date","Product ID","Extra","Product Url","Product Image","EAN","Platform"];
 
         $this->_csv->setDelimiter($delimiter);
         $this->_csv->setEnclosure($enclosure);
@@ -129,7 +145,7 @@ class Index extends \Magento\Backend\App\Action
 
         foreach ($orders as $order) {
 
-            $objproducts = $order->getAllItems();
+            $objproducts = $order->getAllVisibleItems();
 
             foreach ($objproducts as $itemId => $item) {
                 unset($tmp);
@@ -156,6 +172,8 @@ class Index extends \Magento\Backend\App\Action
                     $tmp['Brand'] = $item->getBrand();
                     if ($tmp['Brand'] === null) $tmp['Brand']  = "";
 
+                    $ean = $this->ordersHelper->getProductEan($store_id, $item);
+
                     $row = [
                         $order->getId(),
                         $order->getBillingAddress()->getEmail(),
@@ -165,6 +183,7 @@ class Index extends \Magento\Backend\App\Action
                         str_replace('"','""',$tmp['Name']),
                         $tmp['Url'],
                         $tmp['ImageUrl'],
+                        $ean,
                         "Magento".$productMetadata->getVersion()."CSV"
                     ];
 
