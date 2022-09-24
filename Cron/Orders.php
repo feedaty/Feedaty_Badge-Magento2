@@ -147,9 +147,10 @@ class Orders
                          */
                         $productUrl = '';
                         if($product){
-                            $productUrl =  $this->url->getUrl('catalog/product/view', ['id' => $productId, '_nosid' => true, '_query' => ['___store' => $storeId]]);
+                            // $productUrl = 'test'.$product->getProductUrl();
+                           // $productUrl =  $this->url->getUrl('catalog/product/view', ['id' => $productId, '_nosid' => true, '_query' => ['___store' => $storeId]]);
                         }
-
+                        $productUrl = $item->getProduct()->getProductUrl();
                         $ean = $this->ordersHelper->getProductEan($storeId, $item);
                         array_push($data[$i]['Products'],
                             [
@@ -170,6 +171,10 @@ class Orders
                     $i++;
                 }
 
+
+                $this->_logger->critical("Feedaty | test URL  " . print_r($data,true));
+
+                die();
                 $response = (array) $this->webService->sendOrder($data, $storeId);
 
                 if(!empty($response)){

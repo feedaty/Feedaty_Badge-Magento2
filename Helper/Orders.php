@@ -166,10 +166,10 @@ class Orders extends AbstractHelper
             $from = date('Y-m-d h:i:s', $range); // 24 hours before
 
             $criteria = $this->searchCriteriaBuilder
-                ->addFilter('updated_at', $from, 'gteq')
+            //    ->addFilter('updated_at', $from, 'gteq')
                 ->addFilter('entity_id', $ordersNotified, 'nin')
                 ->addFilter('store_id', $storeId,'eq')
-                ->addFilter('status', $status,'eq')
+              //  ->addFilter('status', $status,'eq')
                 ->setPageSize(50)
                 ->setCurrentPage(1)
                 ->create();
