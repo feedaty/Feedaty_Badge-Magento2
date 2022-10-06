@@ -55,11 +55,6 @@ class Index extends \Magento\Backend\App\Action
      */
     protected $ordersHelper;
 
-    /*
-    * Constructor
-    *
-    */
-    private Context $context;
 
     public function __construct(
         Context $context,
