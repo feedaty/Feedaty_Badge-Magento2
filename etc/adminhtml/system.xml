@@ -68,6 +68,7 @@
                 <label>Initial orders export</label>
                 <field id="exportbutton" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
                     <label>Export to csv</label>
+                    <comment>Remember to save configuration before export</comment>
                     <frontend_model>Feedaty\Badge\Block\LinkCsv</frontend_model>
                 </field>
                 <field id="export_date_from" translate="label" type="date" sortOrder="2" showInDefault="0" showInWebsite="0" showInStore="1">
