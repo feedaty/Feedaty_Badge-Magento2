@@ -44,6 +44,11 @@ class ConfigRules extends AbstractHelper
         return $this->helperConfigSetting->getSendOrderConfig($data, $storeId);
     }
 
+    public function getExportConfig($data, $storeId = null){
+        return $this->helperConfigSetting->getExportConfig($data, $storeId);
+    }
+
+
     public function getSnippetConfig($data){
         return $this->helperConfigSetting->getSnippetConfig($data);
     }
@@ -99,13 +104,35 @@ class ConfigRules extends AbstractHelper
         return $default_store;
     }
 
-
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
     public function getSendOrderStatus( $storeId = null)
     {
         $orderStatus = $this->getSendOrderConfig('sendorder', $storeId);
         return $orderStatus;
     }
 
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getExportOrdersFrom( $storeId = null)
+    {
+        $from = $this->getExportConfig('export_date_from', $storeId);
+        return $from;
+    }
+
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getExportOrdersTo( $storeId = null)
+    {
+        $from = $this->getExportConfig('export_date_to', $storeId);
+        return $from;
+    }
 
     /*
      * Is Ean Enabled

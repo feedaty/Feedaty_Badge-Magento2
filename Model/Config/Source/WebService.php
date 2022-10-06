@@ -413,6 +413,7 @@ class WebService
     {
 
         /* Platform (obviously Magento) and version */
+        $fdata['merchantCode'] = $this->_configRules->getFeedatyCode($storeId);
         $fdata['keyValuePairs'][] = array('Key' => 'Platform', 'Value' => $this->getPlatform());
 
         /* Plugin version */
@@ -453,7 +454,6 @@ class WebService
             $curl->setTimeout(1000);
 
             $curl->post($url, $this->jsonEncode($fdata));
-           // $this->_logger->info('Feedaty | Sending Module Information Data: '. print_r($fdata,true));
         } catch (\Exception $e) {
             $this->_logger->critical('Feedaty | Error sending Module Information Data: '. $e->getMessage());
         }

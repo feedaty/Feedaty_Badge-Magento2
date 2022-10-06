@@ -50,4 +50,9 @@ class ConfigSetting extends AbstractHelper
         return $this->getConfigValue('feedaty_microdata_options/snippet_products/'. $code, $storeId);
     }
 
+    public function getExportConfig($code, $storeId = null)
+    {
+        return $this->getConfigValue(self::XML_PATH_FEEDATY .'export/'. $code, $storeId);
+    }
+
 }

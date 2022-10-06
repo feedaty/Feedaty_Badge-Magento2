@@ -1,6 +1,7 @@
 <?php
 namespace Feedaty\Badge\Controller\Adminhtml\Index;
 
+use Feedaty\Badge\Helper\ConfigRules;
 use Feedaty\Badge\Helper\Orders as OrdersHelper;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
@@ -29,6 +30,11 @@ class Index extends \Magento\Backend\App\Action
     protected $scopeConfig;
 
     /**
+     * @var ConfigRules
+     */
+    protected $_configRules;
+
+    /**
      * @var \Magento\Store\Model\StoreManagerInterface
      */
     protected $storeManager;
@@ -53,6 +59,8 @@ class Index extends \Magento\Backend\App\Action
     * Constructor
     *
     */
+    private Context $context;
+
     public function __construct(
         Context $context,
         ScopeConfigInterface $scopeConfig,
@@ -61,7 +69,8 @@ class Index extends \Magento\Backend\App\Action
         ObjectManagerInterface $objectmanager,
         Csv $csv,
         DirectoryList $directoryList,
-        OrdersHelper            $ordersHelper
+        OrdersHelper            $ordersHelper,
+        ConfigRules             $configRules
     ) {
         parent::__construct($context);
         $this->_scopeConfig = $scopeConfig;
@@ -71,6 +80,8 @@ class Index extends \Magento\Backend\App\Action
         $this->_csv = $csv;
         $this->_directoryList = $directoryList;
         $this->ordersHelper = $ordersHelper;
+        $this->context = $context;
+        $this->_configRules = $configRules;
     }
 
     /*
@@ -89,22 +100,20 @@ class Index extends \Magento\Backend\App\Action
         }
 
         $scope_store = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $orderStatus = $this->_scopeConfig->getValue('feedaty_global/feedaty_sendorder/sendorder', $scope_store);
-        $fdDebugEnabled = $this->_scopeConfig->getValue('feedaty_global/debug/debug_enabled', $scope_store);
-        $exportDateFrom = $this->_scopeConfig->getValue('feedaty_global/export/export_date_from', $scope_store);
-        $exportDateTo = $this->_scopeConfig->getValue('feedaty_global/export/export_date_to', $scope_store);
+        $orderStatus = $this->_configRules->getSendOrderStatus($store_id);
+        $fdDebugEnabled = $this->_configRules->getDebugModeEnabled($store_id);
+        $exportDateFrom = $this->_configRules->getExportOrdersFrom($store_id);
+        $exportDateTo = $this->_configRules->getExportOrdersTo($store_id);
         $last4months = date('Y-m-d', strtotime("-4 months"));
         $now = date('Y-m-d', strtotime("+1 days"));
         $from = $exportDateFrom != '' ? $exportDateFrom : $last4months;
+
         $to = $exportDateTo != '' ? $exportDateTo : $now;
 
-
         # END INIT FIELDS
-
         # DEBUG
 
         if($fdDebugEnabled != 0) {
-
             $message = "Status: ".$orderStatus." Store ID: ".$store_id;
             $feedatyHelper = $this->_objectManager->create('Feedaty\Badge\Helper\Data');
             $feedatyHelper->feedatyDebug($message, "FEEDATY CSV PARAMS");
@@ -119,7 +128,6 @@ class Index extends \Magento\Backend\App\Action
 
         if(!is_dir($dirPath))
             mkdir($dirPath, 0777, true);
-
 
         $orders = $this->_objectManager->create('\Magento\Sales\Model\Order')->getCollection()
             ->addFieldToFilter('status',$orderStatus)
