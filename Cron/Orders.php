@@ -136,11 +136,8 @@ class Orders
                          */
                         $productThumbnailUrl = $this->ordersHelper->getProductThumbnailUrl($item);
 
-                        if ($item->getParentItem()) {
-                            $product = $item->getParentItem()->getProduct();
-                        } else {
-                            $product = $item->getProduct();
-                        }
+                        $product = $item->getProduct();
+
 
                         /*
                          * Get Product Url
