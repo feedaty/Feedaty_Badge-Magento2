@@ -8,6 +8,7 @@ use Feedaty\Badge\Model\Config\Source\WebService;
 use Magento\Framework\Url;
 use Psr\Log\LoggerInterface;
 use Feedaty\Badge\Helper\ConfigRules;
+use \Magento\Store\Model\StoreManagerInterface;
 
 class Orders
 {
@@ -42,6 +43,12 @@ class Orders
     private $url;
 
     /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
+
+    /**
      * @param LoggerInterface $logger
      * @param OrdersHelper $ordersHelper
      * @param WebService $webService
@@ -54,7 +61,8 @@ class Orders
         WebService $webService,
         Data $dataHelper,
         ConfigRules $configRules,
-        Url $url
+        Url $url,
+        StoreManagerInterface  $storeManager
     )
     {
         $this->_logger = $logger;
@@ -63,6 +71,7 @@ class Orders
         $this->dataHelper = $dataHelper;
         $this->_configRules = $configRules;
         $this->url = $url;
+        $this->_storeManager = $storeManager;
     }
 
     /**
@@ -127,24 +136,23 @@ class Orders
                     foreach ($items as $item){
 
                         /**
-                         * Get Product Id
-                         */
-                        $productId = $item->getProductId();
-
-                        /**
                          * Get Product Thumbnail
                          */
                         $productThumbnailUrl = $this->ordersHelper->getProductThumbnailUrl($item);
 
                         $product = $item->getProduct();
 
+                        /**
+                         * Get Product Id
+                         */
+                        $productId = $product->getId();
 
                         /*
                          * Get Product Url
                          */
                         $productUrl = '';
                         if($product){
-                            $productUrl =  $this->url->getUrl('catalog/product/view', ['id' => $productId, '_nosid' => true, '_query' => ['___store' => $storeId]]);
+                            $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
                         }
 
                         $ean = $this->ordersHelper->getProductEan($storeId, $item);
@@ -166,6 +174,16 @@ class Orders
 
                     $i++;
                 }
+
+
+
+
+
+
+
+
+
+                $this->_logger->critical("Feedaty | TEST ORDER" . print_r($data, true) . ' - date: ' . date('Y-m-d H:i:s') );
 
                 $response = (array) $this->webService->sendOrder($data, $storeId);
 

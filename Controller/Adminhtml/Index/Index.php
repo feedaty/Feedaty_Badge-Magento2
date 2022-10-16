@@ -69,6 +69,19 @@ class Index extends \Magento\Backend\App\Action
      */
     private $url;
 
+    /**
+     * @param Context $context
+     * @param ScopeConfigInterface $scopeConfig
+     * @param StoreManagerInterface $storeManager
+     * @param PageFactory $resultPageFactory
+     * @param ObjectManagerInterface $objectmanager
+     * @param Csv $csv
+     * @param DirectoryList $directoryList
+     * @param OrdersHelper $ordersHelper
+     * @param ConfigRules $configRules
+     * @param LoggerInterface $logger
+     * @param Url $url
+     */
     public function __construct(
         Context                $context,
         ScopeConfigInterface   $scopeConfig,
@@ -156,18 +169,10 @@ class Index extends \Magento\Backend\App\Action
             $items = $order->getAllVisibleItems();
 
             foreach ($items as $item) {
-                unset($tmp);
-                if (!$item->getParentItem()) {
 
-                    $fd_oProduct = $this->_objectManager->create('\Magento\Catalog\Model\Product')->load((int)$item->getProductId());
-
-                    $productId = $item->getProductId();
-
-                    /**
-                     * Get Product
-                     */
                     $product = $item->getProduct();
 
+                    $productId = $product->getId();
                     /**
                      * Get Product Thumbnail
                      */
@@ -181,9 +186,10 @@ class Index extends \Magento\Backend\App\Action
                     /*
                     * Get Product Url
                     */
+
                     $productUrl = '';
                     if ($product) {
-                        $productUrl = $this->url->getUrl('catalog/product/view', ['id' => $productId, '_nosid' => true, '_query' => ['___store' => $storeId]]);
+                         $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
                     }
 
                     $ean = $this->ordersHelper->getProductEan($storeId, $item);
@@ -206,7 +212,6 @@ class Index extends \Magento\Backend\App\Action
                 }
             }
 
-        }
 
         # END FORMAT DATA
 
