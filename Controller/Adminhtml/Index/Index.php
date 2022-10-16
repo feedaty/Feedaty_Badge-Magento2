@@ -168,6 +168,7 @@ class Index extends \Magento\Backend\App\Action
 
             $items = $order->getAllVisibleItems();
 
+
             foreach ($items as $item) {
 
                     $product = $item->getProduct();
@@ -189,7 +190,17 @@ class Index extends \Magento\Backend\App\Action
 
                     $productUrl = '';
                     if ($product) {
-                         $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
+                        if ($item->getProductType() === 'grouped'){
+                            $options = $item->getProductOptions();
+                            if(!empty($options['info_buyRequest'])) {
+                                if(!empty($options['super_product_config']["product_id"])) {
+                                    $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
+                                }
+                            }
+                        }
+                        else{
+                            $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
+                        }
                     }
 
                     $ean = $this->ordersHelper->getProductEan($storeId, $item);

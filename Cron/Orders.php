@@ -151,8 +151,18 @@ class Orders
                          * Get Product Url
                          */
                         $productUrl = '';
-                        if($product){
-                            $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
+                        if ($product) {
+                            if ($item->getProductType() === 'grouped'){
+                                $options = $item->getProductOptions();
+                                if(!empty($options['info_buyRequest'])) {
+                                    if(!empty($options['super_product_config']["product_id"])) {
+                                        $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
+                                    }
+                                }
+                            }
+                            else{
+                                $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
+                            }
                         }
 
                         $ean = $this->ordersHelper->getProductEan($storeId, $item);
@@ -174,16 +184,6 @@ class Orders
 
                     $i++;
                 }
-
-
-
-
-
-
-
-
-
-                $this->_logger->critical("Feedaty | TEST ORDER" . print_r($data, true) . ' - date: ' . date('Y-m-d H:i:s') );
 
                 $response = (array) $this->webService->sendOrder($data, $storeId);
 
