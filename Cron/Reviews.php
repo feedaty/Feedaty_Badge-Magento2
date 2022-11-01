@@ -164,6 +164,7 @@ class Reviews
                 }
 
                 if (!empty($feedatyProductReviews)) {
+
                     //Foreach Review
                     foreach ($feedatyProductReviews as $review) {
                         //feedaty_source_id
@@ -185,7 +186,7 @@ class Reviews
                             $feedatyProductReviewId = $item['ID'];
 
                             //Get Feedaty Product Reviews
-                            $magentoProductReviews = $this->_reviewsHelper->getReviewCollection($productId, $feedatyId, $storeId);
+                            $magentoProductReviews = $this->_reviewsHelper->getReviewCollection($feedatyProductReviewId);
 
                             //AP Rating node
                             $rating = $item['Rating'];
