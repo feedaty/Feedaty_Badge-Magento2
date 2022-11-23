@@ -2,6 +2,14 @@
 
 #### RELASE NOTES
 
+### V2.10.1
+* Features:
+    * Debug Mode
+    * Export Orders EAN code
+
+* Fixed Bugs
+    * Create multiple order review
+
 
 ### V2.9.1
 
