@@ -149,6 +149,7 @@ class Orders extends AbstractHelper
     }
 
     /**
+     * Get Orders for Cron Api
      * @return array|\Magento\Sales\Api\Data\OrderInterface[]
      */
     public function getOrders($storeId)
@@ -183,6 +184,36 @@ class Orders extends AbstractHelper
         }
 
         return $orders;
+    }
+
+
+
+    /**
+     * Get Orders for Cron Api
+     * @return array|\Magento\Sales\Api\Data\OrderInterface[]
+     */
+    public function getCsvOrders($from, $to, $storeId)
+    {
+        $orders = [];
+        $status = $this->getOrderstatus($storeId);
+        try {
+            $criteria = $this->searchCriteriaBuilder
+                ->addFilter('created_at', $from, 'gteq')
+                ->addFilter('created_at', $to, 'lteq')
+                ->addFilter('store_id', $storeId,'eq')
+                ->addFilter('status', $status,'eq')
+                ->create();
+
+            $orderResult = $this->orderRepository->getList($criteria);
+
+            $orders = $orderResult->getItems();
+
+        } catch (\Exception $e) {
+            $this->logger->critical('Feedaty | Error - Cannot get orders - '. $e->getMessage());
+        }
+
+        return $orders;
+
     }
 
     /**

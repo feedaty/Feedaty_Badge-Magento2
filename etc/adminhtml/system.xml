@@ -38,6 +38,11 @@
                         <field id="feedaty_global/feedaty_preferences/create_reviews_force_default_store">1</field>
                     </depends>
                 </field>
+
+                <field id="debug_mode_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Debug Mode</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
             </group>
 
             <group id="feedaty_sendorder" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
@@ -63,7 +68,16 @@
                 <label>Initial orders export</label>
                 <field id="exportbutton" translate="label" type="select" sortOrder="1" showInDefault="0" showInWebsite="0" showInStore="1">
                     <label>Export to csv</label>
+                    <comment>Remember to save configuration before export</comment>
                     <frontend_model>Feedaty\Badge\Block\LinkCsv</frontend_model>
+                </field>
+                <field id="export_date_from" translate="label" type="date" sortOrder="2" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <label>Export Orders From</label>
+                    <frontend_model>Feedaty\Badge\Block\Date</frontend_model>
+                </field>
+                <field id="export_date_to" translate="label" type="date" sortOrder="2" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <label>Export Orders To</label>
+                    <frontend_model>Feedaty\Badge\Block\Date</frontend_model>
                 </field>
             </group>
 

@@ -5,7 +5,10 @@ namespace Feedaty\Badge\Cron;
 use Feedaty\Badge\Helper\Data;
 use Feedaty\Badge\Helper\Orders as OrdersHelper;
 use Feedaty\Badge\Model\Config\Source\WebService;
+use Magento\Framework\Url;
 use Psr\Log\LoggerInterface;
+use Feedaty\Badge\Helper\ConfigRules;
+use \Magento\Store\Model\StoreManagerInterface;
 
 class Orders
 {
@@ -13,7 +16,7 @@ class Orders
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    protected $_logger;
 
     /**
      * @var OrdersHelper
@@ -24,25 +27,51 @@ class Orders
      */
     private $webService;
 
+    /**
+     * @var Data
+     */
     protected $dataHelper;
+
+    /**
+     * @var ConfigRules
+     */
+    protected $_configRules;
+
+    /**
+     * @var Url
+     */
+    private $url;
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
 
     /**
      * @param LoggerInterface $logger
      * @param OrdersHelper $ordersHelper
      * @param WebService $webService
      * @param Data $dataHelper
+     * @param ConfigRules $configRules
      */
     public function __construct(
         LoggerInterface         $logger,
         OrdersHelper            $ordersHelper,
         WebService $webService,
-        Data $dataHelper
+        Data $dataHelper,
+        ConfigRules $configRules,
+        Url $url,
+        StoreManagerInterface  $storeManager
     )
     {
-        $this->logger = $logger;
+        $this->_logger = $logger;
         $this->ordersHelper = $ordersHelper;
         $this->webService = $webService;
         $this->dataHelper = $dataHelper;
+        $this->_configRules = $configRules;
+        $this->url = $url;
+        $this->_storeManager = $storeManager;
     }
 
     /**
@@ -50,13 +79,9 @@ class Orders
      */
     public function execute()
     {
-        /**
-         * Send Module Information Data
-         */
-        $this->webService->fdSendInstallationInfo();
 
         //Starter Log
-        $this->logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
+        $this->_logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
 
         /**
          * Get stores
@@ -64,6 +89,12 @@ class Orders
         $storesIds = $this->dataHelper->getAllStoresIds();
 
         foreach ($storesIds as $storeId) {
+
+            /**
+             * Send Module Information Data
+             */
+            $this->webService->fdSendInstallationInfo($storeId);
+
 
             /**
              * Get Orders
@@ -74,6 +105,12 @@ class Orders
 
             /* Order Increment */
             $i = 0;
+
+            $debugMode = $this->_configRules->getDebugModeEnabled($storeId);
+
+            if($debugMode === "1") {
+                $this->_logger->info("Feedaty Debug Mode | Get Orders Data | " . count($orders) . " date: ".  date('Y-m-d H:i:s') );
+            }
 
             if(count($orders) > 0){
                 foreach ($orders as $order){
@@ -99,27 +136,33 @@ class Orders
                     foreach ($items as $item){
 
                         /**
-                         * Get Product Id
-                         */
-                        $productId = $item->getProductId();
-
-                        /**
                          * Get Product Thumbnail
                          */
                         $productThumbnailUrl = $this->ordersHelper->getProductThumbnailUrl($item);
 
-                        if ($item->getParentItem()) {
-                            $product = $item->getParentItem()->getProduct();
-                        } else {
-                            $product = $item->getProduct();
-                        }
+                        $product = $item->getProduct();
+
+                        /**
+                         * Get Product Id
+                         */
+                        $productId = $product->getId();
 
                         /*
                          * Get Product Url
                          */
                         $productUrl = '';
-                        if($product){
-                            $productUrl = $product->getProductUrl();
+                        if ($product) {
+                            if ($item->getProductType() === 'grouped'){
+                                $options = $item->getProductOptions();
+                                if(!empty($options['info_buyRequest'])) {
+                                    if(!empty($options['super_product_config']["product_id"])) {
+                                        $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
+                                    }
+                                }
+                            }
+                            else{
+                                $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
+                            }
                         }
 
                         $ean = $this->ordersHelper->getProductEan($storeId, $item);
@@ -149,22 +192,26 @@ class Orders
                         foreach ($response['Data'] as $dataResponse){
                             //if order Success or Duplicated set Feedaty Customer Notification true
                             if($dataResponse['Status'] == '1' || $dataResponse['Status'] == '201'){
-                                $this->logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') );
+                                $this->_logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') );
                             }
                             else {
-                                $this->logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') );
+                                $this->_logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') );
                             }
                         }
                     }
                     else {
-                        $this->logger->critical("Feedaty | No Data Response" . print_r($response,true));
+                        $this->_logger->critical("Feedaty | No Data Response" . print_r($response,true));
                     }
                 }
                 else {
-                    $this->logger->critical("Feedaty | Empty Response" );
+                    $this->_logger->critical("Feedaty | Empty Response" );
                 }
             }
         }
+
+        //SKIP Log
+        $this->_logger->info("Feedaty | SKIP Cronjob | No orders to import  | date: " . date('Y-m-d H:i:s') );
+
     }
 
 }

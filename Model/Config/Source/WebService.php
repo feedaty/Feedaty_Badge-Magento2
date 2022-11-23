@@ -399,20 +399,21 @@ class WebService
     }
 
 
-    public function getBaseUrl()
+    public function getBaseUrl($storeId = null )
     {
-        return $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+        return $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
     }
 
-    public function getStoreName()
+    public function getStoreName($storeId = null)
     {
-        return $this->storeManager->getStore()->getName();
+        return $this->storeManager->getStore($storeId)->getName();
     }
 
-    public function fdSendInstallationInfo()
+    public function fdSendInstallationInfo($storeId)
     {
 
         /* Platform (obviously Magento) and version */
+        $fdata['merchantCode'] = $this->_configRules->getFeedatyCode($storeId);
         $fdata['keyValuePairs'][] = array('Key' => 'Platform', 'Value' => $this->getPlatform());
 
         /* Plugin version */
@@ -425,22 +426,25 @@ class WebService
         $fdata['keyValuePairs'][] = array('Key' => 'Php Version', 'Value' => phpversion());
 
         /* Store name */
-        $fdata['keyValuePairs'][] = array('Key' => 'Name', 'Value' => $this->getStoreName());
+        $fdata['keyValuePairs'][] = array('Key' => 'Name', 'Value' => $this->getStoreName($storeId));
 
         /* Current server date */
         $fdata['keyValuePairs'][] = array('Key' => 'Date', 'Value' => date('c'));
 
         /* Order Status to Export */
-        $fdata['keyValuePairs'][] = array('Key' => 'Status', 'Value' => $this->_configRules->getSendOrderStatus());
+        $fdata['keyValuePairs'][] = array('Key' => 'Status', 'Value' => $this->_configRules->getSendOrderStatus($storeId));
 
         /* Import Reviews is enable */
-        $fdata['keyValuePairs'][] = array('Key' => 'ImportReviews', 'Value' => $this->_configRules->getCreateReviewEnabled());
+        $fdata['keyValuePairs'][] = array('Key' => 'ImportReviews', 'Value' => $this->_configRules->getCreateReviewEnabled($storeId));
 
-
-        $fdata['keyValuePairs'][] = array('Key' => 'SnippetEnabled', 'Value' => $this->_configRules->getSnippetEnabled());
+        /* Snippet Enabled */
+        $fdata['keyValuePairs'][] = array('Key' => 'SnippetEnabled', 'Value' => $this->_configRules->getSnippetEnabled($storeId));
 
         /* Feedaty Merchant code */
-        $fdata['merchantCode'] = $this->_configRules->getFeedatyCode();
+        $fdata['keyValuePairs'][] = array('Key' => 'MerchantCode', 'Value' => $this->_configRules->getFeedatyCode($storeId));
+
+        /* Feedaty Merchant secret */
+        $fdata['keyValuePairs'][] = array('Key' => 'MerchantSecret', 'Value' => $this->_configRules->getFeedatySecret($storeId));
 
 
         try {
@@ -448,8 +452,8 @@ class WebService
             $curl = $this->curlFactory->create();
             $curl->addHeader('Content-Type', 'application/json');
             $curl->setTimeout(1000);
+
             $curl->post($url, $this->jsonEncode($fdata));
-           // $this->_logger->info('Feedaty | Sending Module Information Data: '. print_r($fdata,true));
         } catch (\Exception $e) {
             $this->_logger->critical('Feedaty | Error sending Module Information Data: '. $e->getMessage());
         }

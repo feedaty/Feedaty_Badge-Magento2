@@ -135,8 +135,6 @@ class Reviews
                  */
                 $totalMediatedReviewCreatedCount = $this->_reviewsHelper->getAllFeedatyMediatedReviewCount($storeId);
 
-                $this->_logger->info("Feedaty | Cronjob Run | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount);
-
                 /**
                  * Get Last Review Created on Magento (on first run will be null)
                  */
@@ -159,8 +157,14 @@ class Reviews
                 //Get Feedaty Product Reviews Data
                 $feedatyProductReviews = $this->_webService->getProductReviewsPagination($row, $count, $storeId);
 
+                $debugMode = $this->_configRules->getDebugModeEnabled($storeId);
+
+                if($debugMode === "1") {
+                    $this->_logger->info("Feedaty Debug Mode | Cronjob Run | Get Feedaty Reviews  | date: " . date('Y-m-d H:i:s') . '  ---- Total Feedaty Product Reviews ' . $totalFeedatyReviews . '  totalReviewCreatedCount group by feedaty_id ' . $totalReviewCreatedCount . 'Feedaty Product Reviews Data'. print_r($feedatyProductReviews,true));
+                }
 
                 if (!empty($feedatyProductReviews)) {
+
                     //Foreach Review
                     foreach ($feedatyProductReviews as $review) {
                         //feedaty_source_id
@@ -182,7 +186,7 @@ class Reviews
                             $feedatyProductReviewId = $item['ID'];
 
                             //Get Feedaty Product Reviews
-                            $magentoProductReviews = $this->_reviewsHelper->getReviewCollection($productId, $feedatyId, $storeId);
+                            $magentoProductReviews = $this->_reviewsHelper->getReviewCollection($feedatyProductReviewId);
 
                             //AP Rating node
                             $rating = $item['Rating'];
@@ -290,6 +294,20 @@ class Reviews
     }
 
 
+    /**
+     * Create Reviews on Magento
+     * @param $productId
+     * @param $feedatyId
+     * @param $feedatyProductReviewId
+     * @param $rating
+     * @param $detail
+     * @param $createdAt
+     * @param $today
+     * @param $row
+     * @param $storeView
+     * @param $storeId
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     protected function createProductReview($productId, $feedatyId, $feedatyProductReviewId, $rating, $detail, $createdAt, $today, $row, $storeView, $storeId)
     {
 

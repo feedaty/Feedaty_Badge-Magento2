@@ -169,13 +169,13 @@ class Reviews extends AbstractHelper
      * @param $feedatyId
      * @return mixed
      */
-    public function getReviewCollection($productId, $feedatyId, $storeId)
+    public function getReviewCollection($feedatyProductReviewId)
     {
 
         $collection = $this->reviewCollection->create()
             ->addFieldToFilter(
-                'feedaty_source_id',
-                $feedatyId
+                'feedaty_product_review_id',
+                $feedatyProductReviewId
             )
             ->setDateOrder();
 
