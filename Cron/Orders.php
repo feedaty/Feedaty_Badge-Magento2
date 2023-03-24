@@ -84,7 +84,7 @@ class Orders
         $this->_logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
 
         /**
-         * Get stores
+         * Get All Stores Ids
          */
         $storesIds = $this->dataHelper->getAllStoresIds();
 
@@ -142,16 +142,18 @@ class Orders
 
                         $product = $item->getProduct();
 
-                        /**
-                         * Get Product Id
-                         */
-                        $productId = $product->getId();
 
-                        /*
-                         * Get Product Url
-                         */
-                        $productUrl = '';
                         if ($product) {
+
+                            /**
+                             * Get Product Id
+                             */
+                            $productId = $product->getId();
+
+                            /*
+                             * Get Product Url
+                             */
+                            $productUrl = '';
                             if ($item->getProductType() === 'grouped'){
                                 $options = $item->getProductOptions();
                                 if(!empty($options['info_buyRequest'])) {
@@ -163,18 +165,17 @@ class Orders
                             else{
                                 $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
                             }
-                        }
 
-                        $ean = $this->ordersHelper->getProductEan($storeId, $item);
-                        array_push($data[$i]['Products'],
-                            [
-                                'SKU' => $productId ,
+                            $ean = $this->ordersHelper->getProductEan($storeId, $item);
+                            $data[$i]['Products'][] = [
+                                'SKU' => $productId,
                                 'URL' => $productUrl,
                                 'ThumbnailURL' => $productThumbnailUrl,
                                 'Name' => $item->getName(),
                                 'EAN' => $ean
-                            ]
-                        );
+                            ];
+                        }
+
                     }
 
                     /**
