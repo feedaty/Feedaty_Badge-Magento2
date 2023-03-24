@@ -80,6 +80,11 @@ To setup Feedaty Widgets follow these steps;
 4th) Select preferences aboute module design, and set on enable widgets and/or product reviews.
 
 
+<h3>Import Feedaty Reviews</h2>
+
+Reviews are imported by cron job. Make sure you have cron enabled on Magento.
+
+
 <h2> INFOS AND CONTACTS </h2>
 
 www.feedaty.com

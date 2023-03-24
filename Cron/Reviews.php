@@ -194,6 +194,7 @@ class Reviews
                             //API Review Node
                             $detail = $item['Review'];
 
+                            //If review does not exist
                             if (empty($magentoProductReviews)) {
                                 $this->createProductReview($productId, $feedatyId, $feedatyProductReviewId, $rating, $detail, $createdAt, $today, $row, $storeView, $storeId);
                             }
