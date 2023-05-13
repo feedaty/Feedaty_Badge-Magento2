@@ -25,19 +25,30 @@ class WidgetHelper extends \Magento\Framework\App\Helper\AbstractHelper
     * Constructor
     *
     */
+    private WebService $service;
+    private Http $request;
+    private StoreManagerInterface $storeManager;
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param StoreManagerInterface $storeManager
+     * @param Data $dataHelper
+     * @param Http $request
+     * @param WebService $service
+     */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         DataHelp $dataHelper,
         Http $request,
-        WebService $fdservice
+        WebService $service
     )
     {
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
-        $this->_dataHelper = $dataHelper;
-        $this->_request = $request;
-        $this->_fdservice = $fdservice;
+        $this->dataHelper = $dataHelper;
+        $this->request = $request;
+        $this->service = $service;
     }
 
     /**
@@ -51,11 +62,11 @@ class WidgetHelper extends \Magento\Framework\App\Helper\AbstractHelper
 
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
 
-        $store = $this->storeManager->getStore($this->_request->getParam('store',0));
+        $store = $this->storeManager->getStore($this->request->getParam('store',0));
 
         $merchant_code = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
 
-        if ($this->_request->getParam('store', 0) == 0) {
+        if ($this->request->getParam('store', 0) == 0) {
 
             $merchant_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
 
@@ -67,7 +78,7 @@ class WidgetHelper extends \Magento\Framework\App\Helper\AbstractHelper
 
         }
 
-        $dataObject = $this->_fdservice->getFeedatyData($merchant_code);
+        $dataObject = $this->service->getFeedatyData($merchant_code);
 
         $data = $dataObject[$type]['variants'];
 

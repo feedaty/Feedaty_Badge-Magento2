@@ -1,14 +1,15 @@
 <?php
 namespace Feedaty\Badge\Model\Config\Source;
 
+use AllowDynamicProperties;
 use \Magento\Framework\Option\ArrayInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Feedaty\Badge\Model\Config\Source\WebService;
-use \Magento\Store\Model\StoreManagerInterface; 
+use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Framework\App\Request\Http;
 use Feedaty\Badge\Helper\Data as DataHelp;
 
-class Variants implements ArrayInterface
+#[AllowDynamicProperties] class Variants implements ArrayInterface
 {
        /**
     * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -24,37 +25,44 @@ class Variants implements ArrayInterface
     * Constructor
     *
     */
+    private StoreManagerInterface $storeManager;
+    private Http $request;
+
     public function __construct(
-        ScopeConfigInterface $scopeConfig, 
+        ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         DataHelp $dataHelper,
         Http $request,
         WebService $fdservice
-        ) 
+        )
     {
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
-        $this->_dataHelper = $dataHelper;
-        $this->_request = $request;
-        $this->_fdservice = $fdservice;
+        $this->dataHelper = $dataHelper;
+        $this->request = $request;
+        $this->fdservice = $fdservice;
     }
 
+    /**
+     * @return array
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function toOptionArray()
     {
         $return = array();
-        
+
         $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $store = $this->storeManager->getStore($this->_request->getParam('store', 0));
         $merchant_code = $store->getConfig('feedaty_global/feedaty_preferences/feedaty_code');
         $plugin_enabled = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/merch_enabled', $store_scope);
         $badge_style = $this->scopeConfig->getValue('feedaty_badge_options/widget_store/merch_style', $store_scope);
 
-        if($this->_request->getParam('store', 0) == 0) 
+        if($this->_request->getParam('store', 0) == 0)
         {
             $merchant_code = $this->scopeConfig->getValue('feedaty_global/feedaty_preferences/feedaty_code', $store_scope);
         }
 
-        if (strlen($merchant_code == 0))  
+        if (strlen($merchant_code == 0))
         {
             $return = array();
         }
@@ -72,7 +80,7 @@ class Variants implements ArrayInterface
                         $return[] = ['value' => $key,'label' => $value];
 
                     }
-                
+
                 }
 
             }
@@ -81,7 +89,7 @@ class Variants implements ArrayInterface
         else {
 
             $return = array();
-            
+
         }
 
         return $return;

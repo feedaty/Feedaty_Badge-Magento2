@@ -35,7 +35,7 @@ class Index extends \Magento\Backend\App\Action
     /**
      * @var ConfigRules
      */
-    protected $_configRules;
+    protected $configRules;
 
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
@@ -61,13 +61,15 @@ class Index extends \Magento\Backend\App\Action
     /**
      * @var LoggerInterface
      */
-    protected $_logger;
+    protected $logger;
 
 
     /**
      * @var Url
      */
     private $url;
+    private Context $context;
+    private Csv $csv;
 
     /**
      * @param Context $context
@@ -97,16 +99,16 @@ class Index extends \Magento\Backend\App\Action
     )
     {
         parent::__construct($context);
-        $this->_scopeConfig = $scopeConfig;
-        $this->_storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
         $this->resultPageFactory = $resultPageFactory;
-        $this->_objectManager = $objectmanager;
-        $this->_csv = $csv;
-        $this->_directoryList = $directoryList;
+        $this->objectManager = $objectmanager;
+        $this->csv = $csv;
+        $this->directoryList = $directoryList;
         $this->ordersHelper = $ordersHelper;
         $this->context = $context;
-        $this->_configRules = $configRules;
-        $this->_logger = $logger;
+        $this->configRules = $configRules;
+        $this->logger = $logger;
         $this->url = $url;
     }
 
@@ -119,33 +121,33 @@ class Index extends \Magento\Backend\App\Action
 
         # INIT FIELDS
 
-        $storeId = (int)$this->_request->getParam('store', 0);
+        $storeId = (int)$this->request->getParam('store', 0);
 
         /**
          * Get Feedaty Order options Status
          */
-        $orderStatus = $this->_configRules->getSendOrderStatus($storeId);
+        $orderStatus = $this->configRules->getSendOrderStatus($storeId);
 
         /**
          * Get Debug Mode
          */
-        $debugMode = $this->_configRules->getDebugModeEnabled($storeId);
+        $debugMode = $this->configRules->getDebugModeEnabled($storeId);
 
         /**
          * Get Data Range Options
          */
-        $exportDateFrom = $this->_configRules->getExportOrdersFrom($storeId);
-        $exportDateTo = $this->_configRules->getExportOrdersTo($storeId);
+        $exportDateFrom = $this->configRules->getExportOrdersFrom($storeId);
+        $exportDateTo = $this->configRules->getExportOrdersTo($storeId);
         $last4months = date('Y-m-d', strtotime("-4 months"));
         $now = date('Y-m-d', strtotime("+1 days"));
         $from = $exportDateFrom != '' ? $exportDateFrom : $last4months;
         $to = $exportDateTo != '' ? $exportDateTo : $now;
 
         if ($debugMode === "1") {
-            $this->_logger->info("Feedaty | Export Orders From Admin Panel | Store ID: " . $storeId . "Order Status " . $orderStatus . "  | date: " . date('Y-m-d H:i:s'));
+            $this->logger->info("Feedaty | Export Orders From Admin Panel | Store ID: " . $storeId . "Order Status " . $orderStatus . "  | date: " . date('Y-m-d H:i:s'));
         }
 
-        $dirPath = $this->_directoryList->getPath(\Magento\Framework\App\Filesystem\DirectoryList::VAR_DIR);
+        $dirPath = $this->directoryList->getPath(\Magento\Framework\App\Filesystem\DirectoryList::VAR_DIR);
         $outputFile = $dirPath . "/tmp/FeedatyOrderExport_" . date('Ymd_His') . ".csv";
 
         if (!is_dir($dirPath))
@@ -159,8 +161,8 @@ class Index extends \Magento\Backend\App\Action
 
         $heading = ["Order ID", "UserID", "E-mail", "Date", "Product ID", "Extra", "Product Url", "Product Image", "EAN", "Platform"];
 
-        $this->_csv->setDelimiter($delimiter);
-        $this->_csv->setEnclosure($enclosure);
+        $this->csv->setDelimiter($delimiter);
+        $this->csv->setEnclosure($enclosure);
 
         $data[] = $heading;
 
@@ -194,12 +196,12 @@ class Index extends \Magento\Backend\App\Action
                             $options = $item->getProductOptions();
                             if(!empty($options['info_buyRequest'])) {
                                 if(!empty($options['super_product_config']["product_id"])) {
-                                    $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
+                                    $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
                                 }
                             }
                         }
                         else{
-                            $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
+                            $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
                         }
                     }
 
@@ -228,7 +230,7 @@ class Index extends \Magento\Backend\App\Action
 
         # WRITE TO CSV FILE
 
-        $this->_csv->saveData($outputFile, $data);
+        $this->csv->saveData($outputFile, $data);
         $this->downloadCsv($outputFile);
 
         # END WRITE TO CSV

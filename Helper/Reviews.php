@@ -2,7 +2,6 @@
 
 namespace Feedaty\Badge\Helper;
 
-use Feedaty\Badge\Helper\ConfigRules;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Review\Model\ResourceModel\Review\CollectionFactory;
@@ -125,8 +124,7 @@ class Reviews extends AbstractHelper
         $forceDefaultStore = $this->_helperConfigRules->getReviewForceDefaultStore($storeId);
 
         if($forceDefaultStore === "1"){
-            $defaultStore = $this->_helperConfigRules->getReviewDefaultStore($storeId);
-            return $defaultStore;
+            return $this->_helperConfigRules->getReviewDefaultStore($storeId);
         }
         else{
             $order = null;
@@ -134,12 +132,11 @@ class Reviews extends AbstractHelper
                 $order = $this->_orderRepository->get($orderId);
             }
             catch (\Exception $e) {
-                $this->_logger->info("Feedaty | Error : order id does not exist " . $orderId . " Error message". $e->getMessage());
+                $this->_logger->error("Feedaty | Order id does not exist " . $orderId . " Message". $e->getMessage());
             }
 
             if (!is_null($order)) {
-                $websiteId = $order->getStore()->getWebsiteId();
-                return $websiteId;
+                return $order->getStore()->getWebsiteId();
             }
 
             return null;

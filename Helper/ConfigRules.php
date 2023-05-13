@@ -49,8 +49,8 @@ class ConfigRules extends AbstractHelper
     }
 
 
-    public function getSnippetConfig($data){
-        return $this->helperConfigSetting->getSnippetConfig($data);
+    public function getSnippetConfig($data, $storeId){
+        return $this->helperConfigSetting->getSnippetConfig($data, $storeId);
     }
 
     /**

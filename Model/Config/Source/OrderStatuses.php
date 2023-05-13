@@ -7,6 +7,8 @@ use \Magento\Sales\Model\Order\Config;
 
 class OrderStatuses implements OptionSourceInterface
 {
+    protected $orderConfig;
+
 
     /**
     * Constructor
@@ -14,7 +16,7 @@ class OrderStatuses implements OptionSourceInterface
     */
     public function __construct(Config $orderConfig)
     {
-         $this->_orderConfig = $orderConfig;
+         $this->orderConfig = $orderConfig;
     }
 
     /**
@@ -23,7 +25,7 @@ class OrderStatuses implements OptionSourceInterface
     */
     public function toOptionArray()
     {
-        $statuses = $this->_orderConfig->getStatuses();
+        $statuses = $this->orderConfig->getStatuses();
 
         $order_array = array();
         foreach($statuses as $k=>$label)

@@ -26,7 +26,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\Module\ModuleListInterface $moduleList,
         \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
-        $this->_moduleList = $moduleList;
+        $this->moduleList = $moduleList;
         $this->storeManager = $storeManager;
         parent::__construct($context);
     }
@@ -49,37 +49,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getExtensionVersion() {
         $moduleCode = 'Feedaty_Badge';
-        $moduleInfo = $this->_moduleList->getOne($moduleCode);
+        $moduleInfo = $this->moduleList->getOne($moduleCode);
         return $moduleInfo['setup_version'];
     }
 
-    /**
-    * Function Feedaty Debug - Save debug infoes in MageBasePath/var/log/feedaty.log
-    *   @param $message - string - the debug message
-    *   @param $severity - string - the message severity
-    */
-    public function feedatyDebug($message, $severity) {
-        $message = json_encode($message);
-        $fdwriter = new \Zend\Log\Writer\Stream(BP . '/var/log/feedaty.log');
-        $fdlogger = new \Zend\Log\Logger();
-        $fdlogger->addWriter($fdwriter);
-        $fdlogger->info("\n".$severity."\n".$message."\n");
 
-    }
-
-        /**
-     * Returns system configuration value
-     *
-     * @param $key
-     * @param null $store
-     * @return mixed
-     */
-    public function getConfigurationValue($key, $store = null)
-    {
-        return $this->scopeConfig->getValue(
-            'example_section/' . $key,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
 }
