@@ -71,7 +71,7 @@ class Orders
         $this->dataHelper = $dataHelper;
         $this->_configRules = $configRules;
         $this->url = $url;
-        $this->_storeManager = $storeManager;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -158,12 +158,12 @@ class Orders
                                 $options = $item->getProductOptions();
                                 if(!empty($options['info_buyRequest'])) {
                                     if(!empty($options['super_product_config']["product_id"])) {
-                                        $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
+                                        $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
                                     }
                                 }
                             }
                             else{
-                                $productUrl = $this->_storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
+                                $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
                             }
 
                             $ean = $this->ordersHelper->getProductEan($storeId, $item);

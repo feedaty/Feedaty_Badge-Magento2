@@ -2,6 +2,13 @@
 
 #### RELASE NOTES
 
+
+### V2.10.3
+
+* Fixed Bugs
+    * PHP 8.2 compatibility
+
+
 ### V2.10.1
 * Features:
     * Debug Mode
