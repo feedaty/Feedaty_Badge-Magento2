@@ -120,8 +120,8 @@ class Index extends \Magento\Backend\App\Action
     {
 
         # INIT FIELDS
-
-        $storeId = (int)$this->request->getParam('store', 0);
+        $request = $this->_request;
+        $storeId = (int) $request->getParam('store', 0);
 
         /**
          * Get Feedaty Order options Status
