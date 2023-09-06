@@ -2,12 +2,20 @@
 
 #### RELASE NOTES
 
+### V2.10.5
 
+* Fixed Bugs
+    * Orders Export | Fix call to a member function getId() on null
+
+### V2.10.4
+
+* Fixed Bugs
+    * Fix Undefined property:  $request in Controller/Adminhtml/Index/Index.php
+  
 ### V2.10.3
 
 * Fixed Bugs
     * PHP 8.2 compatibility
-
 
 ### V2.10.1
 * Features:

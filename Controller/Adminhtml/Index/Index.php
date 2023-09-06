@@ -175,54 +175,57 @@ class Index extends \Magento\Backend\App\Action
 
                     $product = $item->getProduct();
 
-                    $productId = $product->getId();
-                    /**
-                     * Get Product Thumbnail
-                     */
-                    $productThumbnailUrl = $this->ordersHelper->getProductThumbnailUrl($item);
+                    if($product){
+                        $productId = $product->getId();
+                        /**
+                         * Get Product Thumbnail
+                         */
+                        $productThumbnailUrl = $this->ordersHelper->getProductThumbnailUrl($item);
 
-                    /**
-                     * Get Magento Info
-                     */
-                    $platform = $this->ordersHelper->getPlatform();
+                        /**
+                         * Get Magento Info
+                         */
+                        $platform = $this->ordersHelper->getPlatform();
 
-                    /*
-                    * Get Product Url
-                    */
+                        /*
+                        * Get Product Url
+                        */
 
-                    $productUrl = '';
-                    if ($product) {
-                        if ($item->getProductType() === 'grouped'){
-                            $options = $item->getProductOptions();
-                            if(!empty($options['info_buyRequest'])) {
-                                if(!empty($options['super_product_config']["product_id"])) {
-                                    $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
+                        $productUrl = '';
+                        if ($product) {
+                            if ($item->getProductType() === 'grouped'){
+                                $options = $item->getProductOptions();
+                                if(!empty($options['info_buyRequest'])) {
+                                    if(!empty($options['super_product_config']["product_id"])) {
+                                        $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
+                                    }
                                 }
                             }
+                            else{
+                                $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
+                            }
                         }
-                        else{
-                            $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
-                        }
+
+                        $ean = $this->ordersHelper->getProductEan($storeId, $item);
+
+                        $row = [
+                            $order->getId(),
+                            $order->getBillingAddress()->getEmail(),
+                            $order->getBillingAddress()->getEmail(),
+                            $order->getCreatedAt(),
+                            $productId,
+                            str_replace('"', '""', $item->getName()),
+                            $productUrl,
+                            $productThumbnailUrl,
+                            $ean,
+                            $platform
+                        ];
+
+                        $data[] = $row;
+
+                    }
                     }
 
-                    $ean = $this->ordersHelper->getProductEan($storeId, $item);
-
-                    $row = [
-                        $order->getId(),
-                        $order->getBillingAddress()->getEmail(),
-                        $order->getBillingAddress()->getEmail(),
-                        $order->getCreatedAt(),
-                        $productId,
-                        str_replace('"', '""', $item->getName()),
-                        $productUrl,
-                        $productThumbnailUrl,
-                        $ean,
-                        $platform
-                    ];
-
-                    $data[] = $row;
-
-                }
             }
 
 
