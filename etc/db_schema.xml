@@ -4,6 +4,7 @@
         <column xsi:type="int" name="feedaty_orders_id" unsigned="false" nullable="false" identity="true" comment="Value ID"/>
         <column xsi:type="int" name="order_id" unsigned="true" nullable="false" identity="false" default="0" comment="Related Magento Order ID"/>
         <column xsi:type="int" name="feedaty_customer_notified" unsigned="true" nullable="false" identity="false" default="0" comment="Check if Customer as been notified"/>
+        <column xsi:type="int" name="feedaty_history_saved" unsigned="true" nullable="false" identity="false" default="0" comment="Check if Customer as been notified"/>
         <column xsi:type="timestamp" name="created_at" default="CURRENT_TIMESTAMP" comment="Created At"/>
         <column xsi:type="timestamp" name="updated_at" default="CURRENT_TIMESTAMP" comment="Updated At"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">

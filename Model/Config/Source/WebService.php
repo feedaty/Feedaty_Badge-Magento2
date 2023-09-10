@@ -134,6 +134,7 @@ class WebService
     public function sendOrder($data, $storeId) {
 
         $url = 'http://api.feedaty.com/Orders/Insert';
+       // $url = 'http://api.feedaty.com/Orders/RecordOrdersDataHistory';
 
         $token = $this->getReqToken();
         $accessToken = $this->getAccessToken($token, $storeId);

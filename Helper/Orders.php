@@ -13,6 +13,8 @@ use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Psr\Log\LoggerInterface;
+use \Magento\Store\Model\StoreManagerInterface;
+use Feedaty\Badge\Model\Config\Source\WebService;
 
 class Orders extends AbstractHelper
 {
@@ -61,6 +63,15 @@ class Orders extends AbstractHelper
      */
     private $orderFactory;
 
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
+
+    private $webService;
+
     /**
      * @param LoggerInterface $logger
      * @param OrderRepositoryInterface $orderRepository
@@ -81,7 +92,9 @@ class Orders extends AbstractHelper
         ProductMetadataInterface    $productMetadata,
         Order                       $feedatyOrderModel,
         FeedatyResourceOrder        $feedatyOrderResourceModel,
-        OrderFactory                $orderFactory
+        OrderFactory                $orderFactory,
+        StoreManagerInterface       $storeManager,
+        WebService $webService
     )
     {
         $this->logger = $logger;
@@ -93,6 +106,8 @@ class Orders extends AbstractHelper
         $this->feedatyOrderModel = $feedatyOrderModel;
         $this->feedatyOrderResourceModel = $feedatyOrderResourceModel;
         $this->orderFactory = $orderFactory;
+        $this->storeManager = $storeManager;
+        $this->webService = $webService;
     }
 
 
@@ -187,6 +202,142 @@ class Orders extends AbstractHelper
     }
 
 
+    public function sendFeedatyOrders($orders, $storeId){
+
+        foreach ($orders as $order){
+
+            /* Get all visible order products */
+            $items = $order->getAllVisibleItems();
+
+            /**
+             * Get Locale
+             */
+            $localeCode = $this->getCulture($storeId);
+
+            $data[$i] = [
+                'ID' => $order->getEntityId(),
+                'Date' => $order->getCreatedAt(),
+                'CustomerEmail' => $order->getCustomerEmail(),
+                'CustomerID' => $order->getCustomerEmail(),
+                'Culture' => $localeCode,
+                'Platform' => $this->getPlatform(),
+                'Products' => []
+            ];
+
+            foreach ($items as $item){
+
+                /**
+                 * Get Product Thumbnail
+                 */
+                $productThumbnailUrl = $this->getProductThumbnailUrl($item);
+
+                $product = $item->getProduct();
+
+
+                if ($product) {
+
+                    /**
+                     * Get Product Id
+                     */
+                    $productId = $product->getId();
+
+                    /*
+                     * Get Product Url
+                     */
+                    $productUrl = '';
+                    if ($item->getProductType() === 'grouped'){
+                        $options = $item->getProductOptions();
+                        if(!empty($options['info_buyRequest'])) {
+                            if(!empty($options['super_product_config']["product_id"])) {
+                                $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
+                            }
+                        }
+                    }
+                    else{
+                        $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
+                    }
+
+                    $ean = $this->getProductEan($storeId, $item);
+                    $data[$i]['Products'][] = [
+                        'SKU' => $productId,
+                        'URL' => $productUrl,
+                        'ThumbnailURL' => $productThumbnailUrl,
+                        'Name' => $item->getName(),
+                        'EAN' => $ean
+                    ];
+                }
+
+            }
+
+            /**
+             * Set Order As Sent
+             */
+            $this->setFeedatyCustomerNotified($order->getEntityId());
+
+            $i++;
+        }
+
+
+        //Send Order to Feedaty
+        $response = (array) $this->webService->sendOrder($data, $storeId);
+
+        if(!empty($response)){
+            if(isset($response['Data'])){
+                foreach ($response['Data'] as $dataResponse){
+                    //if order Success or Duplicated set Feedaty Customer Notification true
+                    if($dataResponse['Status'] == '1' || $dataResponse['Status'] == '201'){
+                        $this->_logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') );
+                    }
+                    else {
+                        $this->_logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') );
+                    }
+                }
+            }
+            else {
+                $this->_logger->critical("Feedaty | No Data Response" . print_r($response,true));
+            }
+        }
+        else {
+            $this->_logger->critical("Feedaty | Empty Response" );
+        }
+
+
+
+
+    }
+
+    public function getHistoryOrders($storeId)
+    {
+        $orders = [];
+
+        $ordersNotified = $this->getFeedatyOrdersHistorySaved();
+        if(empty($ordersNotified)){
+            $ordersNotified[] = 0;
+        }
+        try {
+            $to = date("Y-m-d h:i:s"); // current date
+            $range = strtotime('-48 hours', strtotime($to));
+            $from = date('Y-m-d h:i:s', $range); // 24 hours before
+
+            $criteria = $this->searchCriteriaBuilder
+                ->addFilter('updated_at', $from, 'gteq')
+                ->addFilter('entity_id', $ordersNotified, 'nin')
+                ->addFilter('store_id', $storeId,'eq')
+                ->setPageSize(50)
+                ->setCurrentPage(1)
+                ->create();
+
+            $orderResult = $this->orderRepository->getList($criteria);
+
+            $orders = $orderResult->getItems();
+
+        } catch (\Exception $e) {
+            $this->logger->critical('Feedaty | Error - Cannot get orders - '. $e->getMessage());
+        }
+
+        return $orders;
+    }
+
 
     /**
      * Get Orders for Cron Api
@@ -241,6 +392,28 @@ class Orders extends AbstractHelper
             $ordersNotified[] = $order->getOrderId();
         }
         return $ordersNotified;
+    }
+
+    /**
+     * Get Feedaty Orders History Saved
+     * @return array
+     */
+    public function getFeedatyOrdersHistorySaved()
+    {
+        $ordersHistorySaved = [];
+        $orders = $this->orderFactory->create()
+            ->getCollection()
+            ->addFieldToSelect('*')
+            ->addFieldToFilter(
+                'feedaty_history_saved',
+                0
+            );
+
+        foreach($orders as $order){
+            $ordersHistorySaved[] = $order->getOrderId();
+        }
+
+        return $ordersHistorySaved;
     }
 
     /**
