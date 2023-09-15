@@ -109,7 +109,7 @@ class Orders
              * Send Orders History to Feedaty
              */
             if(count($ordersHistory) > 0){
-                $this->ordersHelper->sendFeedatyOrders($orders, $storeId, true);
+                $this->ordersHelper->sendFeedatyOrders($ordersHistory, $storeId, true);
             }
             else{
                 /**

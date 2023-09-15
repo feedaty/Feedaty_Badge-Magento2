@@ -287,7 +287,7 @@ class Reviews
                 }
             }
             else{
-                $this->_logger->info("Feedaty | Cronjob is not enabled. Configure it from admin panel | date: ". date('Y-m-d H:i:s') );
+                $this->_logger->info("Feedaty | Import Reviews Cronjob is not enabled. Configure it from admin panel | date: ". date('Y-m-d H:i:s') );
             }
         }
 

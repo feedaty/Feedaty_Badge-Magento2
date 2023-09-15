@@ -332,7 +332,7 @@ class Orders extends AbstractHelper
                 }
             }
             else {
-                $this->_logger->critical("Feedaty | No Data Response" . print_r($response,true) . ' SendHistoryOrder ' . $sendHistory);
+                $this->_logger->critical("Feedaty | No Data Response" . print_r($response,true) . ' SendHistoryOrder ' . $sendHistory . ' Orders Data' . print_r($data,true));
             }
         }
         else {
