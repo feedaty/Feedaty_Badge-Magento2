@@ -206,6 +206,8 @@ class Orders extends AbstractHelper
      */
     public function sendFeedatyOrders($orders, $storeId, $sendHistory): void
     {
+        $data = [];
+        $i = 0;
         foreach ($orders as $order){
 
             /**
@@ -289,6 +291,7 @@ class Orders extends AbstractHelper
                     ];
                 }
             }
+            $i++;
 
             /**
              * Set Order As Sent on Magento
@@ -300,9 +303,7 @@ class Orders extends AbstractHelper
                 $this->setFeedatyCustomerNotified($order->getEntityId());
             }
 
-            $i++;
         }
-
 
         if ($sendHistory === true) {
             /**
