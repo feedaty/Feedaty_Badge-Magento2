@@ -293,7 +293,12 @@ class Orders extends AbstractHelper
             /**
              * Set Order As Sent on Magento
              */
-            $this->setFeedatyCustomerNotified($order->getEntityId());
+            if ($sendHistory === true) {
+                $this->setFeedatyHistorySaved($order->getEntityId());
+            }
+            else{
+                $this->setFeedatyCustomerNotified($order->getEntityId());
+            }
 
             $i++;
         }
@@ -497,6 +502,17 @@ class Orders extends AbstractHelper
 
         $feedatyOrder->setOrderId($orderId);
         $feedatyOrder->setFeedatyCustomerNotified(1);
+
+        $this->feedatyOrderResourceModel->save($feedatyOrder);
+
+    }
+
+    public function setFeedatyHistorySaved($orderId)
+    {
+        $feedatyOrder = $this->orderFactory->create();
+
+        $feedatyOrder->setOrderId($orderId);
+        $feedatyOrder->setFeedatyHistorySaved(1);
 
         $this->feedatyOrderResourceModel->save($feedatyOrder);
 
