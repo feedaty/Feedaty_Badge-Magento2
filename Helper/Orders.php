@@ -21,7 +21,7 @@ class Orders extends AbstractHelper
     /**
      * @var LoggerInterface
      */
-    protected LoggerInterface $logger;
+    protected $_logger;
 
     /**
      * @var OrderRepositoryInterface
@@ -81,7 +81,7 @@ class Orders extends AbstractHelper
      * @param WebService $webService
      */
     public function __construct(
-        LoggerInterface             $logger,
+        LoggerInterface             $_logger,
         OrderRepositoryInterface    $orderRepository,
         ConfigRules                 $helperConfigRules,
         ScopeConfigInterface        $scopeConfig,
@@ -93,7 +93,7 @@ class Orders extends AbstractHelper
         WebService $webService
     )
     {
-        $this->logger = $logger;
+        $this->_logger = $_logger;
         $this->orderRepository = $orderRepository;
         $this->helperConfigRules = $helperConfigRules;
         $this->scopeConfig = $scopeConfig;
@@ -118,7 +118,7 @@ class Orders extends AbstractHelper
 
         //Set default language fallback
         if (!in_array($culture, $allowedLanguages)) {
-            $this->logger->warning('Feedaty | Culture not found | Set default language fallback for '. $culture);
+            $this->_logger->warning('Feedaty | Culture not found | Set default language fallback for '. $culture);
             $culture = "en";
         }
 
@@ -190,7 +190,7 @@ class Orders extends AbstractHelper
             $orders = $orderResult->getItems();
 
         } catch (\Exception $e) {
-            $this->logger->critical('Feedaty | Error - Cannot get orders - '. $e->getMessage());
+            $this->_logger->critical('Feedaty | Error - Cannot get orders - '. $e->getMessage());
         }
 
         return $orders;
@@ -368,7 +368,7 @@ class Orders extends AbstractHelper
             $orders = $orderResult->getItems();
 
         } catch (\Exception $e) {
-            $this->logger->critical('Feedaty | Error - Cannot get orders - '. $e->getMessage());
+            $this->_logger->critical('Feedaty | Error - Cannot get orders - '. $e->getMessage());
         }
 
         return $orders;
@@ -396,7 +396,7 @@ class Orders extends AbstractHelper
             $orders = $orderResult->getItems();
 
         } catch (\Exception $e) {
-            $this->logger->critical('Feedaty | Error - Cannot get orders - '. $e->getMessage());
+            $this->_logger->critical('Feedaty | Error - Cannot get orders - '. $e->getMessage());
         }
 
         return $orders;
