@@ -131,10 +131,14 @@ class WebService
      * @param $data
      * @return array|bool|float|int|string|null
      */
-    public function sendOrder($data, $storeId) {
+    public function sendOrder($data, $storeId, $sendHistory) {
 
-        $url = 'http://api.feedaty.com/Orders/Insert';
-       // $url = 'http://api.feedaty.com/Orders/RecordOrdersDataHistory';
+        if($sendHistory === true){
+            $url = 'http://api.feedaty.com/Orders/RecordOrdersDataHistory';
+        }
+        else{
+            $url = 'http://api.feedaty.com/Orders/Insert';
+        }
 
         $token = $this->getReqToken();
         $accessToken = $this->getAccessToken($token, $storeId);

@@ -80,7 +80,7 @@ class Orders
     public function execute()
     {
 
-        //Starter Log
+        //Feedaty | START Cronjob | Set Feedaty Orders
         $this->_logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
 
         /**
@@ -95,37 +95,43 @@ class Orders
              */
             $this->webService->fdSendInstallationInfo($storeId);
 
-
             /**
              * Get Orders
              */
             $orders = $this->ordersHelper->getOrders($storeId);
+
+            /**
+             * Get HistoryOrders
+             */
             $ordersHistory = $this->ordersHelper->getHistoryOrders($storeId);
 
-            //todo get all orders not filtered by status with data 48 ore range escludere annullati
-
-            $data = [];
-
-            /* Order Increment */
-            $i = 0;
-
-            $debugMode = $this->_configRules->getDebugModeEnabled($storeId);
-
-            if($debugMode === "1") {
-                $this->_logger->info("Feedaty Debug Mode | Get Orders Data | " . count($orders) . " date: ".  date('Y-m-d H:i:s') );
-                $this->_logger->info("Feedaty Debug Mode | Get OrdersHistory Data | " . count($ordersHistory) . " date: ".  date('Y-m-d H:i:s') );
+            /**
+             * Send Orders History to Feedaty
+             */
+            if(count($ordersHistory) > 0){
+                $this->ordersHelper->sendFeedatyOrders($orders, $storeId, true);
+            }
+            else{
+                /**
+                 * No orders history to import
+                 */
+                $this->_logger->info("Feedaty | SKIP Cronjob | No orders history to import  | date: " . date('Y-m-d H:i:s') );
             }
 
-            //todo Send order to feedaty new api
-
-            //todo Create two functions
+            /**
+             * Send Orders to Feedaty
+             */
             if(count($orders) > 0){
-                $this->ordersHelper->sendFeedatyOrders($orders, $storeId);
+                $this->ordersHelper->sendFeedatyOrders($orders, $storeId, false);
+            }
+            else{
+                /**
+                 * No orders to import
+                 */
+                $this->_logger->info("Feedaty | SKIP Cronjob | No orders to import  | date: " . date('Y-m-d H:i:s') );
             }
         }
 
-        //SKIP Log
-        $this->_logger->info("Feedaty | SKIP Cronjob | No orders to import  | date: " . date('Y-m-d H:i:s') );
 
     }
 

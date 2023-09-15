@@ -21,17 +21,17 @@ class Orders extends AbstractHelper
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     /**
      * @var OrderRepositoryInterface
      */
-    protected $orderRepository;
+    protected OrderRepositoryInterface $orderRepository;
 
     /**
      * @var ConfigRules
      */
-    protected $helperConfigRules;
+    protected ConfigRules $helperConfigRules;
 
     /**
      * @var ScopeConfigInterface
@@ -41,36 +41,32 @@ class Orders extends AbstractHelper
     /**
      * @var SearchCriteriaBuilder
      */
-    protected $searchCriteriaBuilder;
+    protected SearchCriteriaBuilder $searchCriteriaBuilder;
 
     /**
      * @var ProductMetadataInterface
      */
-    protected $productMetadata;
-
-    /**
-     * @var Order
-     */
-    private $feedatyOrderModel;
+    protected ProductMetadataInterface $productMetadata;
 
     /**
      * @var FeedatyResourceOrder
      */
-    private $feedatyOrderResourceModel;
+    private FeedatyResourceOrder $feedatyOrderResourceModel;
 
     /**
      * @var OrderFactory
      */
-    private $orderFactory;
-
+    private OrderFactory $orderFactory;
 
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
      */
-    protected $storeManager;
+    protected StoreManagerInterface $storeManager;
 
-
-    private $webService;
+    /**
+     * @var WebService
+     */
+    private WebService $webService;
 
     /**
      * @param LoggerInterface $logger
@@ -79,9 +75,10 @@ class Orders extends AbstractHelper
      * @param ScopeConfigInterface $scopeConfig
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param ProductMetadataInterface $productMetadata
-     * @param Order $feedatyOrderModel
      * @param FeedatyResourceOrder $feedatyOrderResourceModel
      * @param OrderFactory $orderFactory
+     * @param StoreManagerInterface $storeManager
+     * @param WebService $webService
      */
     public function __construct(
         LoggerInterface             $logger,
@@ -90,7 +87,6 @@ class Orders extends AbstractHelper
         ScopeConfigInterface        $scopeConfig,
         SearchCriteriaBuilder       $searchCriteriaBuilder,
         ProductMetadataInterface    $productMetadata,
-        Order                       $feedatyOrderModel,
         FeedatyResourceOrder        $feedatyOrderResourceModel,
         OrderFactory                $orderFactory,
         StoreManagerInterface       $storeManager,
@@ -103,7 +99,6 @@ class Orders extends AbstractHelper
         $this->scopeConfig = $scopeConfig;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->productMetadata = $productMetadata;
-        $this->feedatyOrderModel = $feedatyOrderModel;
         $this->feedatyOrderResourceModel = $feedatyOrderResourceModel;
         $this->orderFactory = $orderFactory;
         $this->storeManager = $storeManager;
@@ -164,10 +159,10 @@ class Orders extends AbstractHelper
     }
 
     /**
-     * Get Orders for Cron Api
-     * @return array|\Magento\Sales\Api\Data\OrderInterface[]
+     * @param $storeId
+     * @return array
      */
-    public function getOrders($storeId)
+    public function getOrders($storeId): array
     {
         $orders = [];
         $status = $this->getOrderstatus($storeId);
@@ -201,12 +196,21 @@ class Orders extends AbstractHelper
         return $orders;
     }
 
-
-    public function sendFeedatyOrders($orders, $storeId){
-
+    /**
+     * @param $orders
+     * @param $storeId
+     * @param $sendHistory
+     * @return void
+     * @throws \Magento\Framework\Exception\AlreadyExistsException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function sendFeedatyOrders($orders, $storeId, $sendHistory): void
+    {
         foreach ($orders as $order){
 
-            /* Get all visible order products */
+            /**
+             * Get all visible order products
+             */
             $items = $order->getAllVisibleItems();
 
             /**
@@ -214,6 +218,9 @@ class Orders extends AbstractHelper
              */
             $localeCode = $this->getCulture($storeId);
 
+            /**
+             * Set Order Data
+             */
             $data[$i] = [
                 'ID' => $order->getEntityId(),
                 'Date' => $order->getCreatedAt(),
@@ -224,8 +231,17 @@ class Orders extends AbstractHelper
                 'Products' => []
             ];
 
-            foreach ($items as $item){
+            /**
+             * If Send History is true set order status
+             */
+            if ($sendHistory === true) {
+                $data[$i]['Status'] = $order->getStatus();
+            }
 
+            /**
+             * Get Product Data
+             */
+            foreach ($items as $item){
                 /**
                  * Get Product Thumbnail
                  */
@@ -233,15 +249,14 @@ class Orders extends AbstractHelper
 
                 $product = $item->getProduct();
 
-
                 if ($product) {
 
                     /**
-                     * Get Product Id
+                     * Get Product ID
                      */
                     $productId = $product->getId();
 
-                    /*
+                    /**
                      * Get Product Url
                      */
                     $productUrl = '';
@@ -257,7 +272,14 @@ class Orders extends AbstractHelper
                         $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
                     }
 
+                    /**
+                     * Get Product EAN
+                     */
                     $ean = $this->getProductEan($storeId, $item);
+
+                    /**
+                     * Set Product Data
+                     */
                     $data[$i]['Products'][] = [
                         'SKU' => $productId,
                         'URL' => $productUrl,
@@ -266,11 +288,10 @@ class Orders extends AbstractHelper
                         'EAN' => $ean
                     ];
                 }
-
             }
 
             /**
-             * Set Order As Sent
+             * Set Order As Sent on Magento
              */
             $this->setFeedatyCustomerNotified($order->getEntityId());
 
@@ -278,35 +299,42 @@ class Orders extends AbstractHelper
         }
 
 
-        //Send Order to Feedaty
-        $response = (array) $this->webService->sendOrder($data, $storeId);
+        if ($sendHistory === true) {
+            /**
+             * Send Order to Feedaty History API
+             */
+            $response = (array) $this->webService->sendOrder($data, $storeId, true);
+        }
+        else {
+            /**
+             * Send Order to Feedaty Orders API
+             */
+            $response = (array) $this->webService->sendOrder($data, $storeId, false);
+        }
+
 
         if(!empty($response)){
             if(isset($response['Data'])){
                 foreach ($response['Data'] as $dataResponse){
                     //if order Success or Duplicated set Feedaty Customer Notification true
                     if($dataResponse['Status'] == '1' || $dataResponse['Status'] == '201'){
-                        $this->_logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') );
+                        $this->_logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') . ' SendHistoryOrder ' . $sendHistory );
                     }
                     else {
-                        $this->_logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') );
+                        $this->_logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') . ' SendHistoryOrder ' . $sendHistory);
                     }
                 }
             }
             else {
-                $this->_logger->critical("Feedaty | No Data Response" . print_r($response,true));
+                $this->_logger->critical("Feedaty | No Data Response" . print_r($response,true) . ' SendHistoryOrder ' . $sendHistory);
             }
         }
         else {
-            $this->_logger->critical("Feedaty | Empty Response" );
+            $this->_logger->critical("Feedaty | Empty Response". ' SendHistoryOrder ' . $sendHistory);
         }
-
-
-
-
     }
 
-    public function getHistoryOrders($storeId)
+    public function getHistoryOrders($storeId): array
     {
         $orders = [];
 
@@ -316,13 +344,15 @@ class Orders extends AbstractHelper
         }
         try {
             $to = date("Y-m-d h:i:s"); // current date
-            $range = strtotime('-48 hours', strtotime($to));
+            //todo set to 24 h
+            $range = strtotime('-2400 hours', strtotime($to));
             $from = date('Y-m-d h:i:s', $range); // 24 hours before
 
             $criteria = $this->searchCriteriaBuilder
                 ->addFilter('updated_at', $from, 'gteq')
                 ->addFilter('entity_id', $ordersNotified, 'nin')
                 ->addFilter('store_id', $storeId,'eq')
+                ->addFilter('status', ['canceled','fraud','holded'],'nin')
                 ->setPageSize(50)
                 ->setCurrentPage(1)
                 ->create();
@@ -406,7 +436,7 @@ class Orders extends AbstractHelper
             ->addFieldToSelect('*')
             ->addFieldToFilter(
                 'feedaty_history_saved',
-                0
+                1
             );
 
         foreach($orders as $order){

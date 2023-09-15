@@ -5,7 +5,7 @@
 			<schedule>*/5 * * * *</schedule>
 		</job>
         <job instance="Feedaty\Badge\Cron\Orders" method="execute" name="feedaty_badge_cron_orders" >
-            <schedule>*/5 * * * *</schedule>
+            <schedule>* * * * *</schedule>
         </job>
 	</group>
 </config>
