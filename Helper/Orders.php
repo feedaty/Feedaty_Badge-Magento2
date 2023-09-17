@@ -173,7 +173,7 @@ class Orders extends AbstractHelper
         }
         try {
             $to = date("Y-m-d h:i:s"); // current date
-            $range = strtotime('-24 hours', strtotime($to));
+            $range = strtotime('-2400 hours', strtotime($to));
             $from = date('Y-m-d h:i:s', $range); // 24 hours before
 
             $criteria = $this->searchCriteriaBuilder
@@ -413,7 +413,7 @@ class Orders extends AbstractHelper
         try {
             $status = $this->helperConfigRules->getSendOrderStatus($storeId);
         } catch (\Exception $e) {
-            $this->logger->critical('Feedaty | Error - Cannot find send order status configuration. Set order status complete as default value - '. $e->getMessage());
+            $this->_logger->critical('Feedaty | Error - Cannot find send order status configuration. Set order status complete as default value - '. $e->getMessage());
         }
 
         return $status;
@@ -422,7 +422,13 @@ class Orders extends AbstractHelper
     public function getFeedatyOrdersNotified()
     {
         $ordersNotified = [];
-        $orders = $this->orderFactory->create()->getCollection();
+        $orders = $this->orderFactory->create()
+            ->getCollection()
+            ->addFieldToSelect('*')
+            ->addFieldToFilter(
+                'feedaty_customer_notified',
+                1
+            );
 
         foreach($orders as $order){
             $ordersNotified[] = $order->getOrderId();
@@ -482,7 +488,7 @@ class Orders extends AbstractHelper
             }
 
         } catch (\Exception $e) {
-            $this->logger->critical('Feedaty | Error - Cannot get product thumbnail URL - '. $e->getMessage());
+            $this->_logger->critical('Feedaty | Error - Cannot get product thumbnail URL - '. $e->getMessage());
         }
 
         return $productThumbnailUrl;
@@ -492,6 +498,9 @@ class Orders extends AbstractHelper
      * Get Feedaty Customer Notified Orders
      */
 
+
+
+
     /**
      * Set Feedaty Customer Notified Orders
      * @param $order
@@ -499,24 +508,60 @@ class Orders extends AbstractHelper
      */
     public function setFeedatyCustomerNotified($orderId)
     {
-        $feedatyOrder = $this->orderFactory->create();
+        $feedatyOrder = $this->getFeedatyOrder($orderId);
 
-        $feedatyOrder->setOrderId($orderId);
-        $feedatyOrder->setFeedatyCustomerNotified(1);
+        if (!$feedatyOrder) {
+            $this->_logger->critical('setFeedatyCustomerNotified: DOES NOT order exist '. $orderId);
+            $feedatyOrder = $this->orderFactory->create();
 
-        $this->feedatyOrderResourceModel->save($feedatyOrder);
+            $feedatyOrder->setOrderId($orderId);
+            $feedatyOrder->setFeedatyCustomerNotified(1);
 
+            $this->feedatyOrderResourceModel->save($feedatyOrder);
+        }
+        else{
+            $this->_logger->critical('setFeedatyCustomerNotified: order exist '. $orderId);
+            $order = $feedatyOrder->load($orderId);
+            $history = $order->getFeedatyHistorySaved();
+            $order->setOrderId($orderId);
+            $order->setFeedatyCustomerNotified(1);
+            $order->setFeedatyHistorySaved($history);
+            $this->feedatyOrderResourceModel->save($order);
+        }
     }
 
     public function setFeedatyHistorySaved($orderId)
     {
-        $feedatyOrder = $this->orderFactory->create();
+        $feedatyOrder = $this->getFeedatyOrder($orderId);
+        if (!$feedatyOrder) {
+            $this->_logger->critical('setFeedatyHistorySaved: DOES NOT order exist '. $orderId);
+            $feedatyOrder = $this->orderFactory->create();
 
-        $feedatyOrder->setOrderId($orderId);
-        $feedatyOrder->setFeedatyHistorySaved(1);
+            $feedatyOrder->setOrderId($orderId);
+            $feedatyOrder->setFeedatyHistorySaved(1);
 
-        $this->feedatyOrderResourceModel->save($feedatyOrder);
+            $this->feedatyOrderResourceModel->save($feedatyOrder);
+        }
+        else{
+            $this->_logger->critical('setFeedatyHistorySaved: order exist '. $orderId);
+            $order = $feedatyOrder->load($orderId);
+            $customerNotified = $feedatyOrder->getFeedatyCustomerNotified();
+            $order->setFeedatyCustomerNotified($customerNotified);
+            $order->setOrderId($orderId);
+            $order->setFeedatyHistorySaved(1);
+            $this->feedatyOrderResourceModel->save($order);
+        }
+    }
 
+    public function getFeedatyOrder($orderId){
+        $order = $this->orderFactory->create()->getCollection()->addFieldToFilter('order_id',$orderId)->getFirstItem();
+
+        if(count($order->getData()) > 0){
+            return $order;
+        }
+        else{
+            return false;
+        }
     }
 
 }
