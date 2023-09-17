@@ -520,13 +520,11 @@ class Orders extends AbstractHelper
             $this->feedatyOrderResourceModel->save($feedatyOrder);
         }
         else{
-            $this->_logger->critical('setFeedatyCustomerNotified: order exist '. $orderId);
-            $order = $feedatyOrder->load($orderId);
-            $history = $order->getFeedatyHistorySaved();
-            $order->setOrderId($orderId);
-            $order->setFeedatyCustomerNotified(1);
-            $order->setFeedatyHistorySaved($history);
-            $this->feedatyOrderResourceModel->save($order);
+            $history = $feedatyOrder->getFeedatyHistorySaved();
+            $feedatyOrder->setOrderId($orderId);
+            $feedatyOrder->setFeedatyCustomerNotified(1);
+            $feedatyOrder->setFeedatyHistorySaved($history);
+            $this->feedatyOrderResourceModel->save($feedatyOrder);
         }
     }
 
@@ -534,7 +532,6 @@ class Orders extends AbstractHelper
     {
         $feedatyOrder = $this->getFeedatyOrder($orderId);
         if (!$feedatyOrder) {
-            $this->_logger->critical('setFeedatyHistorySaved: DOES NOT order exist '. $orderId);
             $feedatyOrder = $this->orderFactory->create();
 
             $feedatyOrder->setOrderId($orderId);
@@ -543,13 +540,11 @@ class Orders extends AbstractHelper
             $this->feedatyOrderResourceModel->save($feedatyOrder);
         }
         else{
-            $this->_logger->critical('setFeedatyHistorySaved: order exist '. $orderId);
-            $order = $feedatyOrder->load($orderId);
             $customerNotified = $feedatyOrder->getFeedatyCustomerNotified();
-            $order->setFeedatyCustomerNotified($customerNotified);
-            $order->setOrderId($orderId);
-            $order->setFeedatyHistorySaved(1);
-            $this->feedatyOrderResourceModel->save($order);
+            $feedatyOrder->setFeedatyCustomerNotified($customerNotified);
+            $feedatyOrder->setOrderId($orderId);
+            $feedatyOrder->setFeedatyHistorySaved(1);
+            $this->feedatyOrderResourceModel->save($feedatyOrder);
         }
     }
 
