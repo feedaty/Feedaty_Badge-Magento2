@@ -173,7 +173,7 @@ class Orders extends AbstractHelper
         }
         try {
             $to = date("Y-m-d h:i:s"); // current date
-            $range = strtotime('-2400 hours', strtotime($to));
+            $range = strtotime('-24 hours', strtotime($to));
             $from = date('Y-m-d h:i:s', $range); // 24 hours before
 
             $criteria = $this->searchCriteriaBuilder
@@ -350,8 +350,7 @@ class Orders extends AbstractHelper
         }
         try {
             $to = date("Y-m-d h:i:s"); // current date
-            //todo set to 24 h
-            $range = strtotime('-2400 hours', strtotime($to));
+            $range = strtotime('-24 hours', strtotime($to));
             $from = date('Y-m-d h:i:s', $range); // 24 hours before
 
             $criteria = $this->searchCriteriaBuilder
