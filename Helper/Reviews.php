@@ -116,16 +116,21 @@ class Reviews extends AbstractHelper
     }
 
     /**
+     * Return website_id
      * @param $orderId
-     * @return int|string|null
+     * @param $storeId
+     * @return array|int|string|null
      */
     public function getStoreViewIdByOrder($orderId, $storeId)
     {
         $forceDefaultStore = $this->_helperConfigRules->getReviewForceDefaultStore($storeId);
 
+        //If force default store is enabled, return Store View From Feedaty Module Configuration
         if($forceDefaultStore === "1"){
             return $this->_helperConfigRules->getReviewDefaultStore($storeId);
         }
+
+        //get store_id from order if exist
         else{
             $order = null;
             try {
@@ -136,7 +141,7 @@ class Reviews extends AbstractHelper
             }
 
             if (!is_null($order)) {
-                return $order->getStore()->getWebsiteId();
+                return $order->getStoreId();
             }
 
             return null;

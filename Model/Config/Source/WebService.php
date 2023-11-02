@@ -252,7 +252,8 @@ class WebService
     public function getTotalProductReviewsCount($storeId)
     {
         $allProductReviews = $this->getAllReviews('?retrieve=onlyproductreviews&row=0&count=1', $storeId);
-        $totalResults = $allProductReviews['TotalProductReviews'];
+
+        $totalResults = isset($allProductReviews['TotalProductReviews']) ? $allProductReviews['TotalProductReviews'] : 0;
 
         return $totalResults;
     }

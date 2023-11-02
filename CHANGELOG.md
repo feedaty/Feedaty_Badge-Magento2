@@ -2,6 +2,15 @@
 
 #### RELASE NOTES
 
+
+
+### V2.10.6
+
+* Fixed Bugs
+    * getStoreId from orders instead of websiteId when create reviews
+    * check if review detail is empty
+    * set database fields nullable
+* 
 ### V2.10.5
 
 * Fixed Bugs
