@@ -4,6 +4,7 @@
         <column xsi:type="int" name="feedaty_orders_id" unsigned="false" nullable="false" identity="true" comment="Value ID"/>
         <column xsi:type="int" name="order_id" unsigned="true" nullable="false" identity="false" default="0" comment="Related Magento Order ID"/>
         <column xsi:type="int" name="feedaty_customer_notified" unsigned="true" nullable="false" identity="false" default="0" comment="Check if Customer as been notified"/>
+        <column xsi:type="int" name="feedaty_history_saved" unsigned="true" nullable="false" identity="false" default="0" comment="Check if Customer as been notified"/>
         <column xsi:type="timestamp" name="created_at" default="CURRENT_TIMESTAMP" comment="Created At"/>
         <column xsi:type="timestamp" name="updated_at" default="CURRENT_TIMESTAMP" comment="Updated At"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
@@ -11,11 +12,11 @@
         </constraint>
     </table>
     <table name="review_detail">
-        <column xsi:type="int" name="feedaty_source" unsigned="true" nullable="false" identity="false" comment="Feedaty Review"/>
-        <column xsi:type="int" name="feedaty_pagination" unsigned="true" nullable="false" identity="false" default="0" comment="Feedaty Import Pagination"/>
-        <column xsi:type="int" name="feedaty_source_id" unsigned="true" nullable="false" identity="false" default="0" comment="Feedaty review ID"/>
-        <column xsi:type="int" name="feedaty_product_review_id" unsigned="true" nullable="false" identity="false" default="0" comment="Feedaty Product Review ID"/>
-        <column xsi:type="int" name="feedaty_product_mediated" unsigned="true" nullable="false" identity="false" default="0" comment="Feedaty Product Mediated"/>
+        <column xsi:type="int" name="feedaty_source" unsigned="true" nullable="true" identity="false" default="0" comment="Feedaty Review"/>
+        <column xsi:type="int" name="feedaty_pagination" unsigned="true" nullable="true" identity="false" default="0" comment="Feedaty Import Pagination"/>
+        <column xsi:type="int" name="feedaty_source_id" unsigned="true" nullable="true" identity="false" default="0" comment="Feedaty review ID"/>
+        <column xsi:type="int" name="feedaty_product_review_id" unsigned="true" nullable="true" identity="false" default="0" comment="Feedaty Product Review ID"/>
+        <column xsi:type="int" name="feedaty_product_mediated" unsigned="true" nullable="true" identity="false" default="0" comment="Feedaty Product Mediated"/>
         <column xsi:type="timestamp" name="feedaty_update" comment="Updated At"/>
         <column xsi:type="timestamp" name="feedaty_create" comment="Created At"/>
     </table>

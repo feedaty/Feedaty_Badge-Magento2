@@ -80,7 +80,7 @@ class Orders
     public function execute()
     {
 
-        //Starter Log
+        //Feedaty | START Cronjob | Set Feedaty Orders
         $this->_logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
 
         /**
@@ -95,123 +95,43 @@ class Orders
              */
             $this->webService->fdSendInstallationInfo($storeId);
 
-
             /**
              * Get Orders
              */
             $orders = $this->ordersHelper->getOrders($storeId);
 
-            $data = [];
+            /**
+             * Get HistoryOrders
+             */
+            $ordersHistory = $this->ordersHelper->getHistoryOrders($storeId);
 
-            /* Order Increment */
-            $i = 0;
-
-            $debugMode = $this->_configRules->getDebugModeEnabled($storeId);
-
-            if($debugMode === "1") {
-                $this->_logger->info("Feedaty Debug Mode | Get Orders Data | " . count($orders) . " date: ".  date('Y-m-d H:i:s') );
+            /**
+             * Send Orders History to Feedaty
+             */
+            if(count($ordersHistory) > 0){
+                $this->ordersHelper->sendFeedatyOrders($ordersHistory, $storeId, true);
+            }
+            else{
+                /**
+                 * No orders history to import
+                 */
+                $this->_logger->info("Feedaty | SKIP Cronjob | No orders history to import  | date: " . date('Y-m-d H:i:s') );
             }
 
+            /**
+             * Send Orders to Feedaty
+             */
             if(count($orders) > 0){
-                foreach ($orders as $order){
-
-                    /* Get all visible order products */
-                    $items = $order->getAllVisibleItems();
-
-                    /**
-                     * Get Locale
-                     */
-                    $localeCode = $this->ordersHelper->getCulture($storeId);
-
-                    $data[$i] = [
-                        'ID' => $order->getEntityId(),
-                        'Date' => $order->getCreatedAt(),
-                        'CustomerEmail' => $order->getCustomerEmail(),
-                        'CustomerID' => $order->getCustomerEmail(),
-                        'Culture' => $localeCode,
-                        'Platform' => $this->ordersHelper->getPlatform(),
-                        'Products' => []
-                    ];
-
-                    foreach ($items as $item){
-
-                        /**
-                         * Get Product Thumbnail
-                         */
-                        $productThumbnailUrl = $this->ordersHelper->getProductThumbnailUrl($item);
-
-                        $product = $item->getProduct();
-
-
-                        if ($product) {
-
-                            /**
-                             * Get Product Id
-                             */
-                            $productId = $product->getId();
-
-                            /*
-                             * Get Product Url
-                             */
-                            $productUrl = '';
-                            if ($item->getProductType() === 'grouped'){
-                                $options = $item->getProductOptions();
-                                if(!empty($options['info_buyRequest'])) {
-                                    if(!empty($options['super_product_config']["product_id"])) {
-                                        $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$options['super_product_config']["product_id"].'/?___store='.$storeId;
-                                    }
-                                }
-                            }
-                            else{
-                                $productUrl = $this->storeManager->getStore($storeId)->getBaseUrl() . 'catalog/product/view/id/'.$productId.'/?___store='.$storeId;
-                            }
-
-                            $ean = $this->ordersHelper->getProductEan($storeId, $item);
-                            $data[$i]['Products'][] = [
-                                'SKU' => $productId,
-                                'URL' => $productUrl,
-                                'ThumbnailURL' => $productThumbnailUrl,
-                                'Name' => $item->getName(),
-                                'EAN' => $ean
-                            ];
-                        }
-
-                    }
-
-                    /**
-                     * Set Order As Sent
-                     */
-                    $this->ordersHelper->setFeedatyCustomerNotified($order->getEntityId());
-
-                    $i++;
-                }
-
-                $response = (array) $this->webService->sendOrder($data, $storeId);
-
-                if(!empty($response)){
-                    if(isset($response['Data'])){
-                        foreach ($response['Data'] as $dataResponse){
-                            //if order Success or Duplicated set Feedaty Customer Notification true
-                            if($dataResponse['Status'] == '1' || $dataResponse['Status'] == '201'){
-                                $this->_logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') );
-                            }
-                            else {
-                                $this->_logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') );
-                            }
-                        }
-                    }
-                    else {
-                        $this->_logger->critical("Feedaty | No Data Response" . print_r($response,true));
-                    }
-                }
-                else {
-                    $this->_logger->critical("Feedaty | Empty Response" );
-                }
+                $this->ordersHelper->sendFeedatyOrders($orders, $storeId, false);
+            }
+            else{
+                /**
+                 * No orders to import
+                 */
+                $this->_logger->info("Feedaty | SKIP Cronjob | No orders to import  | date: " . date('Y-m-d H:i:s') );
             }
         }
 
-        //SKIP Log
-        $this->_logger->info("Feedaty | SKIP Cronjob | No orders to import  | date: " . date('Y-m-d H:i:s') );
 
     }
 
