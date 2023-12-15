@@ -221,7 +221,7 @@ class WebService
      */
     public function getProductReviewsPagination($row, $count, $storeId){
         $allReviews =  $this->getAllReviews('?retrieve=onlyproductreviews&row='.$row.'&count='.$count, $storeId);
-        return $allReviews['Reviews'];
+        return !isset($allReviews['Reviews']) ? [] : $allReviews['Reviews'];
     }
 
 
@@ -232,7 +232,7 @@ class WebService
      */
     public function getRemovedReviews($row, $count, $storeId){
         $allReviews =  $this->getAllRemovedReviews('?row='.$row.'&count='.$count, $storeId);
-        return $allReviews['Reviews'];
+        return !isset($allReviews['Reviews']) ? [] : $allReviews['Reviews'];
     }
 
     /**
@@ -242,8 +242,7 @@ class WebService
      */
     public function getMediatedReviews($row, $count, $storeId){
         $allReviews =  $this->getAllMediatedReviews('?row='.$row.'&count='.$count, $storeId);
-        return $allReviews['Reviews'];
-
+        return !isset($allReviews['Reviews']) ? [] : $allReviews['Reviews'];
     }
 
     /**

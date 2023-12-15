@@ -2,7 +2,10 @@
 
 #### RELASE NOTES
 
+### V2.10.7
 
+* Fixed Bugs
+    * Warning: Trying to access array offset on value of type null in WebService.php
 
 ### V2.10.6
 
