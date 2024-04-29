@@ -5,7 +5,6 @@
 
 <?php
 
-$zoorate_env = "widget.zoorate.com";
 /*
  * Merchant Code
  */
@@ -27,32 +26,32 @@ $rvlang = "all";
 
 $guilang = "all";
 
-$data = $dataObject[$badge_style]['variants'];
+$data = $dataObject[$badge_style]['variants'] ?? [];
+if (count($data) > 0) {
+    $product = $block->getCurrentProduct();
 
-$product = $block->getCurrentProduct();
+    if (!empty($product)) {
 
-if (!empty($product)) {
+        $productId = $product->getId();
 
-    $productId = $product->getId();
+        if (count($data) > 0) {
+            $ver = $block->getExtensionVersion();
 
-    if (count($data) > 0) {
-        $ver = $block->getExtensionVersion();
+            if (array_key_exists($variant, $data)) {
+                $widget = $data[$variant];
+                $name = $widget["name"];
 
-        if (array_key_exists($variant, $data)) {
-            $widget = $data[$variant];
-            $name = $widget["name"];
+                $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
+                $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
+                $widget['html'] = str_replace("INSERT_SKU", $productId, $widget['html']);
 
-            $widget['html'] = str_replace("GUI_LANG", $guilang, $widget['html']);
-            $widget['html'] = str_replace("REV_LANG", $rvlang, $widget['html']);
-            $widget['html'] = str_replace("INSERT_SKU", $productId, $widget['html']);
+                $element = htmlspecialchars_decode($widget["html"]);
 
-            $element = htmlspecialchars_decode($widget["html"]);
+                echo $element;
 
-            echo $element;
-
+            }
         }
     }
+
 }
-
-
 ?>

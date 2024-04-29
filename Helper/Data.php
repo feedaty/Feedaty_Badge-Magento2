@@ -58,7 +58,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getExtensionVersion() {
         $moduleCode = 'Feedaty_Badge';
         $moduleInfo = $this->moduleList->getOne($moduleCode);
-        return $moduleInfo['setup_version'];
+        return $moduleInfo['setup_version'] ?? '';
     }
 
 

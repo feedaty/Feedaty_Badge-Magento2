@@ -380,7 +380,7 @@ class WebService
             $this->cache->save($content, $string, array("feedaty_cache"), 24*60*60); // 24 hours of cache
 
         }
-        $data = $this->jsonDecode($content);
+        $data = $this->jsonDecode($content ? $content : '[]');
 
         return $data;
 
