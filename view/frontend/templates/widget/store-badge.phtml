@@ -4,7 +4,6 @@
 
 <?php
 
-$zoorate_env = "widget.zoorate.com";
 /*
  * Merchant Code
  */
@@ -14,6 +13,8 @@ $dataObject = $block->getFeedatyData($merchant);
 
 
 $badge_style = $block->getData('style');
+
+
 if ($badge_style == 'merchant') {
     $variant = $block->getData('variant_merchant');
 } else {
@@ -23,7 +24,7 @@ if ($badge_style == 'merchant') {
 $rvlang = "all";
 $guilang = "all";
 
-$data = $dataObject[$badge_style]['variants'];
+$data = $dataObject[$badge_style]['variants'] ?? [];
 
 if (count($data) > 0) {
     $ver = $block->getExtensionVersion();
