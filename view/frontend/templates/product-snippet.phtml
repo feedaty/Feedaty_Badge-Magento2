@@ -1,5 +1,4 @@
 <?php
-
 /* @var $block \Feedaty\Badge\Block\ProductSnippet */
 $store_scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
 
@@ -77,7 +76,8 @@ if ($product !== null) {
     /**
      * Product Desc
      */
-    $productDescription = strip_tags($block->getProductDescription());
+
+    $productDescription = $block->getProductDescription() !== null ? strip_tags($block->getProductDescription()) : '';
 
     /**
      * Merchant Code
