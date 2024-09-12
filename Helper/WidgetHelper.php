@@ -72,7 +72,7 @@ class WidgetHelper extends \Magento\Framework\App\Helper\AbstractHelper
 
         }
 
-        if (strlen($merchant_code) == 0) {
+        if (empty($merchant_code)) {
 
             return array();
 
