@@ -87,7 +87,7 @@ class Reviews extends AbstractHelper
         try {
             $review = $this->_reviewFactory->create()->load($reviewData['review_id']);
         } catch (\Exception $e) {
-            $this->_logger->info("Feedaty | Error can not disable Review :  " . $e->getMessage());
+            $this->_logger->critical("Feedaty | Error can not disable Review :  " . $e->getMessage());
         }
 
         if (!is_null($review)) {
@@ -105,7 +105,7 @@ class Reviews extends AbstractHelper
         try {
             $review = $this->_reviewFactory->create()->load($reviewData['review_id']);
         } catch (\Exception $e) {
-            $this->_logger->info("Feedaty | Error cannot mediate Review :  " . $e->getMessage());
+            $this->_logger->critical("Feedaty | Error cannot mediate Review :  " . $e->getMessage());
         }
 
         if (!is_null($review)) {

@@ -79,23 +79,18 @@ class ConfigRules extends AbstractHelper
      * @return array
      */
     public function getCreateReviewEnabled($storeId = null) {
-        $feedaty_code = $this->getPreferencesConfig('create_reviews_enabled', $storeId);
-
-        return $feedaty_code;
+        return $this->getPreferencesConfig('create_reviews_enabled', $storeId);
     }
 
 
     public function getDebugModeEnabled($storeId = null) {
-        $debugMode = $this->getPreferencesConfig('debug_mode_enabled', $storeId);
-
-        return $debugMode;
+        return $this->getPreferencesConfig('debug_mode_enabled', $storeId);
     }
 
 
     public function getReviewForceDefaultStore($storeId = null)
     {
-        $force_store = $this->getPreferencesConfig('create_reviews_force_default_store', $storeId);
-        return $force_store;
+        return $this->getPreferencesConfig('create_reviews_force_default_store', $storeId);
     }
 
     public function getReviewDefaultStore($storeId = null)
