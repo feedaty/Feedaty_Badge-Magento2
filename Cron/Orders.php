@@ -80,9 +80,6 @@ class Orders
     public function execute()
     {
 
-        //Feedaty | START Cronjob | Set Feedaty Orders
-        $this->_logger->info("Feedaty | START Cronjob | Set Feedaty Orders  | date: " . date('Y-m-d H:i:s') );
-
         /**
          * Get All Stores Ids
          */
@@ -111,24 +108,12 @@ class Orders
             if(count($ordersHistory) > 0){
                 $this->ordersHelper->sendFeedatyOrders($ordersHistory, $storeId, true);
             }
-            else{
-                /**
-                 * No orders history to import
-                 */
-                $this->_logger->info("Feedaty | SKIP Cronjob | No orders history to import  | date: " . date('Y-m-d H:i:s') );
-            }
 
             /**
              * Send Orders to Feedaty
              */
             if(count($orders) > 0){
                 $this->ordersHelper->sendFeedatyOrders($orders, $storeId, false);
-            }
-            else{
-                /**
-                 * No orders to import
-                 */
-                $this->_logger->info("Feedaty | SKIP Cronjob | No orders to import  | date: " . date('Y-m-d H:i:s') );
             }
         }
 

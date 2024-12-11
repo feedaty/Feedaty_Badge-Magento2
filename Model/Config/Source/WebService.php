@@ -142,7 +142,7 @@ class WebService
 
         $token = $this->getReqToken();
         $accessToken = $this->getAccessToken($token, $storeId);
-        $this->_logger->info('Feedaty | START Cronjob SendOrder');
+
         try {
             $curl = $this->curlFactory->create();
             $curl->addHeader('Content-Type', 'application/json');

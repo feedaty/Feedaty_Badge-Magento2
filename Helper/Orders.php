@@ -305,11 +305,19 @@ class Orders extends AbstractHelper
 
         }
 
+
+        $debugMode = $this->helperConfigRules->getDebugModeEnabled($storeId);
+
+        if ($debugMode === "1") {
+            $this->_logger->info("Feedaty | Orders Data: " . print_r($data,true) . ' SendHistoryOrder ' . $sendHistory);
+        }
+
         if ($sendHistory === true) {
             /**
              * Send Order to Feedaty History API
              */
             $response = (array) $this->webService->sendOrder($data, $storeId, true);
+
         }
         else {
             /**
@@ -324,7 +332,9 @@ class Orders extends AbstractHelper
                 foreach ($response['Data'] as $dataResponse){
                     //if order Success or Duplicated set Feedaty Customer Notification true
                     if($dataResponse['Status'] == '1' || $dataResponse['Status'] == '201'){
-                        $this->_logger->info("Feedaty | Order sent successfull: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') . ' SendHistoryOrder ' . $sendHistory );
+                        if ($debugMode === "1") {
+                            $this->_logger->info("Feedaty | Order sent successful: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') . ' SendHistoryOrder ' . $sendHistory);
+                        }
                     }
                     else {
                         $this->_logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') . ' SendHistoryOrder ' . $sendHistory);

@@ -202,8 +202,6 @@ class Reviews
                                 }
                             }
                         }
-                        // General Cron Report on system.log
-                        $this->_logger->info("Feedaty | END Cronjob | Get Feedaty Reviews  | date execution: " . date('Y-m-d H:i:s') );
                     }
 
                     /**
@@ -224,8 +222,6 @@ class Reviews
 
 
                     if (!empty($feedatyProductReviewsMediated)) {
-
-                        $this->_logger->info("Feedaty | START Mediated Reviews");
 
                         //Foreach Review
                         foreach ($feedatyProductReviewsMediated as $mediatedReview) {
@@ -285,16 +281,8 @@ class Reviews
                             }
 
                         }
-                        // General Cron Report on system.log
                     }
-
                 }
-                else{
-                    $this->_logger->info("Feedaty | No Reviews to import | date: ". date('Y-m-d H:i:s') );
-                }
-            }
-            else{
-                $this->_logger->info("Feedaty | Import Reviews Cronjob is not enabled. Configure it from admin panel | date: ". date('Y-m-d H:i:s') );
             }
         }
 
