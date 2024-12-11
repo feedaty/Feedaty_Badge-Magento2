@@ -224,7 +224,7 @@ class Orders extends AbstractHelper
              * Set Order Data
              */
             $data[$i] = [
-                'ID' => $order->getIncrementId(),
+                'ID' => $order->getEntityId(),
                 'Date' => $order->getCreatedAt(),
                 'CustomerEmail' => $order->getCustomerEmail(),
                 'CustomerID' => $order->getCustomerEmail(),
@@ -333,11 +333,11 @@ class Orders extends AbstractHelper
                     //if order Success or Duplicated set Feedaty Customer Notification true
                     if($dataResponse['Status'] == '1' || $dataResponse['Status'] == '201'){
                         if ($debugMode === "1") {
-                            $this->_logger->info("Feedaty | Order sent successful: order ID " . $order->getIncrementId() . ' - date: ' . date('Y-m-d H:i:s') . ' SendHistoryOrder ' . $sendHistory);
+                            $this->_logger->info("Feedaty | Order sent successful: order ID " . $order->getEntityId() . ' - date: ' . date('Y-m-d H:i:s') . ' SendHistoryOrder ' . $sendHistory);
                         }
                     }
                     else {
-                        $this->_logger->critical("Feedaty | Order not sent: order ID  " . $order->getIncrementId() . ' - date: '  . date('Y-m-d H:i:s') . ' SendHistoryOrder ' . $sendHistory);
+                        $this->_logger->critical("Feedaty | Order not sent: order ID  " . $order->getEntityId() . ' - date: '  . date('Y-m-d H:i:s') . ' SendHistoryOrder ' . $sendHistory);
                     }
                 }
             }
